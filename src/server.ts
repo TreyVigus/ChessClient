@@ -7,15 +7,16 @@ const app = express();
 const port = 3000;
 
 //https://expressjs.com/en/starter/static-files.html
-//TODO: changes to non-html files won't be detected since we serve from build folder.
-// app.use(express.static('build/app'));
+app.use(express.static('build/app'));
 
-
-app.get('/', (req, res) => {res.send('xx?')});
+//uncomment to send basic text
+// app.get('/', (req, res) => {res.send('xyx?')});
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
 })
 
-//TODO: detecting changes is too slow, probably because ts must compile all .js files
-//      may be faster to compile specific files, see https://github.com/remy/nodemon/issues/1239
+
+//TODO: may need to add custom script to nodemon --exec in package.json to improve some things:
+// 1.) non-.ts files need to be moved to the build directory since tsc is handling that.
+// 2.) tsc should only run tsc on changed .ts files (and never run tsc if a non .ts file is changed)
