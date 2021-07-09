@@ -1,12 +1,12 @@
-ts-node is used to run .ts files directly.
+To run the project, use npm run start
 
-nodemon is used to watch for changes to any .ts or .js files in the /src directory.
-
-jest is used for testing
-jest-typescript allows you to use jest and typescript together.
-
-To run the project, use 'npm run start: dev'
-To run the tests, use 'npm run test'
+What does this do?
+- It starts nodemon, which will watch for changes to .ts and .js files.
+- If a .ts or .js file changes, nodemon will 
+    1.) run 'tsc', which makes typescript compile .ts files in the src directory and output to the build directory.
+    2.) run server.js from the build directory (compiled from server.ts).
+- Then, 
+- TODO: after typescript compiles, need to start the server which is located in the build directory.
 
 
 Sources:
