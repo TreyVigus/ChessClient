@@ -11,7 +11,7 @@ const port = 3000;
 // app.use(express.static('build/app'));
 
 
-// app.get('/', (req, res) => {res.send('cya')});
+app.get('/', (req, res) => {res.send('xx?')});
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)

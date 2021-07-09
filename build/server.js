@@ -11,7 +11,7 @@ var port = 3000;
 //https://expressjs.com/en/starter/static-files.html
 //TODO: changes to non-html files won't be detected since we serve from build folder.
 // app.use(express.static('build/app'));
-// app.get('/', (req, res) => {res.send('cya')});
+app.get('/', function (req, res) { res.send('xx?'); });
 app.listen(port, function () {
     console.log("Example app listening at http://localhost:" + port);
 });
