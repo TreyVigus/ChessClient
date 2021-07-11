@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon --exec \"tsc && node build/server.js\""
+    "start": "nodemon --exec \"tsc && node build/scripts/moveFiles.js && node build/server.js\""
   },
   "author": "",
   "license": "ISC",
