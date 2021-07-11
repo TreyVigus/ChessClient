@@ -9,6 +9,13 @@ What does this do?
 - TODO: after typescript compiles, need to start the server which is located in the build directory.
 
 
+#### Gotchas
+- Due to an inssue with typescript https://github.com/microsoft/TypeScript/issues/16577,
+    imports won't be changed to include the file extension (ES6 requires folder/file.txt vs
+    TS which requires folder/file). Unfortunately, .js extensions must be manually added in the .ts
+    files.
+
+
 Sources:
 https://www.npmjs.com/package/ts-node
 

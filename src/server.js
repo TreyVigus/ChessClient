@@ -10,7 +10,7 @@ app.use(express.static('build/app'));
 // app.get('/', (req, res) => {res.send('xyx?')});
 
 app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`)
+  console.log(`Listening at http://localhost:${port}`)
 })
 
 
