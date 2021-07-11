@@ -1,8 +1,5 @@
 //https://expressjs.com/en/starter/basic-routing.html
-//https://developer.okta.com/blog/2018/11/15/node-express-typescript
-
-import express from 'express';
-
+const express = require('express');
 const app = express();
 const port = 3000;
 
