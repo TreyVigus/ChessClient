@@ -7,7 +7,6 @@ export type Piece = {
 	color: Color
 };
 
-
 export type Square = {
 	position: Position,
 	piece?: Piece
