@@ -12,7 +12,7 @@ export type BoardView = {
 	/**
 	 * Object that emits move events
 	 */
-	emitter: Emitter<MoveEvent>, 
+	moveEmitter: Emitter<MoveEvent>, 
 	/**
  	* Draw the given image at the given position.
  	* - Could make a type containing all possible piece images instead of imgPath.
