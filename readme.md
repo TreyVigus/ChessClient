@@ -16,6 +16,12 @@ What does this do?
     files.
 
 
+
+#### Custom Test Framework
+//why? because it's fun.
+Files will take the form fileName.test.ts
+Test runner will look in the build/src directory and execute "node fileName.test.js" to run the file.
+
 Sources:
 https://www.npmjs.com/package/ts-node
 

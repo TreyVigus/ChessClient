@@ -1,9 +1,9 @@
 //Handles chess logic (may be broken into sub components however)
 //Needs to handle turn-based logic as well (create another file with logic/interface for this)
 
-import { initView } from "../view/boardView";
+// import { initView } from "../view/boardView";
 
-const view = initView();
+// const view = initView();
 
 //The view won't draw the pieces. Handle that here using its exported methods.
 
