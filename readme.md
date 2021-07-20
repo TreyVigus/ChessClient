@@ -1,12 +1,11 @@
 To run the project, use npm run start
 
 What does this do?
-- It starts nodemon, which will watch for changes to .ts and .js files.
-- If a .ts or .js file changes, nodemon will 
-    1.) run 'tsc', which makes typescript compile .ts files in the src directory and output to the build directory.
-    2.) run server.js from the build directory (compiled from server.ts).
-- Then, 
-- TODO: after typescript compiles, need to start the server which is located in the build directory.
+- It starts nodemon, which will watch for changes to files (see "ext" in nodemon.json for which files).
+- When nodemon detects a file, nodemon will 
+    - run 'tsc', which makes typescript compile .ts files in the src directory and output to the build directory.
+    - run moveFiles.js, which moves files tsc didn't handle to the build directory.
+    - Serve the app by running server.js from the build directory (compiled from server.ts).
 
 
 #### Gotchas
