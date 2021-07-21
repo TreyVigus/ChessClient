@@ -24,7 +24,14 @@ export function createTestGroup(name: string, beforeEach?: () => void): TestGrou
             if(beforeEach) {
                 beforeEach();
             };
-            const passed = test.testLogic();
+
+            let passed = true;
+            try {
+                passed = test.testLogic();
+            } catch {
+                passed = false;
+            }
+            
             if(!passed) {
                 console.error(`TEST FAILED: ${test.testName}`);
             }

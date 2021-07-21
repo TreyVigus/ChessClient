@@ -67,7 +67,7 @@ tg.add('publishing and unsubscribing', () => {
     const incCount = () => {
         callCount++;
     };
-    
+
     emitter.subscribe(incCount);
     emitter.publish('a');
     emitter.publish('b');
