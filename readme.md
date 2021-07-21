@@ -10,8 +10,9 @@ To run tests, use npm run test
 - What does this do?
     - It starts nodemon, just like in npm run start.
     - When nodemon detects a file, nodemon will 
-        - run 'tsc'
-        - TODO: Have node execute runTests.js
+        - run 'tsc', which will do just as described in npm run start, including compiling all spec.ts files to spec.js files.
+        - execute runTests.js, which executes all files of the form .spec.js from the build/app directory.
+            - These .spec
 
 #### Gotchas
 - Due to an inssue with typescript https://github.com/microsoft/TypeScript/issues/16577,
