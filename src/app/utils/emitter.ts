@@ -22,9 +22,7 @@ export function createEmitter<EventType>(): Emitter<EventType> {
 		},
 		unsubscribe(subscription: Subscription<EventType>) {
 			const index = this.subscribers.indexOf(subscription);
-			if(index > -1) {
-				this.subscribers.splice(index, 1);
-			}
+			this.subscribers.splice(index, 1);
 		},
 		publish(event: EventType) {
 			this.subscribers.forEach(sub => {

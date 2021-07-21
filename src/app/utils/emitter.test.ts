@@ -45,6 +45,12 @@ tg.add('unsubscribing', () => {
     return hasSubs(0);
 });
 
+tg.add('cannot unsubscribe if not already subscribed', ()=> {
+    const f = ()=> {};
+    emitter.unsubscribe(f);
+    return hasSubs(0);
+})
+
 tg.add('publishing', () => {
     let func1Message = '';
     const func1 = (event: string) => {
