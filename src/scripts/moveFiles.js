@@ -2,12 +2,12 @@
 //NOTE: This will NOT move directories, and thus expects the directory structure of the build/app folder to be the same as src/app,
 //			except possibly missing some files.
 
-import * as readdirp from 'readdirp'; //allows for recursive traversal of directories. https://github.com/paulmillr/readdirp
-import * as fs from 'fs';
+import readdirp from 'readdirp'; //allows for recursive traversal of directories. https://github.com/paulmillr/readdirp
+import fs from 'fs';
 
 async function main() {
 	//retrieve all non .ts files from the src/app directory.
-	const files = await readdirp.default.promise('src/app', {
+	const files = await readdirp.promise('src/app', {
 		fileFilter: (entry) => {
 			return extension(entry.path) !== 'ts'
 		}

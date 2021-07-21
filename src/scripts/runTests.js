@@ -1,9 +1,9 @@
-import * as readdirp from 'readdirp';
-import * as childProcess from 'child_process'; //https://nodejs.org/api/child_process.html
+import readdirp from 'readdirp';
+import childProcess from 'child_process'; //https://nodejs.org/api/child_process.html
 
 async function main() {
     //retrieve all .test.js files from the build/app directory.
-    const files = await readdirp.default.promise('build/app', {
+    const files = await readdirp.promise('build/app', {
 		fileFilter: (entry) => {
             const parts = entry.path.split('.');
             if(parts.length < 3) {
