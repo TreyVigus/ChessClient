@@ -1,5 +1,6 @@
 //https://expressjs.com/en/starter/basic-routing.html
-const express = require('express');
+import express from "express"
+
 const app = express();
 const port = 3000;
 
