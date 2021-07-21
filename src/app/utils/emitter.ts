@@ -9,7 +9,7 @@ export type Emitter<EventType> = {
 	publish(event: EventType): void,
 }
 
-type Subscription<EventType> = (event: EventType) => any;
+export type Subscription<EventType> = (event: EventType) => any;
 
 export function createEmitter<EventType>(): Emitter<EventType> {
 	return {

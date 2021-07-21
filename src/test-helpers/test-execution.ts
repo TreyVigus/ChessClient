@@ -1,11 +1,13 @@
 export type TestGroup = {
+    /** Name of the test group, will be used to print to console. */
+    name: string,
     /** Add a new test to the group. */
     add: (testName: string, testLogic: () => boolean) => void,
     /** Execute all tests in the group. */
     execute: () => void
 }
 
-export function createTestGroup(beforeEach?: () => void): TestGroup {
+export function createTestGroup(name: string, beforeEach?: () => void): TestGroup {
     const tests: Test[] = [];
 
     const add = (testName: string, testLogic: () => boolean) => {
@@ -16,18 +18,22 @@ export function createTestGroup(beforeEach?: () => void): TestGroup {
     };
 
     const execute = () => {
+        console.log(`-------------START TEST GROUP: ${name}-------------`);
+
         tests.forEach(test => {
             if(beforeEach) {
                 beforeEach();
             };
             const passed = test.testLogic();
             if(!passed) {
-                console.error(`${test.testName} failed.`);
+                console.error(`TEST FAILED: ${test.testName}`);
             }
         });
+
+        console.log(`-------------End TEST GROUP: ${name}------------------`);
     };
 
-    return { add, execute };
+    return { name, add, execute };
 }
 
 type Test = {

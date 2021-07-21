@@ -20,6 +20,8 @@ To run tests, use npm run test
     TS which requires folder/file). Unfortunately, .js extensions must be manually added in the .ts
     files.
 
+TODO: may need to empty build directory before tsc is executed.
+
 
 #### Custom Test Framework
 //why? because it's fun.
