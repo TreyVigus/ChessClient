@@ -1,7 +1,10 @@
 //Functions in this file should have no concept of the rules of chess and simply handle 'drag and drop'/ board drawing.
 
-import { Position } from "../game/models.js";
+import { Color, Position } from "../game/models.js";
 import { Emitter } from "../utils/emitter.js";
+import { oppositeColor } from "../utils/helpers.js";
+
+export const BoardSize = 8;
 
 export type MoveEvent = {
 	startPos: Position,
@@ -32,6 +35,28 @@ export type BoardView = {
  * Set up drag and drop listeners
  * - Listeners should emit MoveEvent.
  */
-export function initView(): BoardView {
-	throw 'unfinished';
+export function initView(): void { //TODO: change to return BoardView
+	drawBoard();
+}
+
+function drawBoard(): void {
+	const board: HTMLDivElement = document.querySelector('.board')!;
+	for(let i = 0; i < BoardSize; i++) {
+		let color: Color = (i % 2) === 0 ? 'black': 'white';
+		for(let j = 0; j < BoardSize; j++) {
+			color = oppositeColor(color);
+			board.appendChild(getTile(color));
+		}
+	}
+}
+
+function getTile(color: Color): HTMLDivElement {
+	const tile = document.createElement('div');
+	tile.classList.add('tile');
+	if(color === 'black') {
+		tile.classList.add('dark');
+	} else {
+		tile.classList.add('light');
+	}
+	return tile;
 }
