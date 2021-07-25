@@ -2,7 +2,7 @@
 
 import { Color, Position } from "../game/models.js";
 import { Emitter } from "../utils/emitter.js";
-import { oppositeColor } from "../utils/helpers.js";
+import { oppositeColor, posColor } from "../utils/helpers.js";
 
 export const BoardSize = 8;
 
@@ -26,7 +26,8 @@ export type BoardView = {
 	/**
 	 * Print the indices on each square. Useful for debugging.
 	 */
-	showSquarePositions(): void
+	showSquarePositions(): void,
+	hideSquarePositions(): void
 }
 
 /**
@@ -36,18 +37,37 @@ export type BoardView = {
  * - Listeners should emit MoveEvent.
  */
 export function initView(): void { //TODO: change to return BoardView
-	drawBoard();
+	const board: HTMLDivElement[][] = getBoard();
+	console.log('board: ', board);
+
+	// const drawImage = (imgPath: string, pos: Position): void => {
+		
+	// }
 }
 
-function drawBoard(): void {
-	const board: HTMLDivElement = document.querySelector('.board')!;
+/** Create the board in the DOM and return 2d array of each square. **/
+function getBoard(): HTMLDivElement[][] {
+	const boardContainer: HTMLDivElement = document.querySelector('.board')!;
+	const tiles: HTMLDivElement[][] = [];
+	
 	for(let i = 0; i < BoardSize; i++) {
-		let color: Color = (i % 2) === 0 ? 'black': 'white';
+		let row: HTMLDivElement[] = [];
 		for(let j = 0; j < BoardSize; j++) {
-			color = oppositeColor(color);
-			board.appendChild(getTile(color));
+			const color = posColor([i, j]);
+			const tile = getTile(color);
+			boardContainer.appendChild(tile);
+			row.push(tile);
+
+			//TODO: test when build script is fixed 
+			// const img = document.createElement('img');
+			// img.setAttribute('src', '../img/bishop.svg');
+			// img.setAttribute('height', '60');
+			// img.setAttribute('width', '60');
 		}
+		tiles.push(row);
 	}
+
+	return tiles;
 }
 
 function getTile(color: Color): HTMLDivElement {
