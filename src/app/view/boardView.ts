@@ -1,5 +1,3 @@
-//Functions in this file should have no concept of the rules of chess and simply handle 'drag and drop'/ board drawing.
-
 import { Color, Piece, Position } from "../game/models.js";
 import { Emitter } from "../utils/emitter.js";
 import { posColor } from "../utils/helpers.js";
@@ -58,7 +56,14 @@ export function initView(): void { //TODO: change to return BoardView
 		}
 	}
 
-	showSquarePositions();
+	const removeSquarePositions = () => {
+		for(let i = 0; i < BOARD_SIZE; i++) {
+			for(let j = 0; j < BOARD_SIZE; j++) {
+				const tile = board[i][j];
+				tile.textContent = null;
+			}
+		}
+	}
 }
 
 /** Create the board in the DOM and return 2d array of each square. **/
