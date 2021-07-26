@@ -26,11 +26,7 @@ function extension(fileName) {
 //	copy them to the equivalent location in the build/app directory.
 function copyFiles(srcPaths) {
 	srcPaths.forEach(path => {
-		fs.copyFile(`src/app/${path}`, `build/app/${path}`, (err)=> {
-			if (err) {
-				throw err;
-			}
-		});
+		fs.copyFileSync(`src/app/${path}`, `build/app/${path}`);
 	});
 }
 
