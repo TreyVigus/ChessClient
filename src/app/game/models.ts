@@ -1,6 +1,6 @@
 export type Position = [number, number];
 
-export type Color = 'white' | 'black';
+export type Color = 'black' | 'white';
 
 export type Piece = {
 	name: 'king' | 'queen' | 'bishop' | 'knight' | 'pawn' | 'rook',
