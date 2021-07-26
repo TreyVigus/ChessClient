@@ -16,8 +16,8 @@ export type BoardView = {
 	moveEmitter: Emitter<MoveEvent>, 
 	/** Draw the given piece at the given position. */
 	drawPiece(piece: Piece, pos: Position): void,
-	/** Remove the image from the given position if one exists. */
-	removeImage(pos: Position): void,
+	/** Remove the piece from the given position if one exists. */
+	removePiece(pos: Position): void,
 	/** Print the indices on each square. Useful for debugging. */
 	showSquarePositions(): void,
 	/** Hide the indices created from showSquarePositions() */
@@ -41,7 +41,24 @@ export function initView(): void { //TODO: change to return BoardView
 		board[pos[0]][pos[1]].appendChild(img);
 	}
 
-	drawPiece({name:'rook', color: 'black'}, [3,4]);
+	const removePiece = (pos: Position): void => {
+		const tile = board[pos[0]][pos[1]];
+		const img = tile.querySelector('img');
+		if(img) {
+			tile.removeChild(img);
+		}
+	}
+
+	const showSquarePositions = () => {
+		for(let i = 0; i < BOARD_SIZE; i++) {
+			for(let j = 0; j < BOARD_SIZE; j++) {
+				const tile = board[i][j];
+				tile.textContent = `(${i}, ${j})`;
+			}
+		}
+	}
+
+	showSquarePositions();
 }
 
 /** Create the board in the DOM and return 2d array of each square. **/
