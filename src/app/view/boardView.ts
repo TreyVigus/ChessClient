@@ -1,5 +1,5 @@
 import { Color, Piece, Position } from "../game/models.js";
-import { Emitter } from "../utils/emitter.js";
+import { createEmitter, Emitter } from "../utils/emitter.js";
 import { posColor } from "../utils/helpers.js";
 
 export const BOARD_SIZE = 8;
@@ -22,13 +22,7 @@ export type BoardView = {
 	hideSquarePositions(): void
 }
 
-/**
- * Render the board without pieces (pieces drawn by consumer via BoardView.drawImage().
- * - Make a div with class="board"
- * Set up drag and drop listeners
- * - Listeners should emit MoveEvent.
- */
-export function initView(): void { //TODO: change to return BoardView
+export function initView(): BoardView {
 	const board: HTMLDivElement[][] = getBoard();
 
 	const drawPiece = (piece: Piece, pos: Position): void => {
@@ -56,7 +50,7 @@ export function initView(): void { //TODO: change to return BoardView
 		}
 	}
 
-	const removeSquarePositions = () => {
+	const hideSquarePositions = () => {
 		for(let i = 0; i < BOARD_SIZE; i++) {
 			for(let j = 0; j < BOARD_SIZE; j++) {
 				const tile = board[i][j];
@@ -64,6 +58,11 @@ export function initView(): void { //TODO: change to return BoardView
 			}
 		}
 	}
+
+	const moveEmitter = createEmitter<MoveEvent>();
+	emitDragDrop(moveEmitter, board);
+
+	return {moveEmitter, drawPiece, removePiece, showSquarePositions, hideSquarePositions};
 }
 
 /** Create the board in the DOM and return 2d array of each square. **/
@@ -93,5 +92,40 @@ function getTile(color: Color): HTMLDivElement {
 	} else {
 		tile.classList.add('light');
 	}
+	tile.setAttribute('draggable', 'true');
 	return tile;
+}
+
+function emitDragDrop(moveEmitter: Emitter<MoveEvent>, board: HTMLDivElement[][]) {
+	for(let i = 0; i < board.length; i++) {
+		for(let j = 0; j < board.length; j++) {
+			const tile = board[i][j];
+
+			tile.addEventListener('dragstart', (e)=> {
+				e.dataTransfer!.setData('text/plain', serializePos([i, j]));
+			});
+
+			//Not sure why the dragover is needed. Without it drop won't fire.
+			tile.addEventListener('dragover', (e)=> {
+				e.preventDefault();
+			});
+
+			tile.addEventListener('drop', (e)=> {
+				e.preventDefault();
+				const stringPos = e.dataTransfer!.getData('text/plain');
+				const startPos = deserializePos(stringPos);
+				const endPos: Position = [i, j];
+				moveEmitter.publish({startPos, endPos});
+			});
+		}
+	}
+}
+
+function serializePos(position: Position): string {
+	return `${position[0]}-${position[1]}`;
+}
+
+function deserializePos(stringPos: string): Position {
+	const parts = stringPos.split('-').map(p => parseInt(p, 10));
+	return [parts[0], parts[1]];
 }
