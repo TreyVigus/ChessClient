@@ -1,6 +1,6 @@
 import { createTestGroup } from "../../test-helpers/test-execution.js";
 import { Color, Position } from "../game/models.js";
-import { oppositeColor, posColor } from "./helpers.js";
+import { oppositeColor, posColor, posEquals, posSequence } from "./helpers.js";
 
 const tg = createTestGroup('Helpers Testing', ()=> {
 });
@@ -23,8 +23,27 @@ tg.add('posColor', () => {
    return failing.length === 0;
 });
 
-function assertColor(pos: Position, expectedColor: Color): boolean {
-    return false;
-}
+tg.add('posEquals', () => {
+    return posEquals([0,0], [0,0]) && posEquals([4,5], [4, 5]) && !posEquals([2,3], [3, 2]);
+});
+
+//probably a worthless test
+tg.add('posSequence', () => {
+    const seq = posSequence();
+
+    if(seq.length !== 64) {
+        return false;
+    }
+
+    if(!posEquals(seq[0],[0,0])) {
+        return false;
+    }
+
+    if(!posEquals(seq[63], [7,7])) {
+        return false;
+    }
+
+    return true;
+});
 
 tg.execute();
