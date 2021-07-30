@@ -12,4 +12,8 @@ import { initView } from "../view/boardView.js";
 
 const view = initView();
 
+view.moveEmitter.subscribe(move => {
+    console.log('move: ', move);
+});
+
 view.showSquarePositions();

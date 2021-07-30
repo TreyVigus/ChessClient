@@ -35,3 +35,54 @@ export function posSequence(): Position[] {
     }
     return seq;
 }
+
+
+/**
+ * @param next A function that generates the next element based on the current position.
+ * @returns An 8x8 array populated with the generated elements.
+ */
+export function constructBoard<T>(next: (pos: Position) => T): T[][] {
+    const board = [];
+    for(let i = 0; i < BOARD_SIZE; i++) {
+        let row = [];
+        for(let j = 0; j < BOARD_SIZE; j++) {
+            row.push(next([i, j]))
+        }
+        board.push(row);
+    }
+    return board;
+}
+
+
+/**
+ * @param board An 8x8 array
+ * 
+ * Converts the given 8x8 array to an Iterable, which can be used in a for...of construct.
+ */
+export function flattenedBoard<T>(board: T[][]): Iterable<{index: Position, value: T}> {
+    const seq = posSequence();
+    let currIndex = 0;
+    const next: () => IteratorResult<{index: Position, value: T}> = function() {
+        if(currIndex === seq.length) {
+            return {done: true, value: null}
+        }
+        const currPos = seq[currIndex];
+        const res =  { 
+            done: false, 
+            value: {
+                index: seq[currIndex],
+                value: board[currPos[0]][currPos[1]]
+            }
+        }
+        currIndex++;
+        return res;
+    }
+
+    return {
+        [Symbol.iterator]: (function() {
+            return { next }
+        })
+    }
+}
+
+//TODO: add generic function to get an 8x8 board of given type, populated with undefined or null.

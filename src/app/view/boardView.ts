@@ -1,6 +1,6 @@
 import { Color, Piece, Position } from "../game/models.js";
 import { createEmitter, Emitter } from "../utils/emitter.js";
-import { posColor } from "../utils/helpers.js";
+import { posColor, posSequence } from "../utils/helpers.js";
 
 export const BOARD_SIZE = 8;
 
@@ -97,28 +97,24 @@ function getTile(color: Color): HTMLDivElement {
 }
 
 function emitDragDrop(moveEmitter: Emitter<MoveEvent>, board: HTMLDivElement[][]) {
-	for(let i = 0; i < board.length; i++) {
-		for(let j = 0; j < board.length; j++) {
-			const tile = board[i][j];
+	posSequence().forEach(pos => {
+		const tile = board[pos[0]][pos[1]];
+		tile.addEventListener('dragstart', (e)=> {
+			e.dataTransfer!.setData('text/plain', serializePos(pos));
+		});
 
-			tile.addEventListener('dragstart', (e)=> {
-				e.dataTransfer!.setData('text/plain', serializePos([i, j]));
-			});
+		//Not sure why the dragover is needed. Without it drop won't fire.
+		tile.addEventListener('dragover', (e)=> {
+			e.preventDefault();
+		});
 
-			//Not sure why the dragover is needed. Without it drop won't fire.
-			tile.addEventListener('dragover', (e)=> {
-				e.preventDefault();
-			});
-
-			tile.addEventListener('drop', (e)=> {
-				e.preventDefault();
-				const stringPos = e.dataTransfer!.getData('text/plain');
-				const startPos = deserializePos(stringPos);
-				const endPos: Position = [i, j];
-				moveEmitter.publish({startPos, endPos});
-			});
-		}
-	}
+		tile.addEventListener('drop', (e)=> {
+			e.preventDefault();
+			const stringPos = e.dataTransfer!.getData('text/plain');
+			const startPos = deserializePos(stringPos);
+			moveEmitter.publish({startPos: startPos, endPos: pos});
+		});
+	});
 }
 
 function serializePos(position: Position): string {

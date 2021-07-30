@@ -1,6 +1,7 @@
-import { createTestGroup } from "../../test-helpers/test-execution.js";
+import { arrayEquals, createTestGroup } from "../../test-helpers/test-execution.js";
 import { Color, Position } from "../game/models.js";
-import { oppositeColor, posColor, posEquals, posSequence } from "./helpers.js";
+import { BOARD_SIZE } from "../view/boardView.js";
+import { constructBoard, flattenedBoard, oppositeColor, posColor, posEquals, posSequence } from "./helpers.js";
 
 const tg = createTestGroup('Helpers Testing', ()=> {
 });
@@ -27,7 +28,6 @@ tg.add('posEquals', () => {
     return posEquals([0,0], [0,0]) && posEquals([4,5], [4, 5]) && !posEquals([2,3], [3, 2]);
 });
 
-//probably a worthless test
 tg.add('posSequence', () => {
     const seq = posSequence();
 
@@ -44,6 +44,46 @@ tg.add('posSequence', () => {
     }
 
     return true;
+});
+
+tg.add('constructBoard', () => {
+    const board = constructBoard((pos: Position) => pos);
+    if(board.length !== BOARD_SIZE) {
+        return false;
+    }
+
+    const seq = posSequence();
+    seq.forEach(pos => {
+        const [i, j] = pos;
+        if(!posEquals(pos, board[i][j])) {
+            throw 'fail';
+        }
+        if(board[i].length !== BOARD_SIZE) {
+            throw 'fail';
+        }
+    });
+
+    return true;
+});
+
+tg.add('flattenedBoard', () => {
+    const board = constructBoard((pos: Position) => false);
+    const flattened: {index: Position, value: boolean}[] = [];
+    for(const tile of flattenedBoard(board)) {
+        flattened.push(tile);
+    }
+
+    const expected: {index: Position, value: boolean}[] = posSequence().map(pos => {
+        return {
+            index: pos,
+            value: false
+        }
+    });
+
+
+    return arrayEquals(flattened, expected, (aEl, bEl) => {
+        return posEquals(aEl.index, bEl.index) && aEl.value === bEl.value;
+    });
 });
 
 tg.execute();
