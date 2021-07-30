@@ -1,6 +1,6 @@
 import { Color, Piece, Position } from "../game/models.js";
 import { createEmitter, Emitter } from "../utils/emitter.js";
-import { flattenedBoard, posColor, posSequence } from "../utils/helpers.js";
+import { constructBoard, flat, posColor, posSequence } from "../utils/helpers.js";
 
 export const BOARD_SIZE = 8;
 
@@ -42,14 +42,14 @@ export function initView(): BoardView {
 	}
 
 	const showSquarePositions = () => {
-		for(const tile of flattenedBoard(board)) {
+		for(const tile of flat(board)) {
 			const [i, j] = tile.index;
 			tile.value.textContent = `(${i}, ${j})`;
 		}
 	}
 
 	const hideSquarePositions = () => {
-		for(const tile of flattenedBoard(board)) {
+		for(const tile of flat(board)) {
 			tile.value.textContent = null;
 		}
 	}
@@ -63,21 +63,11 @@ export function initView(): BoardView {
 /** Create the board in the DOM and return 2d array of each square. **/
 function getBoard(): HTMLDivElement[][] {
 	const boardContainer: HTMLDivElement = document.querySelector('.board')!;
-	const tiles: HTMLDivElement[][] = [];
-	
-	//TODO: use function in helpers.ts
-	for(let i = 0; i < BOARD_SIZE; i++) {
-		let row: HTMLDivElement[] = [];
-		for(let j = 0; j < BOARD_SIZE; j++) {
-			const color = posColor([i, j]);
-			const tile = getTile(color);
-			boardContainer.appendChild(tile);
-			row.push(tile);
-		}
-		tiles.push(row);
+	const board: HTMLDivElement[][] = constructBoard((pos: Position) => getTile(posColor(pos)));
+	for(const t of flat(board)) {
+		boardContainer.appendChild(t.value);
 	}
-
-	return tiles;
+	return board;
 }
 
 function getTile(color: Color): HTMLDivElement {
@@ -93,25 +83,23 @@ function getTile(color: Color): HTMLDivElement {
 }
 
 function emitDragDrop(moveEmitter: Emitter<MoveEvent>, board: HTMLDivElement[][]) {
-	//TODO: use iterator
-	posSequence().forEach(pos => {
-		const tile = board[pos[0]][pos[1]];
-		tile.addEventListener('dragstart', (e)=> {
-			e.dataTransfer!.setData('text/plain', serializePos(pos));
+	for(const t of flat(board)) {
+		t.value.addEventListener('dragstart', (e)=> {
+			e.dataTransfer!.setData('text/plain', serializePos(t.index));
 		});
 
 		//Not sure why the dragover is needed. Without it drop won't fire.
-		tile.addEventListener('dragover', (e)=> {
+		t.value.addEventListener('dragover', (e)=> {
 			e.preventDefault();
 		});
 
-		tile.addEventListener('drop', (e)=> {
+		t.value.addEventListener('drop', (e)=> {
 			e.preventDefault();
 			const stringPos = e.dataTransfer!.getData('text/plain');
 			const startPos = deserializePos(stringPos);
-			moveEmitter.publish({startPos: startPos, endPos: pos});
+			moveEmitter.publish({startPos: startPos, endPos: t.index});
 		});
-	});
+	}
 }
 
 function serializePos(position: Position): string {

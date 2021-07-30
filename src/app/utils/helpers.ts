@@ -57,9 +57,9 @@ export function constructBoard<T>(next: (pos: Position) => T): T[][] {
 /**
  * @param board An 8x8 array
  * 
- * Converts the given 8x8 array to an Iterable, which can be used in a for...of construct.
+ * Converts the given 8x8 array to an Iterable, which can be used in a for...of or spread construct.
  */
-export function flattenedBoard<T>(board: T[][]): Iterable<{index: Position, value: T}> {
+export function flat<T>(board: T[][]): Iterable<{index: Position, value: T}> {
     const seq = posSequence();
     let currIndex = 0;
     const next: () => IteratorResult<{index: Position, value: T}> = function() {

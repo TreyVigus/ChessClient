@@ -1,7 +1,7 @@
 import { arrayEquals, createTestGroup } from "../../test-helpers/test-execution.js";
 import { Color, Position } from "../game/models.js";
 import { BOARD_SIZE } from "../view/boardView.js";
-import { constructBoard, flattenedBoard, oppositeColor, posColor, posEquals, posSequence } from "./helpers.js";
+import { constructBoard, flat, oppositeColor, posColor, posEquals, posSequence } from "./helpers.js";
 
 const tg = createTestGroup('Helpers Testing', ()=> {
 });
@@ -69,7 +69,7 @@ tg.add('constructBoard', () => {
 tg.add('flattenedBoard', () => {
     const board = constructBoard((pos: Position) => false);
     const flattened: {index: Position, value: boolean}[] = [];
-    for(const tile of flattenedBoard(board)) {
+    for(const tile of flat(board)) {
         flattened.push(tile);
     }
 

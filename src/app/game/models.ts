@@ -3,8 +3,8 @@ export type Position = [number, number];
 export type Color = 'black' | 'white';
 
 export type Piece = {
-	name: 'king' | 'queen' | 'bishop' | 'knight' | 'pawn' | 'rook',
-	color: Color
+	color: Color,
+	name: 'king' | 'queen' | 'bishop' | 'knight' | 'pawn' | 'rook'
 };
 
 export type Square = {
@@ -12,13 +12,11 @@ export type Square = {
 	piece?: Piece
 };
 
-export type Move = {
-	piece: Piece,
-	prevSquare: Square,
-	nextSquare: Square
+export type ChessState = {
+	board: Square[][],
 };
 
-export type ChessState = {
-	board: Square[],
-	lastMove?: Move
+export type Move = {
+	prevSquare: Square,
+	nextSquare: Square
 };
