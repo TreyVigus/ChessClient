@@ -1,6 +1,6 @@
 import { Color, Piece, Position } from "../game/models.js";
 import { createEmitter, Emitter } from "../utils/emitter.js";
-import { posColor, posSequence } from "../utils/helpers.js";
+import { flattenedBoard, posColor, posSequence } from "../utils/helpers.js";
 
 export const BOARD_SIZE = 8;
 
@@ -42,20 +42,15 @@ export function initView(): BoardView {
 	}
 
 	const showSquarePositions = () => {
-		for(let i = 0; i < BOARD_SIZE; i++) {
-			for(let j = 0; j < BOARD_SIZE; j++) {
-				const tile = board[i][j];
-				tile.textContent = `(${i}, ${j})`;
-			}
+		for(const tile of flattenedBoard(board)) {
+			const [i, j] = tile.index;
+			tile.value.textContent = `(${i}, ${j})`;
 		}
 	}
 
 	const hideSquarePositions = () => {
-		for(let i = 0; i < BOARD_SIZE; i++) {
-			for(let j = 0; j < BOARD_SIZE; j++) {
-				const tile = board[i][j];
-				tile.textContent = null;
-			}
+		for(const tile of flattenedBoard(board)) {
+			tile.value.textContent = null;
 		}
 	}
 
@@ -70,6 +65,7 @@ function getBoard(): HTMLDivElement[][] {
 	const boardContainer: HTMLDivElement = document.querySelector('.board')!;
 	const tiles: HTMLDivElement[][] = [];
 	
+	//TODO: use function in helpers.ts
 	for(let i = 0; i < BOARD_SIZE; i++) {
 		let row: HTMLDivElement[] = [];
 		for(let j = 0; j < BOARD_SIZE; j++) {
@@ -97,6 +93,7 @@ function getTile(color: Color): HTMLDivElement {
 }
 
 function emitDragDrop(moveEmitter: Emitter<MoveEvent>, board: HTMLDivElement[][]) {
+	//TODO: use iterator
 	posSequence().forEach(pos => {
 		const tile = board[pos[0]][pos[1]];
 		tile.addEventListener('dragstart', (e)=> {
