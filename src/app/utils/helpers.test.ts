@@ -1,7 +1,7 @@
 import { arrayEquals, createTestGroup } from "../../test-helpers/test-execution.js";
 import { Color, Position } from "../game/models.js";
 import { BOARD_SIZE } from "../view/boardView.js";
-import { constructBoard, flat, oppositeColor, posColor, posEquals, posSequence } from "./helpers.js";
+import { constructBoard, flat, itemAt, oppositeColor, posColor, posEquals, posSequence } from "./helpers.js";
 
 const tg = createTestGroup('Helpers Testing', ()=> {
 });
@@ -84,6 +84,22 @@ tg.add('flattenedBoard', () => {
     return arrayEquals(flattened, expected, (aEl, bEl) => {
         return posEquals(aEl.index, bEl.index) && aEl.value === bEl.value;
     });
+});
+
+tg.add('constructBoard', () => {
+    const board = constructBoard((pos: Position) => pos);
+    
+    if(!posEquals([0,0], itemAt(board, [0,0]))) {
+        return false;
+    }
+
+    if(!posEquals([7, 7], itemAt(board, [7, 7]))) {
+        return false;
+    }
+
+    //TODO: add testing for error cases
+
+    return true;
 });
 
 tg.execute();

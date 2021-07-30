@@ -36,7 +36,6 @@ export function posSequence(): Position[] {
     return seq;
 }
 
-
 /**
  * @param next A function that generates the next element based on the current position.
  * @returns An 8x8 array populated with the generated elements.
@@ -52,7 +51,6 @@ export function constructBoard<T>(next: (pos: Position) => T): T[][] {
     }
     return board;
 }
-
 
 /**
  * @param board An 8x8 array
@@ -85,4 +83,10 @@ export function flat<T>(board: T[][]): Iterable<{index: Position, value: T}> {
     }
 }
 
-//TODO: add generic function to get an 8x8 board of given type, populated with undefined or null.
+export function itemAt<T>(board: T[][], pos: Position): T {
+    const [i, j] = pos;
+    if(i < 0 || j < 0 || i >= BOARD_SIZE || j >= BOARD_SIZE) {
+        throw `Position (${i}, ${j}) is invalid`;
+    }
+    return board[i][j];
+}

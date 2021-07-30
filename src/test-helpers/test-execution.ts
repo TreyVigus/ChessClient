@@ -44,6 +44,8 @@ export function createTestGroup(name: string, beforeEach?: () => void): TestGrou
 }
 
 /** Check if two array elements are equal. If equal function is not provided, will just use === */
+//TODO: move to separate file
+//TODO: make a way to expect an exception to occur.
 export function arrayEquals<T>(a: T[], b: T[], equal?: (aEl: T, bEl: T) => boolean): boolean {
     if(a.length !== b.length) {
         return false;
