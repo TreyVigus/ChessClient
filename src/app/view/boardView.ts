@@ -1,6 +1,6 @@
 import { Color, Piece, Position } from "../game/models.js";
 import { createEmitter, Emitter } from "../utils/emitter.js";
-import { constructBoard, flat, posColor, posSequence } from "../utils/helpers.js";
+import { constructBoard, flat, itemAt, posColor, posSequence } from "../utils/helpers.js";
 
 export const BOARD_SIZE = 8;
 
@@ -30,11 +30,11 @@ export function initView(): BoardView {
 		img.setAttribute('src', `view/img/${piece.color}/${piece.name}.svg`);
 		img.setAttribute('height', '60');
 		img.setAttribute('width', '60');
-		board[pos[0]][pos[1]].appendChild(img);
+		itemAt(board, pos).appendChild(img);
 	}
 
 	const removePiece = (pos: Position): void => {
-		const tile = board[pos[0]][pos[1]];
+		const tile = itemAt(board, pos);
 		const img = tile.querySelector('img');
 		if(img) {
 			tile.removeChild(img);

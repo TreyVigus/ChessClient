@@ -15,8 +15,3 @@ export type Square = {
 export type ChessState = {
 	board: Square[][],
 };
-
-export type Move = {
-	prevSquare: Square,
-	nextSquare: Square
-};

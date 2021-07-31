@@ -8,22 +8,20 @@
 //      - if legal, make the move
 //      - if not, ignore the move
 
-import { constructBoard, flat } from "../utils/helpers.js";
+import { constructBoard, flat, itemAt } from "../utils/helpers.js";
 import { BoardView, initView, MoveEvent } from "../view/boardView.js";
-import { ChessState, Move, Position, Square } from "./models.js";
+import { ChessState, Position, Square } from "./models.js";
 import { isLegal, makeMove } from "./movements.js";
 
 const view = initView();
 
-//TODO: initialize this with the starting state.
 let currentState: ChessState = initialState();
-drawState(currentState, view);
 
-view.moveEmitter.subscribe((event: MoveEvent) => {
-    const attemptedMove = getMove(event, currentState);
-    if(attemptedMove && isLegal(attemptedMove, currentState)) {
-        currentState = makeMove(attemptedMove, currentState);
-        renderMove(view, event);
+drawState(currentState, view);
+view.moveEmitter.subscribe((move: MoveEvent) => {
+    if(isLegal(move, currentState)) {
+        renderMove(currentState, view, move);
+        currentState = makeMove(move, currentState);
     }
 });
 
@@ -51,26 +49,13 @@ function drawState(state: ChessState, view: BoardView) {
     }
 }
 
-/** Does the board have a piece at the given position? */
-function hasPiece(state: ChessState, pos: Position): boolean {
-    return !!state.board[pos[0]][pos[1]];
-}
-
 /** 
- * Get a Move from the MoveEvent and the ChessState.
- * Return undefined if the board doesn't have a piece on the start square. 
+ * Change the board view to reflect the given move event.
+ * After renderMoveEvent is called, the view will match the given state. 
  * */
-function getMove(event: MoveEvent, state: ChessState): Move | undefined {
-    if(hasPiece(state, event.startPos)) {
-        return {
-            prevSquare: state.board[event.startPos[0]][event.startPos[1]],
-            nextSquare: state.board[event.startPos[0]][event.endPos[1]]
-        }
-    }
-
-    return undefined;
-}
-
-function renderMove(view: BoardView, event: MoveEvent): void {
-    //change the board view to reflect the new move
+function renderMove(state: ChessState, view: BoardView, event: MoveEvent): void {
+    const piece = itemAt(state.board, event.startPos).piece!;
+    view.removePiece(event.startPos);
+    view.removePiece(event.endPos);
+    view.drawPiece(piece, event.endPos);
 }

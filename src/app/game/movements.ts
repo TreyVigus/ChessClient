@@ -1,15 +1,21 @@
 //Handles attacking squares, etc by piece
+import { clone, itemAt } from "../utils/helpers.js";
+import { MoveEvent } from "../view/boardView.js";
+import { ChessState, Piece, Square } from "./models.js";
 
-import { ChessState, Move, Piece, Square } from "./models";
-
-export function isLegal(attemptedMove: Move, state: ChessState): boolean {
-    return false;
+//TODO: don't forget to check if the prev square has a piece
+export function isLegal(attemptedMove: MoveEvent, state: ChessState): boolean {
+    return true;
 }
 
-export function makeMove(legalMove: Move, oldState: ChessState): ChessState {
-    throw 'not done'
+export function makeMove(legalMove: MoveEvent, oldState: ChessState): ChessState {
+    const copy = clone(oldState);
+    //pieceToMove will be defined since we've assumed a legalMove
+    const pieceToMove = itemAt(copy.board, legalMove.startPos).piece!;
+    itemAt(copy.board, legalMove.startPos).piece = undefined;
+    itemAt(copy.board, legalMove.endPos).piece = pieceToMove;
+    return copy;
 }
-
 
 
 /**
