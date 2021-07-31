@@ -1,5 +1,5 @@
 //Handles attacking squares, etc by piece
-import { clone, itemAt } from "../utils/helpers.js";
+import { clone, flat, itemAt } from "../utils/helpers.js";
 import { MoveEvent } from "../view/boardView.js";
 import { ChessState, Piece, Position, Square } from "./models.js";
 
@@ -65,6 +65,7 @@ function canPieceMove(piece: Piece, lastMove: MoveEvent | undefined, currentStat
     }
 }
 
+//TODO: should account for blockers.
 function canRookMove(currentState: ChessState, attemptedMove: MoveEvent): boolean {
     return false;
 }
@@ -89,13 +90,20 @@ function canKnightMove(currentState: ChessState, attemptedMove: MoveEvent): bool
     return false;
 }
 
-//TODO: should account for blockers.
+/** Return all squares in the same row as piecePos. */
 function sameRow(piecePos: Position, state: ChessState): Square[] {
-    return [];
+    return state.board[piecePos[0]];
 }
 
+/** Return all squares in the same col as piecePos. */
 function sameColumn(piecePos: Position, state: ChessState): Square[] {
-    return [];
+    let col: Square[] = [];
+    for(const item of flat(state.board)) {
+        if(item.index[1] === piecePos[1]) {
+            col.push(item.value);
+        }
+    }
+    return col;
 }
 
 function samePositiveDiagonal(piecePos: Position, state: ChessState): Square[] {
