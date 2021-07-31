@@ -3,8 +3,10 @@ import { clone, itemAt } from "../utils/helpers.js";
 import { MoveEvent } from "../view/boardView.js";
 import { ChessState, Piece, Square } from "./models.js";
 
-//TODO: don't forget to check if the prev square has a piece
-export function isLegal(attemptedMove: MoveEvent, state: ChessState): boolean {
+export function isLegal(move: MoveEvent, state: ChessState): boolean {
+    if(!itemAt(state.board, move.startPos).piece) {
+        return false;
+    }
     return true;
 }
 
