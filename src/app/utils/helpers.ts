@@ -69,7 +69,7 @@ export function flat<T>(board: T[][]): Iterable<{index: Position, value: T}> {
             done: false, 
             value: {
                 index: seq[currIndex],
-                value: board[currPos[0]][currPos[1]]
+                value: itemAt(board, currPos)
             }
         }
         currIndex++;
@@ -77,9 +77,9 @@ export function flat<T>(board: T[][]): Iterable<{index: Position, value: T}> {
     }
 
     return {
-        [Symbol.iterator]: (function() {
+        [Symbol.iterator]: function() {
             return { next }
-        })
+        }
     }
 }
 
@@ -89,4 +89,9 @@ export function itemAt<T>(board: T[][], pos: Position): T {
         throw `Position (${i}, ${j}) is invalid`;
     }
     return board[i][j];
+}
+
+/** Return a deep clone of the given object. */
+export function clone<T extends object>(obj: T): T {
+    return JSON.parse(JSON.stringify(obj));
 }

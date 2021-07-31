@@ -1,7 +1,7 @@
 import { arrayEquals, createTestGroup } from "../../test-helpers/test-execution.js";
 import { Color, Position } from "../game/models.js";
 import { BOARD_SIZE } from "../view/boardView.js";
-import { constructBoard, flat, itemAt, oppositeColor, posColor, posEquals, posSequence } from "./helpers.js";
+import { clone, constructBoard, flat, itemAt, oppositeColor, posColor, posEquals, posSequence } from "./helpers.js";
 
 const tg = createTestGroup('Helpers Testing', ()=> {
 });
@@ -98,6 +98,47 @@ tg.add('constructBoard', () => {
     }
 
     //TODO: add testing for error cases
+
+    return true;
+});
+
+tg.add('clone basic object', () => {
+    const obj = {hi: 5, bye: 'abc'};
+    const objCopy = clone(obj);
+    objCopy.hi = 4;
+    objCopy.bye = 'blah';
+    if(obj.hi !== 5 && obj.bye !== 'abc') {
+        return false;
+    }
+    return true;
+});
+
+tg.add('clone nested object', () => {
+    const obj = {
+        hi: 5, 
+        child: {
+            prop: 26
+        }
+    };
+    const objCopy = clone(obj);
+    objCopy.hi = 4;
+    objCopy.child.prop = 45;
+    if(obj.hi !== 5 && obj.child.prop !== 26) {
+        return false;
+    }
+    return true;
+});
+
+tg.add('clone array', () => {
+    const obj = {
+        child: [1, 2, 3]
+    }
+
+    const copy = clone(obj);
+    copy.child[0] = 4;
+    if(!arrayEquals(obj.child, [1,2,3])) {
+        return false;
+    }
 
     return true;
 });
