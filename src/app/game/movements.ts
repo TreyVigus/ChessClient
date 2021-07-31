@@ -1,7 +1,7 @@
 //Handles attacking squares, etc by piece
 import { clone, itemAt } from "../utils/helpers.js";
 import { MoveEvent } from "../view/boardView.js";
-import { ChessState, Piece, Square } from "./models.js";
+import { ChessState, Piece, Position, Square } from "./models.js";
 
 //Typically, a piece can only move to the squares that it attacks.
 //Special cases: 
@@ -18,21 +18,90 @@ export function isLegal(lastMove: MoveEvent | undefined, currentState: ChessStat
     if(!piece) {
         return false;
     }
+
+    if(selfInCheck(piece, currentState, attemptedMove)) {
+        return false;
+    }
+
+    if(!canPieceMove(piece, lastMove, currentState, attemptedMove)) {
+        return false;
+    }
+
     return true;
 }
 
 export function makeMove(legalMove: MoveEvent, prevState: ChessState): ChessState {
     const copy = clone(prevState);
-    //pieceToMove will be defined since we've assumed a legalMove
-    const pieceToMove = itemAt(copy.board, legalMove.startPos).piece!;
-    itemAt(copy.board, legalMove.startPos).piece = undefined;
-    itemAt(copy.board, legalMove.endPos).piece = pieceToMove;
+    const startSquare = itemAt(copy.board, legalMove.startPos);
+    const endSquare = itemAt(copy.board, legalMove.endPos);
+
+    endSquare.touched = true;
+    endSquare.piece = startSquare.piece; //piece will be defined since we've assumed a legalMove
+    startSquare.touched = true;
+    startSquare.piece = undefined;
+
     return copy;
 }
 
-/**
- * Return the squares currently attacked by the given piece.
- */
-function attackedSquares(piece: Piece, state: ChessState): Square[] {
-    throw 'not done';
+/** Check if the move would put the player's own king in check. */
+function selfInCheck(piece: Piece, currentState: ChessState, attemptedMove: MoveEvent): boolean {
+    const playerColor = piece.color; //TODO: this just assumes the player's color is the same as the last moved piece.
+    return false;
+}
+
+function canPieceMove(piece: Piece, lastMove: MoveEvent | undefined, currentState: ChessState, attemptedMove: MoveEvent): boolean {
+    if(piece.name === 'rook') {
+        return canRookMove(currentState, attemptedMove);
+    } else if(piece.name === 'bishop') {
+        return canBishopMove(currentState, attemptedMove);
+    } else if(piece.name === 'pawn') {
+        return canPawnMove(lastMove, currentState, attemptedMove);
+    } else if(piece.name === 'queen') {
+        return canQueenMove(currentState, attemptedMove);
+    } else if(piece.name === 'knight') {
+        return canKnightMove(currentState, attemptedMove);
+    } else {
+        return canKingMove(currentState, attemptedMove);
+    }
+}
+
+function canRookMove(currentState: ChessState, attemptedMove: MoveEvent): boolean {
+    return false;
+}
+
+function canBishopMove(currentState: ChessState, attemptedMove: MoveEvent): boolean {
+    return false;
+}
+
+function canPawnMove(lastMove: MoveEvent | undefined, currentState: ChessState, attemptedMove: MoveEvent): boolean {
+    return false;
+}
+
+function canQueenMove(currentState: ChessState, attemptedMove: MoveEvent): boolean {
+    return false;
+}
+
+function canKingMove(currentState: ChessState, attemptedMove: MoveEvent): boolean {
+    return false;
+}
+
+function canKnightMove(currentState: ChessState, attemptedMove: MoveEvent): boolean {
+    return false;
+}
+
+//TODO: should account for blockers.
+function sameRow(piecePos: Position, state: ChessState): Square[] {
+    return [];
+}
+
+function sameColumn(piecePos: Position, state: ChessState): Square[] {
+    return [];
+}
+
+function samePositiveDiagonal(piecePos: Position, state: ChessState): Square[] {
+    return [];
+}
+
+function sameNegativeDiagonal(piecePos: Position, state: ChessState): Square[] {
+    return [];
 }

@@ -28,13 +28,20 @@ tg.add('makeMove', () => {
     }
 
     const newState = makeMove(legalMove, state);
-    
-    if(itemAt(state.board, [0, 7]).piece) {
+
+    if(itemAt(newState.board, [0, 0]).piece || !itemAt(newState.board, [0, 0]).touched) {
         return false;
     }
+    
+    if(!itemAt(newState.board, [0, 7]).piece || !itemAt(newState.board, [0, 7]).touched) {
+        return false;
+    }
+
     for(const sq of flat(newState.board)) {
-        if(!posEquals(sq.index, [0, 7]) && sq.value.piece) {
-            return false;
+        if(!posEquals(sq.index, [0, 0]) && !posEquals(sq.index, [0, 7])) {
+            if(sq.value.piece || sq.value.touched) {
+                return false;
+            }
         }
     }
 
