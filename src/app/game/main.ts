@@ -14,14 +14,14 @@ import { ChessState, Position, Square } from "./models.js";
 import { isLegal, makeMove } from "./movements.js";
 
 const view = initView();
-
 let currentState: ChessState = initialState();
+let lastMove: MoveEvent | undefined = undefined; //The move that led to currentState
 
 drawState(currentState, view);
-view.moveEmitter.subscribe((move: MoveEvent) => {
-    if(isLegal(move, currentState)) {
-        renderMove(currentState, view, move);
-        currentState = makeMove(move, currentState);
+view.moveEmitter.subscribe((attemptedMove: MoveEvent) => {
+    if(isLegal(lastMove, currentState, attemptedMove)) {
+        renderMove(currentState, view, attemptedMove);
+        currentState = makeMove(attemptedMove, currentState);
     }
 });
 

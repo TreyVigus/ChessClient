@@ -9,7 +9,8 @@ export type Piece = {
 
 export type Square = {
 	position: Position,
-	piece?: Piece
+	piece?: Piece,
+	touched?: boolean, //true if a move has been made to or from the square.
 };
 
 export type ChessState = {
