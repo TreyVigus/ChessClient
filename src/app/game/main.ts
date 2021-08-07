@@ -21,7 +21,7 @@ drawState(currentState, view);
 view.moveEmitter.subscribe((attemptedMove: MoveEvent) => {
     if(isLegal(lastMove, currentState, attemptedMove)) {
         renderMove(currentState, view, attemptedMove);
-        currentState = makeMove(attemptedMove, currentState);
+        currentState = makeMove(lastMove, currentState, attemptedMove);
     }
 });
 
@@ -52,6 +52,7 @@ function drawState(state: ChessState, view: BoardView) {
 /** 
  * Change the board view to reflect the given move event.
  * After renderMoveEvent is called, the view will match the given state. 
+ * TODO: this will not handle castling, en passant, etc. Need classificationlogic like in makeMove().
  * */
 function renderMove(state: ChessState, view: BoardView, event: MoveEvent): void {
     const piece = itemAt(state.board, event.startPos).piece!;
