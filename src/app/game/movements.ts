@@ -1,8 +1,8 @@
 //Handles attacking squares, etc by piece
-import { clone, flat, itemAt, oppositeColor } from "../utils/helpers.js";
+import { clone, flat, itemAt, oppositeColor, posEquals } from "../utils/helpers.js";
 import { MoveEvent } from "../view/boardView.js";
 import { ChessState, Color, Piece, Position, Square } from "./models.js";
-import { classifyMove } from "./moveClassifier.js";
+import { classifyMove, PawnMoveType } from "./moveClassifier.js";
 
 //Typically, a piece can only move to the squares that it attacks.
 //Special cases: 
@@ -22,6 +22,13 @@ export function isLegal(precedingMove: MoveEvent | undefined, currentState: Ches
     }
 
     const moveType = classifyMove(precedingMove, currentState, attemptedMove);
+    if(moveType === 'normal') {
+        return isLegalNormalMove(currentState, attemptedMove, piece);
+    } else if(moveType === 'castle') {
+        return isLegalCastle(currentState, attemptedMove, piece);
+    } else {
+        return isLegalPawnMove(precedingMove, currentState, attemptedMove, piece, moveType);
+    }
 
     return true;
 }
@@ -32,11 +39,12 @@ export function isLegal(precedingMove: MoveEvent | undefined, currentState: Ches
  * */
 export function makeMove(precedingMove: MoveEvent | undefined, prevState: ChessState, legalMove: MoveEvent): ChessState {
     const copy = clone(prevState);
-    const startSquare = itemAt(copy.board, legalMove.startPos);
-    const endSquare = itemAt(copy.board, legalMove.endPos);
-
     const moveType = classifyMove(precedingMove, prevState, legalMove);
-    if(moveType === 'other') {
+
+    //Move the piece at startSquare to endSquare. If there is a piece already at endSquare, remove it.
+    if(moveType === 'normal' || moveType === 'pawnNormalCapture') {
+        const startSquare = itemAt(copy.board, legalMove.startPos);
+        const endSquare = itemAt(copy.board, legalMove.endPos);
         endSquare.piece = startSquare.piece; //piece will be defined since we've assumed a legalMove
         startSquare.piece = undefined;
         endSquare.touched = true;
@@ -44,6 +52,43 @@ export function makeMove(precedingMove: MoveEvent | undefined, prevState: ChessS
     }
 
     return copy;
+}
+
+/** Assumes attemptedMove is of type 'normal'. */
+function isLegalNormalMove(currentState: ChessState, attemptedMove: MoveEvent, piece: Piece): boolean {
+    const targetSquare = itemAt(currentState.board, attemptedMove.endPos);
+    const legalTarget = attackedSquares(piece).map(square => square.position).findIndex(pos => posEquals(pos, targetSquare.position)) > -1;
+    if(!legalTarget) {
+        return false;
+    }
+    const futureState = makeMove(undefined, currentState, attemptedMove);
+    if(inCheck(futureState, piece.color)) {
+        return false;
+    }
+    return true;
+}
+
+/** Assumes attemptedMove is of type 'castle'. */
+function isLegalCastle(currentState: ChessState, attemptedMove: MoveEvent, piece: Piece): boolean {
+    return false;
+}
+
+//TODO: implement attackedSquares before doing this to determine appropriate abstractions.
+function isLegalPawnMove(precedingMove: MoveEvent | undefined, currentState: ChessState, attemptedMove: MoveEvent, piece: Piece, moveType: PawnMoveType): boolean {
+    const targetSquare = itemAt(currentState.board, attemptedMove.endPos);
+    if(moveType === 'pawnSingleForward') {
+        return false
+    } else if(moveType === 'pawnDoubleForward') {
+        return false;
+    } else if(moveType === 'pawnNormalCapture') {
+        return isLegalNormalMove(currentState, attemptedMove, piece);
+    } else if(moveType === 'pawnPassantCapture') {
+        return false;
+    } else if(moveType === 'pawnPromote') {
+        return false;
+    }
+
+    return false;
 }
 
 /** Is the king in check in the given state? */
@@ -65,9 +110,9 @@ function hasAttackers(square: Square, attackingColor: Color, state: ChessState):
 
 /** Return a list of all squares attacked by the given piece. */
 function attackedSquares(piece: Piece): Square[] {
+    //This should include pawn & king as well.
     return [];
 }
-
 
 /** Return all squares in the same row as piecePos. */
 function sameRow(piecePos: Position, state: ChessState): Square[] {
