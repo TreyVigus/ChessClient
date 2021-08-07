@@ -57,7 +57,7 @@ export function makeMove(precedingMove: MoveEvent | undefined, prevState: ChessS
 /** Assumes attemptedMove is of type 'normal'. */
 function isLegalNormalMove(currentState: ChessState, attemptedMove: MoveEvent, piece: Piece): boolean {
     const targetSquare = itemAt(currentState.board, attemptedMove.endPos);
-    const legalTarget = attackedSquares(piece).map(square => square.position).findIndex(pos => posEquals(pos, targetSquare.position)) > -1;
+    const legalTarget = attackedSquares(piece, attemptedMove.startPos, currentState).map(square => square.position).findIndex(pos => posEquals(pos, targetSquare.position)) > -1;
     if(!legalTarget) {
         return false;
     }
@@ -109,9 +109,32 @@ function hasAttackers(square: Square, attackingColor: Color, state: ChessState):
 }
 
 /** Return a list of all squares attacked by the given piece. */
-function attackedSquares(piece: Piece): Square[] {
+function attackedSquares(piece: Piece, piecePos: Position, state: ChessState): Square[] {
     //This should include pawn & king as well.
+    if(piece.name === 'rook') {
+        return rookAttackedSquares(piecePos, state)
+    } else if(piece.name === 'bishop') {
+        return bishopAttackedSquares(piecePos, state);
+    } else if(piece.name === 'queen') {
+        return rookAttackedSquares(piecePos, state).concat(bishopAttackedSquares(piecePos, state));
+    } else if(piece.name === 'pawn') {
+
+    } else if(piece.name === 'king') {
+        
+    }
     return [];
+}
+
+function rookAttackedSquares(rookPos: Position, state: ChessState): Square[] {
+    const row = sameRow(rookPos, state);
+    const col = sameColumn(rookPos, state);
+    return filterBlockedSquares(rookPos, row).concat(filterBlockedSquares(rookPos, col));
+}
+
+function bishopAttackedSquares(bishopPos: Position, state: ChessState): Square[] {
+    const posDiag = samePositiveDiagonal(bishopPos, state);
+    const negDiag = sameNegativeDiagonal(bishopPos, state);
+    return filterBlockedSquares(bishopPos, posDiag).concat(filterBlockedSquares(bishopPos, negDiag));
 }
 
 /** Return all squares in the same row as piecePos. */
@@ -135,5 +158,16 @@ function samePositiveDiagonal(piecePos: Position, state: ChessState): Square[] {
 }
 
 function sameNegativeDiagonal(piecePos: Position, state: ChessState): Square[] {
+    return [];
+}
+
+/** 
+ * Assume squares is either the row, col, or diagonal containing piecePos.
+ * Assume the piece at piecePos would attack all given squares if there were no other pieces present.
+ * Define leftBlocker as the first piece to the left of piecePos in squares (if one exists).
+ * Define rightBlocker as the first piece to the right of piecePos in squares (if one exists).
+ * Return squares[leftBlocker...rightBlocker].
+ */
+function filterBlockedSquares(piecePos: Position, squares: Square[]): Square[] {
     return [];
 }
