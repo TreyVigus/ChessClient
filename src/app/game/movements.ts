@@ -212,11 +212,15 @@ function sameColumn(piecePos: Position, state: ChessState): Square[] {
 }
 
 function samePositiveDiagonal(piecePos: Position, state: ChessState): Square[] {
-    return [];
+    //a positive diagonal consists of all squares with the same sum of coordinates.
+    const diagSum = piecePos[0] + piecePos[1];
+    return [...flat(state.board)].map(sq => sq.value).filter(s => (s.position[0] + s.position[1]) === diagSum);
 }
 
 function sameNegativeDiagonal(piecePos: Position, state: ChessState): Square[] {
-    return [];
+    //a positive diagonal consists of all squares with the same difference of coordinates.
+    const diagDiff = piecePos[0] - piecePos[1];
+    return [...flat(state.board)].map(sq => sq.value).filter(s => (s.position[0] - s.position[1]) === diagDiff);
 }
 
 /** 
