@@ -95,3 +95,8 @@ export function itemAt<T>(board: T[][], pos: Position): T {
 export function clone<T extends object>(obj: T): T {
     return JSON.parse(JSON.stringify(obj));
 }
+
+/** Is the given position within the dimensions of the board? TODO: might as well unit test this. */
+export function validPosition(pos: Position): boolean {
+    return pos[0] > -1 && pos[1] > -1 && pos[0] < BOARD_SIZE && pos[1] < BOARD_SIZE;
+}

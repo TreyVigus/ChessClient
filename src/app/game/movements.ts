@@ -1,6 +1,6 @@
 //Handles attacking squares, etc by piece
-import { clone, flat, itemAt, oppositeColor, posEquals } from "../utils/helpers.js";
-import { MoveEvent } from "../view/boardView.js";
+import { clone, flat, itemAt, oppositeColor, posEquals, validPosition } from "../utils/helpers.js";
+import { BOARD_SIZE, MoveEvent } from "../view/boardView.js";
 import { ChessState, Color, Piece, Position, Square } from "./models.js";
 import { classifyMove, PawnMoveType } from "./moveClassifier.js";
 
@@ -134,14 +134,14 @@ function attackedSquares(piece: Piece, piecePos: Position, state: ChessState): S
     } else if(piece.name === 'queen') {
         return rookAttackedSquares(piecePos, state).concat(bishopAttackedSquares(piecePos, state));
     } else if(piece.name === 'pawn') {
-
+        return pawnAttackedSquares(piecePos, state, piece);
     } else if(piece.name === 'king') {
-        
+        return kingAttackedSquares(piecePos, state, piece);
     }
     return [];
 }
 
-function rookAttackedSquares(rookPos: Position, state: ChessState): Square[] {
+function rookAttackedSquares(rookPos: Position, state: ChessState): Square[] {  
     const row = sameRow(rookPos, state);
     const col = sameColumn(rookPos, state);
     return filterBlockedSquares(rookPos, row).concat(filterBlockedSquares(rookPos, col));
@@ -151,6 +151,37 @@ function bishopAttackedSquares(bishopPos: Position, state: ChessState): Square[]
     const posDiag = samePositiveDiagonal(bishopPos, state);
     const negDiag = sameNegativeDiagonal(bishopPos, state);
     return filterBlockedSquares(bishopPos, posDiag).concat(filterBlockedSquares(bishopPos, negDiag));
+}
+
+function pawnAttackedSquares(pawnPos: Position, state: ChessState, pawn: Piece): Square[] {
+    //a pawn on the back rank attacks no squares. TODO: will this condition ever be met since the pawn will become queen anyway.
+    if( (pawn.color === 'white' && pawnPos[0] === 0) || (pawn.color === 'black' && pawnPos[0] === BOARD_SIZE - 1) ) {
+        return [];
+    }
+
+    if(pawn.color === 'white') {
+        const northWest: Position = [pawnPos[0] - 1, pawnPos[1] - 1];
+        const northEast: Position = [pawnPos[0] - 1, pawnPos[1] + 1];
+        return [itemAt(state.board, northWest), itemAt(state.board, northEast)];
+    } else {
+        const southWest: Position = [pawnPos[0] + 1, pawnPos[1] - 1];
+        const southEast: Position = [pawnPos[0] + 1, pawnPos[1] + 1];
+        return [itemAt(state.board, southWest), itemAt(state.board, southEast)];
+    }
+}
+
+function kingAttackedSquares(kingPos: Position, state: ChessState, king: Piece): Square[] {
+    const adjacent: Position[] = [
+        [kingPos[0] - 1, kingPos[1] - 1], //northwest
+        [kingPos[0] - 1, kingPos[1]], //north
+        [kingPos[0] - 1, kingPos[1] + 1], //northEast
+        [kingPos[0], kingPos[1] + 1], //east
+        [kingPos[0] + 1, kingPos[1] + 1], //sourthEast
+        [kingPos[0] + 1, kingPos[1]], //south
+        [kingPos[0] + 1, kingPos[1] - 1] //southWest
+    ];
+
+    return adjacent.filter(pos => validPosition(pos)).map(pos => itemAt(state.board, pos));
 }
 
 /** Return all squares in the same row as piecePos. */
@@ -179,7 +210,7 @@ function sameNegativeDiagonal(piecePos: Position, state: ChessState): Square[] {
 
 /** 
  * Assume squares is either the row, col, or diagonal containing piecePos.
- * Assume the piece at piecePos would attack all given squares if there were no other pieces present.
+ * Assume the piece at piecePos would attack all given squares if all squares were empty (no pieces present)
  * Define leftBlocker as the first piece to the left of piecePos in squares (if one exists).
  * Define rightBlocker as the first piece to the right of piecePos in squares (if one exists).
  * Return squares[leftBlocker...rightBlocker].
