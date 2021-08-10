@@ -120,7 +120,18 @@ function findKing(state: ChessState, color: Color): Square {
 }
 
 /** Return true if the given square has pieces of the given color attacking it. */
-function hasAttackers(square: Square, attackingColor: Color, state: ChessState): boolean {
+function hasAttackers(targetSquare: Square, attackingColor: Color, state: ChessState): boolean {
+    for(const sq of flat(state.board)) {
+        const piece = sq.value.piece;
+        if(piece && piece.color === attackingColor) {
+            const attacked = attackedSquares(piece, sq.index, state);
+            const attacksTarget = attacked.findIndex(a => posEquals(a.position, targetSquare.position)) > -1;
+            if(attacksTarget) {
+                return true;
+            }
+        }
+    }
+
     return false;
 }
 
