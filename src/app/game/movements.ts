@@ -33,8 +33,6 @@ export function isLegal(precedingMove: MoveEvent | undefined, currentState: Ches
     } else {
         return isLegalPawnMove(precedingMove, currentState, attemptedMove, piece, moveType);
     }
-
-    return true;
 }
 
 /** 
