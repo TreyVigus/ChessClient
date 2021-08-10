@@ -21,6 +21,10 @@ export function isLegal(precedingMove: MoveEvent | undefined, currentState: Ches
         return false;
     }
 
+    if(capturesOwnPiece(currentState, attemptedMove, piece)) {
+        return false;
+    }
+
     const moveType = classifyMove(precedingMove, currentState, attemptedMove);
     if(moveType === 'normal') {
         return isLegalNormalMove(currentState, attemptedMove, piece);
@@ -35,7 +39,8 @@ export function isLegal(precedingMove: MoveEvent | undefined, currentState: Ches
 
 /** 
  * Expects legalMove to have passed the isLegal() checks.
- * Return the state that would follow if legalMove occured on prevState. 
+ * Return the state that would follow if legalMove occured on prevState.
+ * TODO: handle other moveTypes 
  * */
 export function makeMove(precedingMove: MoveEvent | undefined, prevState: ChessState, legalMove: MoveEvent): ChessState {
     const copy = clone(prevState);
@@ -54,10 +59,21 @@ export function makeMove(precedingMove: MoveEvent | undefined, prevState: ChessS
     return copy;
 }
 
+/** Player cannot capture their own piece.  */
+function capturesOwnPiece(currentState: ChessState, attemptedMove: MoveEvent, piece: Piece): boolean {
+    const playerColor = piece.color;
+    const targetPiece = itemAt(currentState.board, attemptedMove.endPos).piece;
+    if(!targetPiece) {
+        return false;
+    }
+    return targetPiece.color === playerColor;
+}
+
 /** Assumes attemptedMove is of type 'normal'. */
 function isLegalNormalMove(currentState: ChessState, attemptedMove: MoveEvent, piece: Piece): boolean {
     const targetSquare = itemAt(currentState.board, attemptedMove.endPos);
-    const legalTarget = attackedSquares(piece, attemptedMove.startPos, currentState).map(square => square.position).findIndex(pos => posEquals(pos, targetSquare.position)) > -1;
+    //does the piece attack the target square?
+    const legalTarget = attackedSquares(piece, attemptedMove.startPos, currentState).findIndex(square => posEquals(square.position, targetSquare.position)) > -1;
     if(!legalTarget) {
         return false;
     }
