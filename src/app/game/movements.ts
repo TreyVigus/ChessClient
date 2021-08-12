@@ -232,14 +232,11 @@ export function sameNegativeDiagonal(piecePos: Position, state: ChessState): Squ
  * Assume squares is either the row, col, or diagonal containing piecePos.
  * Assume the piece at piecePos would attack all given squares if all squares were empty (no pieces present)
  * Define leftBlocker as the first piece's pos to the left of piecePos in squares or 0 if none exists
- * Define rightBlocker as the first piece's pos to the right of piecePos in squares or BOARD_SIZE - 1 if none exists.
+ * Define rightBlocker as the first piece's pos to the right of piecePos in squares or squares.length - 1 if none exists.
  * Return squares[leftBlocker...rightBlocker].
  */
-function filterBlockedSquares(piecePos: Position, squares: Square[]): Square[] {
-    if(squares.length !== BOARD_SIZE) {
-        throw 'should be 8 squares.'
-    }
-
+//TODO: remove export once parent function has testing.
+export function filterBlockedSquares(piecePos: Position, squares: Square[]): Square[] {
     const piecePosIndex = squares.findIndex(s => posEquals(s.position, piecePos));
     if(piecePosIndex === -1) {
         throw 'piecePos was not found in squares array.'
@@ -253,9 +250,8 @@ function filterBlockedSquares(piecePos: Position, squares: Square[]): Square[] {
         }
     }
 
-
-    let rightBlocker = BOARD_SIZE - 1;
-    for(let i = piecePosIndex + 1; i < BOARD_SIZE; i++) {
+    let rightBlocker = squares.length - 1;
+    for(let i = piecePosIndex + 1; i < squares.length; i++) {
         if(squares[i].piece) {
             rightBlocker = i;
             break;

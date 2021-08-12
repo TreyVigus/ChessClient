@@ -1,7 +1,7 @@
 import { arrayEquals, createTestGroup } from "../../test-helpers/test-execution.js";
 import { constructBoard, flat, itemAt, posEquals } from "../utils/helpers.js";
 import { ChessState, Color, Piece, Position, Square } from "./models.js";
-import { sameColumn, sameNegativeDiagonal, samePositiveDiagonal, sameRow } from "./movements.js";
+import { filterBlockedSquares, sameColumn, sameNegativeDiagonal, samePositiveDiagonal, sameRow } from "./movements.js";
 
 //state where there are no pieces on any squares
 function emptyState(): ChessState {
@@ -102,6 +102,72 @@ tg.add('sameRow', () => {
         [7, 6],
         [7, 7],
     ], positionComparator())
+});
+
+tg.add('filterBlockedSquares', () => {
+    const state = emptyState();
+    const attackingPiecePos: Position = [7, 1];
+    setPiece(state, attackingPiecePos, {name: 'rook', color: 'white'});
+    setPiece(state, [7,6], {name: 'rook', color: 'white'});
+    const attacking = filterBlockedSquares(attackingPiecePos, sameRow(attackingPiecePos, state)).map(s => s.position);
+    return arrayEquals(attacking, [
+        [7, 0],
+        [7, 1],
+        [7, 2],
+        [7, 3],
+        [7, 4],
+        [7, 5],
+        [7, 6],
+    ], positionComparator())
+});
+
+tg.add('filterBlockedSquares2', () => {
+    const state = emptyState();
+    const attackingPiecePos: Position = [5, 2];
+    setPiece(state, attackingPiecePos, {name: 'rook', color: 'white'});
+
+    setPiece(state, [3, 0], {name: 'bishop', color: 'black'});
+    setPiece(state, [4, 1], {name: 'bishop', color: 'black'});
+    setPiece(state, [6, 3], {name: 'bishop', color: 'black'});
+    const attacking = filterBlockedSquares(attackingPiecePos, sameNegativeDiagonal(attackingPiecePos, state)).map(s => s.position);
+    return arrayEquals(attacking, [
+        [4, 1],
+        [5, 2],
+        [6, 3]
+    ], positionComparator());
+});
+
+tg.add('filterBlockedSquares3', () => {
+    const state = emptyState();
+    const attackingPiecePos: Position = [1, 2];
+    setPiece(state, attackingPiecePos, {name: 'rook', color: 'white'});
+    const attacking = filterBlockedSquares(attackingPiecePos, sameNegativeDiagonal(attackingPiecePos, state)).map(s => s.position);
+    return arrayEquals(attacking, [
+        [0, 1],
+        [1, 2],
+        [2, 3],
+        [3, 4],
+        [4, 5],
+        [5, 6],
+        [6, 7],
+    ], positionComparator());
+});
+
+tg.add('filterBlockedSquares4', () => {
+    const state = emptyState();
+    const attackingPiecePos: Position = [4, 3];
+    setPiece(state, attackingPiecePos, {name: 'bishop', color: 'black'});
+    setPiece(state, [4, 0], {name: 'bishop', color: 'black'});
+    setPiece(state, [4, 2], {name: 'bishop', color: 'black'});
+    setPiece(state, [4, 5], {name: 'bishop', color: 'black'});
+    setPiece(state, [4, 7], {name: 'bishop', color: 'black'});
+    const attacking = filterBlockedSquares(attackingPiecePos, sameRow(attackingPiecePos, state)).map(s => s.position);
+    return arrayEquals(attacking, [
+        [4, 2],
+        [4, 3],
+        [4, 4],
+        [4, 5],
+    ], positionComparator());
 });
 
 tg.execute();
