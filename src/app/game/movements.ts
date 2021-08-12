@@ -114,7 +114,7 @@ function inCheck(state: ChessState, kingColor: Color): boolean {
 
 /** Return the Square of the king of the given color in the given state. */
 function findKing(state: ChessState, color: Color): Square {
-    throw 'unimplemented';
+    return [...flat(state.board)].map(sq => sq.value).filter(s => s.piece).find(s => s.piece!.name === 'king' && s.piece!.color === color)!;
 }
 
 /** Return true if the given square has pieces of the given color attacking it. */
@@ -224,10 +224,36 @@ function sameNegativeDiagonal(piecePos: Position, state: ChessState): Square[] {
 /** 
  * Assume squares is either the row, col, or diagonal containing piecePos.
  * Assume the piece at piecePos would attack all given squares if all squares were empty (no pieces present)
- * Define leftBlocker as the first piece to the left of piecePos in squares (if one exists).
- * Define rightBlocker as the first piece to the right of piecePos in squares (if one exists).
+ * Define leftBlocker as the first piece's pos to the left of piecePos in squares or 0 if none exists
+ * Define rightBlocker as the first piece's pos to the right of piecePos in squares or BOARD_SIZE - 1 if none exists.
  * Return squares[leftBlocker...rightBlocker].
  */
 function filterBlockedSquares(piecePos: Position, squares: Square[]): Square[] {
-    return [];
+    if(squares.length !== BOARD_SIZE) {
+        throw 'should be 8 squares.'
+    }
+
+    const piecePosIndex = squares.findIndex(s => posEquals(s.position, piecePos));
+    if(piecePosIndex === -1) {
+        throw 'piecePos was not found in squares array.'
+    }
+
+    let leftBlocker = 0;
+    for(let i = piecePosIndex - 1; i > -1; i--) {
+        if(squares[i].piece) {
+            leftBlocker = i;
+            break;
+        }
+    }
+
+
+    let rightBlocker = BOARD_SIZE - 1;
+    for(let i = piecePosIndex + 1; i < BOARD_SIZE; i++) {
+        if(squares[i].piece) {
+            rightBlocker = i;
+            break;
+        }
+    }
+
+    return squares.slice(leftBlocker, rightBlocker + 1);
 }
