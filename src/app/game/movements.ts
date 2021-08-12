@@ -57,6 +57,9 @@ export function makeMove(precedingMove: MoveEvent | undefined, prevState: ChessS
     return copy;
 }
 
+
+
+
 /** Player cannot capture their own piece.  */
 function capturesOwnPiece(currentState: ChessState, attemptedMove: MoveEvent, piece: Piece): boolean {
     const playerColor = piece.color;
@@ -194,12 +197,14 @@ function kingAttackedSquares(kingPos: Position, state: ChessState, king: Piece):
 }
 
 /** Return all squares in the same row as piecePos. */
-function sameRow(piecePos: Position, state: ChessState): Square[] {
+//TODO: remove export once parent function has testing.
+export function sameRow(piecePos: Position, state: ChessState): Square[] {
     return state.board[piecePos[0]];
 }
 
 /** Return all squares in the same col as piecePos. */
-function sameColumn(piecePos: Position, state: ChessState): Square[] {
+//TODO: remove export once parent function has testing.
+export function sameColumn(piecePos: Position, state: ChessState): Square[] {
     let col: Square[] = [];
     for(const item of flat(state.board)) {
         if(item.index[1] === piecePos[1]) {
@@ -209,13 +214,15 @@ function sameColumn(piecePos: Position, state: ChessState): Square[] {
     return col;
 }
 
-function samePositiveDiagonal(piecePos: Position, state: ChessState): Square[] {
+//TODO: remove export once parent function has testing.
+export function samePositiveDiagonal(piecePos: Position, state: ChessState): Square[] {
     //a positive diagonal consists of all squares with the same sum of coordinates.
     const diagSum = piecePos[0] + piecePos[1];
     return [...flat(state.board)].map(sq => sq.value).filter(s => (s.position[0] + s.position[1]) === diagSum);
 }
 
-function sameNegativeDiagonal(piecePos: Position, state: ChessState): Square[] {
+//TODO: remove export once parent function has testing.
+export function sameNegativeDiagonal(piecePos: Position, state: ChessState): Square[] {
     //a positive diagonal consists of all squares with the same difference of coordinates.
     const diagDiff = piecePos[0] - piecePos[1];
     return [...flat(state.board)].map(sq => sq.value).filter(s => (s.position[0] - s.position[1]) === diagDiff);
