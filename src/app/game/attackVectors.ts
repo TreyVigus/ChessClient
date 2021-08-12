@@ -1,5 +1,3 @@
-/** Return all squares in the same row as piecePos. */
-
 import { flat, posEquals } from "../utils/helpers.js";
 import { ChessState, Position, Square } from "./models.js";
 
