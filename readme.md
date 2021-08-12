@@ -1,5 +1,3 @@
-Basic chess client. Minimal dependencies. There's a lot of 'reinventing the wheel' going on here to make this more difficult/fun.
-
 #### Running
 npm run start
 - What does this do?
