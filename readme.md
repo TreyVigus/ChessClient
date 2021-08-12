@@ -1,4 +1,6 @@
-To run the project, use npm run start
+
+#### Running
+npm run start
 - What does this do?
     - It starts nodemon, which will watch for changes to files (see "ext" in nodemon.json for which files).
     - When nodemon detects a file, nodemon will 
@@ -6,7 +8,8 @@ To run the project, use npm run start
         - run moveFiles.js, which moves files tsc didn't handle to the build directory.
         - Serve the app by running server.js from the build directory (compiled from server.ts).
 
-To run tests, use npm run test
+#### Testing
+npm run test
 - What does this do?
     - It starts nodemon, just like in npm run start.
     - When nodemon detects a file, nodemon will 
@@ -20,10 +23,6 @@ To run tests, use npm run test
     TS which requires folder/file). Unfortunately, .js extensions must be manually added in the .ts
     files.
 
-TODO: may need to empty build directory before tsc is executed.
-
-
 #### Custom Test Framework
-//why? because it's fun.
 Files will take the form fileName.test.ts
 Test runner will look in the build/src directory and execute "node fileName.test.js" to run the file.
