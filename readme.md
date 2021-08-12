@@ -1,3 +1,5 @@
+Basic chess client. There's a lot of 'reinventing the wheel' going on here to make this more difficult/fun.
+
 #### Running
 npm run start
 - What does this do?
@@ -16,7 +18,7 @@ npm run test
         - execute runTests.js, which executes all files of the form .test.js from the build/app directory.
            
 #### Gotchas
-- Due to an inssue with typescript https://github.com/microsoft/TypeScript/issues/16577,
+- Due to an issue with typescript https://github.com/microsoft/TypeScript/issues/16577,
     imports won't be changed to include the file extension (ES6 requires folder/file.txt vs
     TS which requires folder/file). Unfortunately, .js extensions must be manually added in the .ts
     files.
