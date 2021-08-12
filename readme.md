@@ -1,4 +1,3 @@
-
 #### Running
 npm run start
 - What does this do?
@@ -14,15 +13,10 @@ npm run test
     - It starts nodemon, just like in npm run start.
     - When nodemon detects a file, nodemon will 
         - run 'tsc', which will do just as described in npm run start, including compiling all spec.ts files to spec.js files.
-        - execute runTests.js, which executes all files of the form .spec.js from the build/app directory.
-            - These .spec
-
+        - execute runTests.js, which executes all files of the form .test.js from the build/app directory.
+           
 #### Gotchas
 - Due to an inssue with typescript https://github.com/microsoft/TypeScript/issues/16577,
     imports won't be changed to include the file extension (ES6 requires folder/file.txt vs
     TS which requires folder/file). Unfortunately, .js extensions must be manually added in the .ts
     files.
-
-#### Custom Test Framework
-Files will take the form fileName.test.ts
-Test runner will look in the build/src directory and execute "node fileName.test.js" to run the file.
