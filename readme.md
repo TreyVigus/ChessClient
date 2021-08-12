@@ -27,10 +27,3 @@ TODO: may need to empty build directory before tsc is executed.
 //why? because it's fun.
 Files will take the form fileName.test.ts
 Test runner will look in the build/src directory and execute "node fileName.test.js" to run the file.
-
-Sources:
-https://www.npmjs.com/package/ts-node
-
-https://jestjs.io/
-https://jestjs.io/docs/getting-started
-https://github.com/kulshekhar/ts-jest"# ChessClient" 
