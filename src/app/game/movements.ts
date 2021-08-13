@@ -16,13 +16,18 @@ import { classifyMove, PawnMoveType } from "./moveClassifier.js";
 //      en passant (need to know if the previous move was a pawn move. See lastMove parameter.)
 //      queening (check forward movement for back rank)
 export function isLegal(precedingMove: MoveEvent | undefined, currentState: ChessState, attemptedMove: MoveEvent): boolean {
-    //If there is no piece at the startPos, the move is immediately illegal.
     const piece = itemAt(currentState.board, attemptedMove.startPos).piece;
+
+    //If there is no piece at the startPos, the move is immediately illegal.
     if(!piece) {
         return false;
     }
 
     if(capturesOwnPiece(currentState, attemptedMove, piece)) {
+        return false;
+    }
+
+    if(capturesKing(currentState, attemptedMove)) {
         return false;
     }
 
@@ -68,6 +73,15 @@ function capturesOwnPiece(currentState: ChessState, attemptedMove: MoveEvent, pi
     return targetPiece.color === playerColor;
 }
 
+/** Illegal to capture a king. */
+function capturesKing(currentState: ChessState, attemptedMove: MoveEvent): boolean {
+    const targetPiece = itemAt(currentState.board, attemptedMove.endPos).piece;
+    if(!targetPiece) {
+        return false;
+    }
+    return targetPiece.name === 'king';
+}
+
 /** Assumes attemptedMove is of type 'normal'. */
 function isLegalNormalMove(currentState: ChessState, attemptedMove: MoveEvent, piece: Piece): boolean {
     const targetSquare = itemAt(currentState.board, attemptedMove.endPos);
@@ -109,9 +123,8 @@ function isLegalPawnMove(precedingMove: MoveEvent | undefined, currentState: Che
 /** Is the king in check in the given state? */
 function inCheck(state: ChessState, kingColor: Color): boolean {
     //king is in check if any piece of the opposite color attacks the king's square.
-    // const kingSquare = findKing(state, kingColor);
-    // return hasAttackers(kingSquare, oppositeColor(kingColor), state);
-    return false;
+    const kingSquare = findKing(state, kingColor);
+    return hasAttackers(kingSquare, oppositeColor(kingColor), state);
 }
 
 /** Return the Square of the king of the given color in the given state. */

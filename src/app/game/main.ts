@@ -35,14 +35,16 @@ function initialState(): ChessState {
     });
 
     board[0][0].piece = {color: 'black', name: 'rook'};
-    board[0][1].piece = {color: 'black', name: 'knight'};
-    board[0][2].piece = {color: 'black', name: 'bishop'};
-    board[0][3].piece = {color: 'black', name: 'queen'};
+    // board[0][1].piece = {color: 'black', name: 'knight'};
+    // board[0][2].piece = {color: 'black', name: 'bishop'};
+    // board[0][3].piece = {color: 'black', name: 'queen'};
+    board[0][4].piece = {color: 'black', name: 'king'};
 
     board[7][0].piece = {color: 'white', name: 'rook'};
-    board[7][1].piece = {color: 'white', name: 'knight'};
-    board[7][2].piece = {color: 'white', name: 'bishop'};
-    board[7][3].piece = {color: 'white', name: 'queen'};
+    // board[7][1].piece = {color: 'white', name: 'knight'};
+    // board[7][2].piece = {color: 'white', name: 'bishop'};
+    // board[7][3].piece = {color: 'white', name: 'queen'};
+    board[7][4].piece = {color: 'white', name: 'king'};
 
     return { board };
 }
