@@ -110,7 +110,7 @@ function legalPawnMove(precedingMove: MoveEvent | undefined, currentState: Chess
     if(moveType === 'pawnSingleForward') {
         return !containsPiece(currentState, attemptedMove.endPos);
     } else if(moveType === 'pawnDoubleForward') {
-        return legalDoubleForward(currentState, attemptedMove, piece, moveType);
+        return legalDoubleForward(currentState, attemptedMove, piece);
     } else if(moveType === 'pawnNormalCapture') {
         return legalNormalMove(currentState, attemptedMove, piece);
     } else if(moveType === 'pawnPassantCapture') {
@@ -122,8 +122,15 @@ function legalPawnMove(precedingMove: MoveEvent | undefined, currentState: Chess
     return false;
 }
 
-function legalDoubleForward(currentState: ChessState, attemptedMove: MoveEvent, piece: Piece, moveType: PawnMoveType): boolean {
-    const oneForward: Position = piece.color === 'black' ? [attemptedMove.startPos[0] + 1, attemptedMove.startPos[1]] : 
-                                                           [attemptedMove.startPos[0] - 1, attemptedMove.startPos[1]];
+function legalDoubleForward(currentState: ChessState, attemptedMove: MoveEvent, piece: Piece): boolean {
+    const row = attemptedMove.startPos[0];
+    const col = attemptedMove.startPos[1];
+
+    const firstPawnMove = (piece.color === 'black' && row === 1) || (piece.color === 'white' && row === 6);
+    if(!firstPawnMove) {
+        return false;
+    }
+
+    const oneForward: Position = piece.color === 'black' ? [row + 1, col] : [row - 1, col];
     return !containsPiece(currentState, oneForward, attemptedMove.endPos);
 }
