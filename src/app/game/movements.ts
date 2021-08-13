@@ -3,7 +3,7 @@ import { clone, flat, itemAt, oppositeColor, posEquals, validPosition } from "..
 import { BOARD_SIZE, MoveEvent } from "../view/boardView.js";
 import { filterBlockedSquares, sameColumn, sameNegativeDiagonal, samePositiveDiagonal, sameRow } from "./attackVectors.js";
 import { ChessState, Color, Piece, Position, Square } from "./models.js";
-import { classifyMove, PawnMoveType } from "./moveClassifier.js";
+import { classifyMove, isPawnMoveType, PawnMoveType } from "./moveClassifier.js";
 
 //Typically, a piece can only move to the squares that it attacks.
 //Special cases: 
@@ -23,15 +23,20 @@ export function isLegal(precedingMove: MoveEvent | undefined, currentState: Ches
         return false;
     }
 
-    if(capturesOwnPiece(currentState, attemptedMove, piece)) {
+    if(targetsOwnPiece(currentState, attemptedMove, piece)) {
         return false;
     }
 
-    if(capturesKing(currentState, attemptedMove)) {
+    if(targetsKing(currentState, attemptedMove)) {
         return false;
     }
 
     const moveType = classifyMove(precedingMove, currentState, attemptedMove);
+
+    if(piece.name === 'pawn' && !isPawnMoveType(moveType)) {
+        return false;
+    }
+
     if(moveType === 'normal') {
         return isLegalNormalMove(currentState, attemptedMove, piece);
     } else if(moveType === 'castle') {
@@ -51,20 +56,21 @@ export function makeMove(precedingMove: MoveEvent | undefined, prevState: ChessS
     const moveType = classifyMove(precedingMove, prevState, legalMove);
 
     //Move the piece at startSquare to endSquare. If there is a piece already at endSquare, remove it.
-    if(moveType === 'normal' || moveType === 'pawnNormalCapture') {
+    if(moveType === 'normal' || moveType === 'pawnNormalCapture' || moveType === 'pawnSingleForward' || moveType === 'pawnDoubleForward') {
         const startSquare = itemAt(copy.board, legalMove.startPos);
         const endSquare = itemAt(copy.board, legalMove.endPos);
         endSquare.piece = startSquare.piece; //piece will be defined since we've assumed a legalMove
         startSquare.piece = undefined;
         endSquare.touched = true;
         startSquare.touched = true;
+    } else {
+        throw 'no move performed';
     }
 
     return copy;
 }
 
-/** Player cannot capture their own piece.  */
-function capturesOwnPiece(currentState: ChessState, attemptedMove: MoveEvent, piece: Piece): boolean {
+function targetsOwnPiece(currentState: ChessState, attemptedMove: MoveEvent, piece: Piece): boolean {
     const playerColor = piece.color;
     const targetPiece = itemAt(currentState.board, attemptedMove.endPos).piece;
     if(!targetPiece) {
@@ -73,8 +79,7 @@ function capturesOwnPiece(currentState: ChessState, attemptedMove: MoveEvent, pi
     return targetPiece.color === playerColor;
 }
 
-/** Illegal to capture a king. */
-function capturesKing(currentState: ChessState, attemptedMove: MoveEvent): boolean {
+function targetsKing(currentState: ChessState, attemptedMove: MoveEvent): boolean {
     const targetPiece = itemAt(currentState.board, attemptedMove.endPos).piece;
     if(!targetPiece) {
         return false;
@@ -102,13 +107,13 @@ function isLegalCastle(currentState: ChessState, attemptedMove: MoveEvent, piece
     return false;
 }
 
-//TODO: implement attackedSquares before doing this to determine appropriate abstractions.
 function isLegalPawnMove(precedingMove: MoveEvent | undefined, currentState: ChessState, attemptedMove: MoveEvent, piece: Piece, moveType: PawnMoveType): boolean {
-    const targetSquare = itemAt(currentState.board, attemptedMove.endPos);
     if(moveType === 'pawnSingleForward') {
-        return false
+        return !containsPiece(currentState, attemptedMove.endPos);
     } else if(moveType === 'pawnDoubleForward') {
-        return false;
+        const oneForward: Position = piece.color === 'black' ? [attemptedMove.startPos[0] + 1, attemptedMove.startPos[1]] : 
+                                                               [attemptedMove.startPos[0] - 1, attemptedMove.startPos[1]];
+        return !containsPiece(currentState, oneForward, attemptedMove.endPos);
     } else if(moveType === 'pawnNormalCapture') {
         return isLegalNormalMove(currentState, attemptedMove, piece);
     } else if(moveType === 'pawnPassantCapture') {
@@ -118,6 +123,11 @@ function isLegalPawnMove(precedingMove: MoveEvent | undefined, currentState: Che
     }
 
     return false;
+}
+
+/** Do the given positions contain a piece in the given state? */
+function containsPiece(state: ChessState, ...positions: Position[]): boolean {
+    return positions.findIndex(pos => !!itemAt(state.board, pos).piece) > -1;
 }
 
 /** Is the king in check in the given state? */
