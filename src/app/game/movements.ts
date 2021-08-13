@@ -148,6 +148,8 @@ function attackedSquares(piece: Piece, piecePos: Position, state: ChessState): S
         return pawnAttackedSquares(piecePos, state, piece);
     } else if(piece.name === 'king') {
         return kingAttackedSquares(piecePos, state, piece);
+    } else if(piece.name === 'knight') {
+        return knightAttackedSquares(piecePos, state);
     }
     return [];
 }
@@ -187,10 +189,27 @@ function kingAttackedSquares(kingPos: Position, state: ChessState, king: Piece):
         [kingPos[0] - 1, kingPos[1]], //north
         [kingPos[0] - 1, kingPos[1] + 1], //northEast
         [kingPos[0], kingPos[1] + 1], //east
-        [kingPos[0] + 1, kingPos[1] + 1], //sourthEast
+        [kingPos[0] + 1, kingPos[1] + 1], //southEast
         [kingPos[0] + 1, kingPos[1]], //south
-        [kingPos[0] + 1, kingPos[1] - 1] //southWest
+        [kingPos[0] + 1, kingPos[1] - 1], //southWest
+        [kingPos[0], kingPos[1] - 1] //west
     ];
 
     return adjacent.filter(pos => validPosition(pos)).map(pos => itemAt(state.board, pos));
+}
+
+function knightAttackedSquares(knightPos: Position, state: ChessState): Square[] {  
+    const attacked: Position[] = [
+        [knightPos[0] - 2, knightPos[1] - 1],
+        [knightPos[0] - 2, knightPos[1] + 1],
+        [knightPos[0] + 2, knightPos[1] - 1],
+        [knightPos[0] + 2, knightPos[1] + 1],
+
+        [knightPos[0] + 1, knightPos[1] + 2],
+        [knightPos[0] + 1, knightPos[1] - 2],
+        [knightPos[0] - 1, knightPos[1] + 2],
+        [knightPos[0] - 1, knightPos[1] - 2],
+    ];
+
+    return attacked.filter(pos => validPosition(pos)).map(pos => itemAt(state.board, pos));
 }
