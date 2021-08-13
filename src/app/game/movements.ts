@@ -38,11 +38,11 @@ export function isLegal(precedingMove: MoveEvent | undefined, currentState: Ches
     }
 
     if(moveType === 'normal') {
-        return isLegalNormalMove(currentState, attemptedMove, piece);
+        return legalNormalMove(currentState, attemptedMove, piece);
     } else if(moveType === 'castle') {
-        return isLegalCastle(currentState, attemptedMove, piece);
+        return legalCastle(currentState, attemptedMove, piece);
     } else {
-        return isLegalPawnMove(precedingMove, currentState, attemptedMove, piece, moveType);
+        return legalPawnMove(precedingMove, currentState, attemptedMove, piece, moveType);
     }
 }
 
@@ -88,7 +88,7 @@ function targetsKing(currentState: ChessState, attemptedMove: MoveEvent): boolea
 }
 
 /** Assumes attemptedMove is of type 'normal'. */
-function isLegalNormalMove(currentState: ChessState, attemptedMove: MoveEvent, piece: Piece): boolean {
+function legalNormalMove(currentState: ChessState, attemptedMove: MoveEvent, piece: Piece): boolean {
     const targetSquare = itemAt(currentState.board, attemptedMove.endPos);
     //does the piece attack the target square?
     const legalTarget = attackedSquares(piece, attemptedMove.startPos, currentState).findIndex(square => posEquals(square.position, targetSquare.position)) > -1;
@@ -102,20 +102,17 @@ function isLegalNormalMove(currentState: ChessState, attemptedMove: MoveEvent, p
     return true;
 }
 
-/** Assumes attemptedMove is of type 'castle'. */
-function isLegalCastle(currentState: ChessState, attemptedMove: MoveEvent, piece: Piece): boolean {
+function legalCastle(currentState: ChessState, attemptedMove: MoveEvent, piece: Piece): boolean {
     return false;
 }
 
-function isLegalPawnMove(precedingMove: MoveEvent | undefined, currentState: ChessState, attemptedMove: MoveEvent, piece: Piece, moveType: PawnMoveType): boolean {
+function legalPawnMove(precedingMove: MoveEvent | undefined, currentState: ChessState, attemptedMove: MoveEvent, piece: Piece, moveType: PawnMoveType): boolean {
     if(moveType === 'pawnSingleForward') {
         return !containsPiece(currentState, attemptedMove.endPos);
     } else if(moveType === 'pawnDoubleForward') {
-        const oneForward: Position = piece.color === 'black' ? [attemptedMove.startPos[0] + 1, attemptedMove.startPos[1]] : 
-                                                               [attemptedMove.startPos[0] - 1, attemptedMove.startPos[1]];
-        return !containsPiece(currentState, oneForward, attemptedMove.endPos);
+        return legalDoubleForward(currentState, attemptedMove, piece, moveType);
     } else if(moveType === 'pawnNormalCapture') {
-        return isLegalNormalMove(currentState, attemptedMove, piece);
+        return legalNormalMove(currentState, attemptedMove, piece);
     } else if(moveType === 'pawnPassantCapture') {
         return false;
     } else if(moveType === 'pawnPromote') {
@@ -123,4 +120,10 @@ function isLegalPawnMove(precedingMove: MoveEvent | undefined, currentState: Che
     }
 
     return false;
+}
+
+function legalDoubleForward(currentState: ChessState, attemptedMove: MoveEvent, piece: Piece, moveType: PawnMoveType): boolean {
+    const oneForward: Position = piece.color === 'black' ? [attemptedMove.startPos[0] + 1, attemptedMove.startPos[1]] : 
+                                                           [attemptedMove.startPos[0] - 1, attemptedMove.startPos[1]];
+    return !containsPiece(currentState, oneForward, attemptedMove.endPos);
 }
