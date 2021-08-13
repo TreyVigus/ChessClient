@@ -18,7 +18,7 @@ let currentState: ChessState = initialState();
 let lastMove: MoveEvent | undefined = undefined; //The move that led to currentState
 
 drawState(currentState, view);
-view.showSquarePositions();
+// view.showSquarePositions();
 view.moveEmitter.subscribe((attemptedMove: MoveEvent) => {
     if(isLegal(lastMove, currentState, attemptedMove)) {
         renderMove(currentState, view, attemptedMove);
@@ -35,7 +35,12 @@ function initialState(): ChessState {
     });
 
     board[0][0].piece = {color: 'black', name: 'rook'};
-    board[0][7].piece = {color: 'black', name: 'rook'};
+    board[0][2].piece = {color: 'black', name: 'bishop'};
+    board[0][3].piece = {color: 'black', name: 'queen'};
+
+    board[7][0].piece = {color: 'white', name: 'rook'};
+    board[7][2].piece = {color: 'white', name: 'bishop'};
+    board[7][3].piece = {color: 'white', name: 'queen'};
 
     return { board };
 }

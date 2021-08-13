@@ -109,8 +109,9 @@ function isLegalPawnMove(precedingMove: MoveEvent | undefined, currentState: Che
 /** Is the king in check in the given state? */
 function inCheck(state: ChessState, kingColor: Color): boolean {
     //king is in check if any piece of the opposite color attacks the king's square.
-    const kingSquare = findKing(state, kingColor);
-    return hasAttackers(kingSquare, oppositeColor(kingColor), state);
+    // const kingSquare = findKing(state, kingColor);
+    // return hasAttackers(kingSquare, oppositeColor(kingColor), state);
+    return false;
 }
 
 /** Return the Square of the king of the given color in the given state. */
