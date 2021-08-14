@@ -1,7 +1,7 @@
 import { arrayEquals, createTestGroup } from "../../test-helpers/test-execution.js";
 import { Color, Position } from "../game/models.js";
 import { BOARD_SIZE } from "../view/boardView.js";
-import { clone, constructBoard, flat, itemAt, oppositeColor, posColor, posEquals, posSequence } from "./helpers.js";
+import { addPositions, clone, constructBoard, flat, itemAt, oppositeColor, posColor, posEquals, posSequence } from "./helpers.js";
 
 const tg = createTestGroup('Helpers Testing', ()=> {
 });
@@ -137,6 +137,26 @@ tg.add('clone array', () => {
     const copy = clone(obj);
     copy.child[0] = 4;
     if(!arrayEquals(obj.child, [1,2,3])) {
+        return false;
+    }
+
+    return true;
+});
+
+tg.add('addPositions', () => {
+    let sum1 = addPositions(
+        [1, 2],
+        [2, 3],
+        [4, 5]
+    );
+    if(!posEquals(sum1, [7, 10])) {
+        return false;
+    }
+
+    let sum2 = addPositions(
+        [1, 2],
+    );
+    if(!posEquals(sum2, [1, 2])) {
         return false;
     }
 

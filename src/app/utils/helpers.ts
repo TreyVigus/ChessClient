@@ -100,3 +100,13 @@ export function clone<T extends object>(obj: T): T {
 export function validPosition(pos: Position): boolean {
     return pos[0] > -1 && pos[1] > -1 && pos[0] < BOARD_SIZE && pos[1] < BOARD_SIZE;
 }
+
+/** Perform vector addition on the given positions. */
+export function addPositions(...positions: Position[]): Position {
+    let sum: Position = [0, 0];
+    positions.forEach(pos => {
+        sum[0] = sum[0] + pos[0];
+        sum[1] = sum[1] + pos[1];
+    });
+    return sum;
+}
