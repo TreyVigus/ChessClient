@@ -1,6 +1,6 @@
 import { arrayEquals, createTestGroup } from "../../test-helpers/test-execution.js";
 import { constructBoard, flat, itemAt, posEquals } from "../utils/helpers.js";
-import { filterBlockedSquares, sameColumn, sameNegativeDiagonal, samePositiveDiagonal, sameRow } from "./attackVectors.js";
+import { filterBlockedSquares, sameColumn, sameNegativeDiagonal, samePositiveDiagonal, sameRow, sameUnitDiagonals } from "./attackVectors.js";
 import { ChessState, Piece, Position, Square } from "./models.js";
 
 //state where there are no pieces on any squares
@@ -19,7 +19,7 @@ function setPiece(state: ChessState, pos: Position, piece: Piece) {
     itemAt(state.board, pos).piece = piece;
 }
 
-const tg = createTestGroup('Movements Testing', ()=> {});
+const tg = createTestGroup('Attack Vectors Testing', ()=> {});
 
 function positionComparator() {
     return (a: Position, b: Position) => { return posEquals(a, b); }
@@ -101,6 +101,38 @@ tg.add('sameRow', () => {
         [7, 5],
         [7, 6],
         [7, 7],
+    ], positionComparator())
+});
+
+tg.add('sameUnitDiagonals1', () => {
+    const state = emptyState();
+    const pos = sameUnitDiagonals([7, 1], state, 'up').map(s => s.position);
+    return arrayEquals(pos, [
+        [6, 0],
+        [6, 2],
+    ], positionComparator())
+});
+
+tg.add('sameUnitDiagonals2', () => {
+    const state = emptyState();
+    const pos = sameUnitDiagonals([7, 1], state, 'down').map(s => s.position);
+    return pos.length === 0;
+});
+
+tg.add('sameUnitDiagonals4', () => {
+    const state = emptyState();
+    const pos = sameUnitDiagonals([0, 7], state, 'down').map(s => s.position);
+    return arrayEquals(pos, [
+        [1, 6],
+    ], positionComparator())
+});
+
+tg.add('sameUnitDiagonals5', () => {
+    const state = emptyState();
+    const pos = sameUnitDiagonals([3, 4], state, 'down').map(s => s.position);
+    return arrayEquals(pos, [
+        [4, 3],
+        [4, 5],
     ], positionComparator())
 });
 

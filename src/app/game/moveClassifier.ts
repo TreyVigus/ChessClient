@@ -29,6 +29,8 @@ export function classifyMove(precedingMove: MoveEvent | undefined, currentState:
             return 'pawnSingleForward';
         } else if(isPawnDoubleForward(piece, attemptedMove)) {
             return 'pawnDoubleForward';
+        } else if(isPawnNormalCapture(piece, attemptedMove)) {
+            return 'pawnNormalCapture';
         }
     }
     return 'normal';
@@ -61,4 +63,8 @@ function isPawnDoubleForward(pawn: Piece, attemptedMove: MoveEvent): boolean {
     } else {
         return attemptedMove.startPos[0] + 2 === attemptedMove.endPos[0];
     }
+}
+
+function isPawnNormalCapture(pawn: Piece, attemptedMove: MoveEvent): boolean {
+    return false;
 }

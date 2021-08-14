@@ -1,6 +1,7 @@
-import { flat, posEquals } from "../utils/helpers.js";
+import { flat, itemAt, posEquals, validPosition } from "../utils/helpers.js";
 import { ChessState, Position, Square } from "./models.js";
 
+//TODO: these should probably return Position[], not Square[].
 export function sameRow(piecePos: Position, state: ChessState): Square[] {
     return state.board[piecePos[0]];
 }
@@ -25,6 +26,36 @@ export function sameNegativeDiagonal(piecePos: Position, state: ChessState): Squ
     //a positive diagonal consists of all squares with the same difference of coordinates.
     const diagDiff = piecePos[0] - piecePos[1];
     return [...flat(state.board)].map(sq => sq.value).filter(s => (s.position[0] - s.position[1]) === diagDiff);
+}
+
+/** 
+ * Given the piecePos [i, j] 
+ * if direction is up, return [i-1, j-1] and [i-1, j+1]
+ * if direction is down, return [i+1, j-1] and [i+1, j+1]
+ * Useful for pawn movements.
+ */
+export function sameUnitDiagonals(piecePos: Position, state: ChessState, direction: 'up' | 'down'): Square[] {
+    let units = [];
+    if(direction === 'up') {
+        const northWest: Position = [piecePos[0] - 1, piecePos[1] - 1];
+        const northEast: Position = [piecePos[0] - 1, piecePos[1] + 1];
+        if(validPosition(northWest)) {
+            units.push(northWest);
+        }
+        if(validPosition(northEast)) {
+            units.push(northEast);
+        }
+    } else {
+        const southWest: Position = [piecePos[0] + 1, piecePos[1] - 1];
+        const southEast: Position = [piecePos[0] + 1, piecePos[1] + 1];
+        if(validPosition(southWest)) {
+            units.push(southWest);
+        }
+        if(validPosition(southEast)) {
+            units.push(southEast);
+        }
+    }
+    return units.map(pos => itemAt(state.board, pos));
 }
 
 /** 

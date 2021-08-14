@@ -1,6 +1,6 @@
 import { flat, itemAt, oppositeColor, posEquals, validPosition } from "../utils/helpers.js";
 import { BOARD_SIZE } from "../view/boardView.js";
-import { filterBlockedSquares, sameColumn, sameNegativeDiagonal, samePositiveDiagonal, sameRow } from "./attackVectors.js";
+import { filterBlockedSquares, sameColumn, sameNegativeDiagonal, samePositiveDiagonal, sameRow, sameUnitDiagonals } from "./attackVectors.js";
 import { ChessState, Color, Piece, Position, Square } from "./models.js";
 
 /** Return a list of all squares attacked by the given piece. */
@@ -68,33 +68,8 @@ function bishopAttackedSquares(bishopPos: Position, state: ChessState): Square[]
 }
 
 function pawnAttackedSquares(pawnPos: Position, state: ChessState, pawn: Piece): Square[] {
-    //a pawn on the back rank attacks no squares. TODO: will this condition ever be met since the pawn will become queen anyway.
-    if( (pawn.color === 'white' && pawnPos[0] === 0) || (pawn.color === 'black' && pawnPos[0] === BOARD_SIZE - 1) ) {
-        return [];
-    }
-
-    let attacked = [];
-    if(pawn.color === 'white') {
-        const northWest: Position = [pawnPos[0] - 1, pawnPos[1] - 1];
-        const northEast: Position = [pawnPos[0] - 1, pawnPos[1] + 1];
-        if(validPosition(northWest)) {
-            attacked.push(northWest);
-        }
-        if(validPosition(northEast)) {
-            attacked.push(northEast);
-        }
-    } else {
-        const southWest: Position = [pawnPos[0] + 1, pawnPos[1] - 1];
-        const southEast: Position = [pawnPos[0] + 1, pawnPos[1] + 1];
-        if(validPosition(southWest)) {
-            attacked.push(southWest);
-        }
-        if(validPosition(southEast)) {
-            attacked.push(southWest);
-        }
-    }
-
-    return attacked.map(pos => itemAt(state.board, pos));
+    const direction = pawn.color === 'white' ? 'up' : 'down';
+    return sameUnitDiagonals(pawnPos, state, direction);
 }
 
 function kingAttackedSquares(kingPos: Position, state: ChessState, king: Piece): Square[] {
