@@ -73,15 +73,28 @@ function pawnAttackedSquares(pawnPos: Position, state: ChessState, pawn: Piece):
         return [];
     }
 
+    let attacked = [];
     if(pawn.color === 'white') {
         const northWest: Position = [pawnPos[0] - 1, pawnPos[1] - 1];
         const northEast: Position = [pawnPos[0] - 1, pawnPos[1] + 1];
-        return [itemAt(state.board, northWest), itemAt(state.board, northEast)];
+        if(validPosition(northWest)) {
+            attacked.push(northWest);
+        }
+        if(validPosition(northEast)) {
+            attacked.push(northEast);
+        }
     } else {
         const southWest: Position = [pawnPos[0] + 1, pawnPos[1] - 1];
         const southEast: Position = [pawnPos[0] + 1, pawnPos[1] + 1];
-        return [itemAt(state.board, southWest), itemAt(state.board, southEast)];
+        if(validPosition(southWest)) {
+            attacked.push(southWest);
+        }
+        if(validPosition(southEast)) {
+            attacked.push(southWest);
+        }
     }
+
+    return attacked.map(pos => itemAt(state.board, pos));
 }
 
 function kingAttackedSquares(kingPos: Position, state: ChessState, king: Piece): Square[] {
