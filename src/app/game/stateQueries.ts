@@ -1,5 +1,4 @@
 import { flat, itemAt, oppositeColor, posEquals, validPosition } from "../utils/helpers.js";
-import { BOARD_SIZE } from "../view/boardView.js";
 import { filterBlockedSquares, sameColumn, sameNegativeDiagonal, samePositiveDiagonal, sameRow, sameUnitDiagonals } from "./attackVectors.js";
 import { ChessState, Color, Piece, Position, Square } from "./models.js";
 

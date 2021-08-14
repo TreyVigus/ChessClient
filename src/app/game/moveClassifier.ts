@@ -1,5 +1,6 @@
-import { itemAt } from "../utils/helpers.js";
+import { itemAt, posEquals } from "../utils/helpers.js";
 import { MoveEvent } from "../view/boardView.js";
+import { sameUnitDiagonals } from "./attackVectors.js";
 import { ChessState, Piece } from "./models.js";
 
 /** Note: a 'normal' move is one that could not be classified as castle or a PawnMoveType. */
@@ -29,7 +30,7 @@ export function classifyMove(precedingMove: MoveEvent | undefined, currentState:
             return 'pawnSingleForward';
         } else if(isPawnDoubleForward(piece, attemptedMove)) {
             return 'pawnDoubleForward';
-        } else if(isPawnNormalCapture(piece, attemptedMove)) {
+        } else if(isPawnNormalCapture(piece, attemptedMove, currentState)) {
             return 'pawnNormalCapture';
         }
     }
@@ -43,7 +44,7 @@ function isPawnSingleForward(pawn: Piece, attemptedMove: MoveEvent): boolean {
     }
 
     //must advance one square
-    //TODO: may be able to create a 'moveDistance' function that takes a direction & calcs number of squares moved.
+    //TODO: may be able to create a 'moveDistance' function that takes a direction & calcs number of squares moved (vector addition)
     if(pawn.color === 'white') {
         return attemptedMove.startPos[0] - 1 === attemptedMove.endPos[0];
     } else {
@@ -65,6 +66,8 @@ function isPawnDoubleForward(pawn: Piece, attemptedMove: MoveEvent): boolean {
     }
 }
 
-function isPawnNormalCapture(pawn: Piece, attemptedMove: MoveEvent): boolean {
-    return false;
+function isPawnNormalCapture(pawn: Piece, attemptedMove: MoveEvent, state: ChessState): boolean {
+    const direction = pawn.color === 'white' ? 'up' : 'down';
+    const attacked = sameUnitDiagonals(attemptedMove.startPos, state, direction).map(s => s.position);
+    return attacked.findIndex(s => posEquals(s, attemptedMove.endPos)) > -1;
 }

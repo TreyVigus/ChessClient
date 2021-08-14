@@ -30,9 +30,11 @@ function initialState(): ChessState {
     board[0][3].piece = {color: 'black', name: 'queen'};
     board[0][4].piece = {color: 'black', name: 'king'};
 
-    // board[1][0].piece = {color: 'black', name: 'pawn'};
+    board[1][0].piece = {color: 'black', name: 'pawn'};
+    board[1][1].piece = {color: 'black', name: 'pawn'};
 
     board[6][0].piece = {color: 'white', name: 'pawn'};
+    board[6][1].piece = {color: 'white', name: 'pawn'};
 
     board[7][0].piece = {color: 'white', name: 'rook'};
     board[7][1].piece = {color: 'white', name: 'knight'};

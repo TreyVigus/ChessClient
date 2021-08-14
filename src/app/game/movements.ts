@@ -38,12 +38,25 @@ export function isLegal(precedingMove: MoveEvent | undefined, currentState: Ches
     }
 
     if(moveType === 'normal') {
-        return legalNormalMove(currentState, attemptedMove, piece);
+        if(!legalNormalMove(currentState, attemptedMove, piece)) {
+            return false;
+        }
     } else if(moveType === 'castle') {
-        return legalCastle(currentState, attemptedMove, piece);
+        if(!legalCastle(currentState, attemptedMove, piece)) {
+            return false;
+        }
     } else {
-        return legalPawnMove(precedingMove, currentState, attemptedMove, piece, moveType);
+        if(!legalPawnMove(precedingMove, currentState, attemptedMove, piece, moveType)) {
+            return false;
+        }
     }
+
+    const futureState = makeMove(undefined, currentState, attemptedMove);
+    if(inCheck(futureState, piece.color)) {
+        return false;
+    }
+
+    return true;
 }
 
 /** 
@@ -95,10 +108,6 @@ function legalNormalMove(currentState: ChessState, attemptedMove: MoveEvent, pie
     if(!legalTarget) {
         return false;
     }
-    const futureState = makeMove(undefined, currentState, attemptedMove);
-    if(inCheck(futureState, piece.color)) {
-        return false;
-    }
     return true;
 }
 
@@ -112,7 +121,7 @@ function legalPawnMove(precedingMove: MoveEvent | undefined, currentState: Chess
     } else if(moveType === 'pawnDoubleForward') {
         return legalDoubleForward(currentState, attemptedMove, piece);
     } else if(moveType === 'pawnNormalCapture') {
-        return legalNormalMove(currentState, attemptedMove, piece);
+        return containsPiece(currentState, attemptedMove.endPos) && legalNormalMove(currentState, attemptedMove, piece);
     } else if(moveType === 'pawnPassantCapture') {
         return false;
     } else if(moveType === 'pawnPromote') {
