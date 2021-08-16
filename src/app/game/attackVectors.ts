@@ -5,8 +5,8 @@ export type Direction = 'north' | 'northEast' | 'east' | 'southEast' | 'south' |
 
 export type VerticalDirection = 'north' | 'south';
 
-//TODO: these should probably return Position[], not Square[].
-//TODO: after doing the above, name this 'relativePositions.ts'
+//TODO: these should probably return Position[], not Square[]. (wouldn't need any knowledge of the state if we did this, which is elegant)
+//TODO: after doing the above, name this 'relativePositions.ts' May want to move filterBlockedSquares somewhere else as well (maybe state queries?)
 
 export function sameRow(piecePos: Position, state: ChessState): Square[] {
     return state.board[piecePos[0]];

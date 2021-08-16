@@ -89,9 +89,8 @@ function classifyPawnCapture(pawn: Piece, precedingMove: MoveEvent | undefined, 
     //If current pawn attacks one square behind preceding pawn, return 'pawnPassantCapture'.
     const currPawnDirection = pawn.color === 'white' ? 'north' : 'south';
     //find the position that is one behind the preceding move's end position
-    let behind = adjacent(precedingMove.endPos, currPawnDirection)!; //assumes previous pawn is opposite color as current pawn
+    const behind = adjacent(precedingMove.endPos, currPawnDirection)!; //assumes previous pawn is opposite color as current pawn
 
-    //is the attempted move's end position equal to behind?
     if(posEquals(attemptedMove.endPos, behind)) {
         return 'pawnPassantCapture';
     }
