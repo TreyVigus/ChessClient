@@ -67,7 +67,7 @@ function bishopAttackedSquares(bishopPos: Position, state: ChessState): Square[]
 }
 
 function pawnAttackedSquares(pawnPos: Position, state: ChessState, pawn: Piece): Square[] {
-    const direction = pawn.color === 'white' ? 'up' : 'down';
+    const direction = pawn.color === 'white' ? 'north' : 'south';
     return sameUnitDiagonals(pawnPos, state, direction);
 }
 

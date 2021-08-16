@@ -102,6 +102,7 @@ export function validPosition(pos: Position): boolean {
 }
 
 /** Perform vector addition on the given positions. */
+//TODO: use this in more locations
 export function addPositions(...positions: Position[]): Position {
     let sum: Position = [0, 0];
     positions.forEach(pos => {

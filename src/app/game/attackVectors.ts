@@ -1,7 +1,13 @@
-import { flat, itemAt, posEquals, validPosition } from "../utils/helpers.js";
+import { addPositions, flat, itemAt, posEquals, validPosition } from "../utils/helpers.js";
 import { ChessState, Position, Square } from "./models.js";
 
+export type Direction = 'north' | 'northEast' | 'east' | 'southEast' | 'south' | 'southWest' | 'west' | 'northWest';
+
+export type VerticalDirection = 'north' | 'south';
+
 //TODO: these should probably return Position[], not Square[].
+//TODO: after doing the above, name this 'relativePositions.ts'
+
 export function sameRow(piecePos: Position, state: ChessState): Square[] {
     return state.board[piecePos[0]];
 }
@@ -34,9 +40,9 @@ export function sameNegativeDiagonal(piecePos: Position, state: ChessState): Squ
  * if direction is down, return [i+1, j-1] and [i+1, j+1]
  * Useful for pawn movements.
  */
-export function sameUnitDiagonals(piecePos: Position, state: ChessState, direction: 'up' | 'down'): Square[] {
+export function sameUnitDiagonals(piecePos: Position, state: ChessState, direction: VerticalDirection): Square[] {
     let units = [];
-    if(direction === 'up') {
+    if(direction === 'north') {
         const northWest: Position = [piecePos[0] - 1, piecePos[1] - 1];
         const northEast: Position = [piecePos[0] - 1, piecePos[1] + 1];
         if(validPosition(northWest)) {
@@ -88,4 +94,20 @@ export function filterBlockedSquares(piecePos: Position, squares: Square[]): Squ
     }
 
     return squares.slice(leftBlocker, rightBlocker + 1);
+}
+
+/** 
+ * Find a position one square from the given position in the given direction.
+ * TODO: handle more than just multiple directions and use this for the king.
+ * TODO: could make a more generic version that lets you pass sequences of directions (useful for knight)
+ *          e.g. [north, north, west] would go up two and left one
+*/
+export function adjacent(pos: Position, direction: VerticalDirection): Position | undefined {
+    let adj: Position;
+    if(direction === 'north') {
+        adj = addPositions(pos, [-1, 0]);
+    } else {
+        adj = addPositions(pos, [1, 0]);
+    }
+    return validPosition(adj) ? adj : undefined;
 }

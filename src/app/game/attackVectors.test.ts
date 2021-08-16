@@ -1,6 +1,6 @@
 import { arrayEquals, createTestGroup } from "../../test-helpers/test-execution.js";
 import { constructBoard, flat, itemAt, posEquals } from "../utils/helpers.js";
-import { filterBlockedSquares, sameColumn, sameNegativeDiagonal, samePositiveDiagonal, sameRow, sameUnitDiagonals } from "./attackVectors.js";
+import { filterBlockedSquares, adjacent, sameColumn, sameNegativeDiagonal, samePositiveDiagonal, sameRow, sameUnitDiagonals } from "./attackVectors.js";
 import { ChessState, Piece, Position, Square } from "./models.js";
 
 //state where there are no pieces on any squares
@@ -106,7 +106,7 @@ tg.add('sameRow', () => {
 
 tg.add('sameUnitDiagonals1', () => {
     const state = emptyState();
-    const pos = sameUnitDiagonals([7, 1], state, 'up').map(s => s.position);
+    const pos = sameUnitDiagonals([7, 1], state, 'north').map(s => s.position);
     return arrayEquals(pos, [
         [6, 0],
         [6, 2],
@@ -115,13 +115,13 @@ tg.add('sameUnitDiagonals1', () => {
 
 tg.add('sameUnitDiagonals2', () => {
     const state = emptyState();
-    const pos = sameUnitDiagonals([7, 1], state, 'down').map(s => s.position);
+    const pos = sameUnitDiagonals([7, 1], state, 'south').map(s => s.position);
     return pos.length === 0;
 });
 
 tg.add('sameUnitDiagonals4', () => {
     const state = emptyState();
-    const pos = sameUnitDiagonals([0, 7], state, 'down').map(s => s.position);
+    const pos = sameUnitDiagonals([0, 7], state, 'south').map(s => s.position);
     return arrayEquals(pos, [
         [1, 6],
     ], positionComparator())
@@ -129,7 +129,7 @@ tg.add('sameUnitDiagonals4', () => {
 
 tg.add('sameUnitDiagonals5', () => {
     const state = emptyState();
-    const pos = sameUnitDiagonals([3, 4], state, 'down').map(s => s.position);
+    const pos = sameUnitDiagonals([3, 4], state, 'south').map(s => s.position);
     return arrayEquals(pos, [
         [4, 3],
         [4, 5],
@@ -201,5 +201,24 @@ tg.add('filterBlockedSquares4', () => {
         [4, 5],
     ], positionComparator());
 });
+
+tg.add('adjacent1', () => {
+    let behind = adjacent([5, 5], 'north');
+    if(!behind || !posEquals(behind, [4, 5])) {
+        return false;
+    }
+
+    behind = adjacent([5, 5], 'south');
+    if(!behind || !posEquals(behind, [6, 5])) {
+        return false;
+    }
+
+    behind = adjacent([0, 0], 'north');
+    if(behind) {
+        return false;
+    }
+
+    return true;
+})
 
 tg.execute();
