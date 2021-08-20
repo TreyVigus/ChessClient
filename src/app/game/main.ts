@@ -13,6 +13,7 @@ view.moveEmitter.subscribe((attemptedMove: MoveEvent) => {
     if(isLegal(lastMove, currentState, attemptedMove)) {
         renderMove(currentState, view, attemptedMove);
         currentState = makeMove(lastMove, currentState, attemptedMove);
+        lastMove = attemptedMove;
     }
 });
 
