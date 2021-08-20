@@ -74,7 +74,13 @@ function isPawnCapture(pawn: Piece, attemptedMove: MoveEvent, state: ChessState)
 }
 
 function classifyPawnCapture(pawn: Piece, precedingMove: MoveEvent | undefined, attemptedMove: MoveEvent, state: ChessState): 'pawnNormalCapture' | 'pawnPassantCapture' {
+    //was the preceding move a pawn move?
     if(!precedingMove || itemAt(state.board, precedingMove.endPos).piece?.name !== 'pawn') {
+        return 'pawnNormalCapture';
+    }
+
+    //if the preceding pawn move was en-passant, the attemptedMove can not be en-passant.
+    if(precedingMove.startPos[0] !== precedingMove.endPos[0]) {
         return 'pawnNormalCapture';
     }
 
