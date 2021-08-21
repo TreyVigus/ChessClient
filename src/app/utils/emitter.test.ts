@@ -1,4 +1,4 @@
-import { createTestGroup } from "../../test-helpers/test-execution.js";
+import { createTestGroup } from "../../testing/test-execution.js";
 import { createEmitter, Emitter } from "./emitter.js";
 
 let emitter: Emitter<string>;

@@ -1,4 +1,5 @@
-import { arrayEquals, createTestGroup } from "../../test-helpers/test-execution.js";
+import { createTestGroup } from "../../testing/test-execution.js";
+import { arrayEquals } from "../../testing/test-helpers.js";
 import { Color, Position } from "../game/models.js";
 import { BOARD_SIZE } from "../view/boardView.js";
 import { addPositions, clone, constructBoard, flat, itemAt, oppositeColor, posColor, posEquals, posSequence } from "./helpers.js";

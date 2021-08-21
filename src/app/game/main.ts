@@ -8,7 +8,7 @@ let currentState: ChessState = initialState();
 let lastMove: MoveEvent | undefined = undefined; //The move that led to currentState
 
 drawState(currentState, view);
-// view.showSquarePositions();
+view.showSquarePositions();
 view.moveEmitter.subscribe((attemptedMove: MoveEvent) => {
     if(isLegal(lastMove, currentState, attemptedMove)) {
         renderMove(currentState, view, attemptedMove);

@@ -1,29 +1,10 @@
-import { arrayEquals, createTestGroup } from "../../test-helpers/test-execution.js";
-import { constructBoard, flat, itemAt, posEquals } from "../utils/helpers.js";
+import { createTestGroup } from "../../testing/test-execution.js";
+import { arrayEquals, emptyState, positionComparator, setPiece } from "../../testing/test-helpers.js";
+import { posEquals } from "../utils/helpers.js";
 import { filterBlockedSquares, adjacent, sameColumn, sameNegativeDiagonal, samePositiveDiagonal, sameRow, sameUnitDiagonals } from "./attackVectors.js";
-import { ChessState, Piece, Position, Square } from "./models.js";
-
-//state where there are no pieces on any squares
-function emptyState(): ChessState {
-    const board = constructBoard<Square>((pos: Position) => {
-        return { 
-            position: pos,
-            piece: undefined
-         };
-    });
-
-    return { board };
-}
-
-function setPiece(state: ChessState, pos: Position, piece: Piece) {
-    itemAt(state.board, pos).piece = piece;
-}
+import { Position } from "./models.js";
 
 const tg = createTestGroup('Attack Vectors Testing', ()=> {});
-
-function positionComparator() {
-    return (a: Position, b: Position) => { return posEquals(a, b); }
-}
 
 tg.add('sameColumn', () => {
     const state = emptyState();
@@ -219,6 +200,6 @@ tg.add('adjacent1', () => {
     }
 
     return true;
-})
+});
 
 tg.execute();
