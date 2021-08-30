@@ -69,15 +69,19 @@ export function makeMove(precedingMove: MoveEvent | undefined, prevState: ChessS
     const moveType = classifyMove(precedingMove, prevState, legalMove);
 
     //Move the piece at startSquare to endSquare. If there is a piece already at endSquare, remove it.
-    if(moveType === 'normal' || moveType === 'pawnNormalCapture' || moveType === 'pawnSingleForward' || moveType === 'pawnDoubleForward') {
-        const startSquare = itemAt(copy.board, legalMove.startPos);
-        const endSquare = itemAt(copy.board, legalMove.endPos);
-        endSquare.piece = startSquare.piece; //piece will be defined since we've assumed a legalMove
-        startSquare.piece = undefined;
-        endSquare.touched = true;
-        startSquare.touched = true;
-    } else {
-        throw 'no move performed';
+    const startSquare = itemAt(copy.board, legalMove.startPos);
+    const endSquare = itemAt(copy.board, legalMove.endPos);
+    endSquare.piece = startSquare.piece; //piece will be defined since we've assumed a legalMove
+    startSquare.piece = undefined;
+    endSquare.touched = true;
+    startSquare.touched = true;
+
+    if(moveType === 'pawnPassantCapture') {
+        itemAt(copy.board, precedingMove!.endPos).piece = undefined;
+    } 
+
+    if(moveType === 'castle' || moveType === 'pawnPromote') {
+        throw 'unimplemented move type';
     }
 
     return copy;
@@ -123,7 +127,8 @@ function legalPawnMove(precedingMove: MoveEvent | undefined, currentState: Chess
     } else if(moveType === 'pawnNormalCapture') {
         return containsPiece(currentState, attemptedMove.endPos) && legalNormalMove(currentState, attemptedMove, piece);
     } else if(moveType === 'pawnPassantCapture') {
-        return false;
+        //an illegal pawn move will always be of type 'pawnNormalCapture'
+        return true;
     } else if(moveType === 'pawnPromote') {
         return false;
     }
