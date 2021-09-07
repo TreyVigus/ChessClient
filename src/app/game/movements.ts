@@ -45,7 +45,7 @@ export function isLegal(precedingMove: MoveEvent | undefined, currentState: Ches
         if(!legalCastle(currentState, attemptedMove, piece)) {
             return false;
         }
-    } else {
+    } else { //pawn move
         if(!legalPawnMove(precedingMove, currentState, attemptedMove, piece, moveType)) {
             return false;
         }

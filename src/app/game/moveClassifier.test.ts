@@ -257,4 +257,24 @@ tg.add('not classified as en passant if prev pawn move was not from starting pos
     return classification === 'pawnNormalCapture';
 });
 
+tg.add('white pawn promotion', () => {
+    setPiece(state, [1,6], {color: 'white', name: 'pawn'});
+    const attemptedMove = {
+        startPos: [1, 6],
+        endPos: [0, 6]
+    }
+    const classification = classifyMove(undefined, state, attemptedMove as MoveEvent);
+    return classification === 'pawnPromote';
+});
+
+tg.add('black pawn promotion', () => {
+    setPiece(state, [6, 0], {color: 'black', name: 'pawn'});
+    const attemptedMove = {
+        startPos: [6, 0],
+        endPos: [7, 0]
+    }
+    const classification = classifyMove(undefined, state, attemptedMove as MoveEvent);
+    return classification === 'pawnPromote';
+});
+
 tg.execute();
