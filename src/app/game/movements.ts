@@ -3,7 +3,7 @@ import { clone, flat, itemAt, oppositeColor, posEquals, validPosition } from "..
 import { BOARD_SIZE, MoveEvent } from "../view/boardView.js";
 import { ChessState, Color, Piece, Position, Square } from "./models.js";
 import { classifyMove, isPawnMoveType, PawnMoveType } from "./moveClassifier.js";
-import { attackedSquares, containsPiece, inCheck } from "./stateQueries.js";
+import { attackedSquares, containsPiece, inCheck, isBackRank } from "./stateQueries.js";
 
 //Typically, a piece can only move to the squares that it attacks.
 //Special cases: 
@@ -76,11 +76,16 @@ export function makeMove(precedingMove: MoveEvent | undefined, prevState: ChessS
     endSquare.touched = true;
     startSquare.touched = true;
 
+    if(isBackRank(endSquare.piece!.color, endSquare.position)) {
+        endSquare.piece!.name = 'queen';
+        return copy;
+    }
+
     if(moveType === 'pawnPassantCapture') {
         itemAt(copy.board, precedingMove!.endPos).piece = undefined;
     } 
 
-    if(moveType === 'castle' || moveType === 'pawnPromote') {
+    if(moveType === 'castle') {
         throw 'unimplemented move type';
     }
 
@@ -130,7 +135,7 @@ function legalPawnMove(precedingMove: MoveEvent | undefined, currentState: Chess
         //an illegal pawn move will always be of type 'pawnNormalCapture'
         return true;
     } else if(moveType === 'pawnPromote') {
-        return false;
+        return !containsPiece(currentState, attemptedMove.endPos);
     }
 
     return false;

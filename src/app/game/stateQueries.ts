@@ -1,4 +1,5 @@
 import { flat, itemAt, oppositeColor, posEquals, validPosition } from "../utils/helpers.js";
+import { BOARD_SIZE } from "../view/boardView.js";
 import { filterBlockedSquares, sameColumn, sameNegativeDiagonal, samePositiveDiagonal, sameRow, sameUnitDiagonals } from "./attackVectors.js";
 import { ChessState, Color, Piece, Position, Square } from "./models.js";
 
@@ -52,6 +53,15 @@ export function inCheck(state: ChessState, kingColor: Color): boolean {
 /** Do the given positions contain a piece in the given state? */
 export function containsPiece(state: ChessState, ...positions: Position[]): boolean {
     return positions.findIndex(pos => !!itemAt(state.board, pos).piece) > -1;
+}
+
+/** Is the given position located on the opposite color's back rank? */
+//TODO: unit test
+export function isBackRank(pawnColor: Color, pos: Position): boolean {
+    if(pawnColor === 'white' && pos[0] === 0 || pawnColor === 'black' && pos[0] === BOARD_SIZE - 1) {
+        return true;
+    } 
+    return false;
 }
 
 function rookAttackedSquares(rookPos: Position, state: ChessState): Square[] {  

@@ -264,7 +264,7 @@ tg.add('white pawn promotion', () => {
         endPos: [0, 6]
     }
     const classification = classifyMove(undefined, state, attemptedMove as MoveEvent);
-    return classification === 'pawnPromote';
+    return classification === 'pawnSingleForward';
 });
 
 tg.add('black pawn promotion', () => {
@@ -274,7 +274,7 @@ tg.add('black pawn promotion', () => {
         endPos: [7, 0]
     }
     const classification = classifyMove(undefined, state, attemptedMove as MoveEvent);
-    return classification === 'pawnPromote';
+    return classification === 'pawnSingleForward';
 });
 
 tg.execute();

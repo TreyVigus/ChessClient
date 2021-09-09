@@ -1,12 +1,12 @@
 import { itemAt, posEquals } from "../utils/helpers.js";
-import { BOARD_SIZE, MoveEvent } from "../view/boardView.js";
+import { MoveEvent } from "../view/boardView.js";
 import { adjacent, sameUnitDiagonals } from "./attackVectors.js";
 import { ChessState, Piece } from "./models.js";
 
 /** Note: a 'normal' move is one that could not be classified as castle or a PawnMoveType. */
 export type MoveType = 'castle' |  PawnMoveType | 'normal';
 
-export type PawnMoveType = 'pawnPromote' | 'pawnSingleForward' | 'pawnDoubleForward' | 'pawnNormalCapture' | 'pawnPassantCapture';
+export type PawnMoveType = 'pawnSingleForward' | 'pawnDoubleForward' | 'pawnNormalCapture' | 'pawnPassantCapture';
 
 export function isPawnMoveType(moveType: MoveType): boolean {
     return [
@@ -27,9 +27,6 @@ export function classifyMove(precedingMove: MoveEvent | undefined, currentState:
     const piece = itemAt(currentState.board, attemptedMove.startPos).piece!;
     if(piece.name === 'pawn') {
         if(isPawnSingleForward(piece, attemptedMove)) {
-            if(piece.color === 'white' && attemptedMove.endPos[0] === 0 || piece.color === 'black' && attemptedMove.endPos[0] === BOARD_SIZE - 1) {
-                return 'pawnPromote';
-            } 
             return 'pawnSingleForward';
         } else if(isPawnDoubleForward(piece, attemptedMove)) {
             return 'pawnDoubleForward';
