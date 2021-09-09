@@ -1,7 +1,7 @@
 import { constructBoard, flat, itemAt } from "../utils/helpers.js";
 import { BoardView, initView, MoveEvent } from "../view/boardView.js";
 import { ChessState, Position, Square } from "./models.js";
-import { classifyMove, isPawnMoveType } from "./moveClassifier.js";
+import { classifyMove } from "./moveClassifier.js";
 import { isLegal, makeMove } from "./movements.js";
 import { isBackRank } from "./stateQueries.js";
 
@@ -10,7 +10,7 @@ let currentState: ChessState = initialState();
 let lastMove: MoveEvent | undefined = undefined; //The move that led to currentState
 
 drawState(currentState, view);
-// view.showSquarePositions();
+view.showSquarePositions();
 view.moveEmitter.subscribe((attemptedMove: MoveEvent) => {
     if(isLegal(lastMove, currentState, attemptedMove)) {
         renderMove(currentState, view, lastMove, attemptedMove);
@@ -82,8 +82,6 @@ function drawState(state: ChessState, view: BoardView) {
  * */
 function renderMove(state: ChessState, view: BoardView, lastMove: MoveEvent | undefined, attemptedMove: MoveEvent): void {
     const moveType = classifyMove(lastMove, state, attemptedMove);
-    console.log('move type: ', moveType);
-
     const piece = itemAt(state.board, attemptedMove.startPos).piece!;
     if(['normal', 'pawnSingleForward', 'pawnDoubleForward', 'pawnNormalCapture'].includes(moveType)) {
         view.removePiece(attemptedMove.startPos);

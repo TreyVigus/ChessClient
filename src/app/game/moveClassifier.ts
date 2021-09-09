@@ -33,6 +33,10 @@ export function classifyMove(precedingMove: MoveEvent | undefined, currentState:
         } else if(isPawnCapture(piece, attemptedMove, currentState)) {
             return classifyPawnCapture(piece, precedingMove, attemptedMove, currentState);
         }
+    } else if(piece.name === 'king') {
+        if(isCastle(attemptedMove)) {
+            return 'castle';
+        }
     }
     return 'normal';
 }
@@ -103,3 +107,8 @@ function classifyPawnCapture(pawn: Piece, precedingMove: MoveEvent | undefined, 
 
     return 'pawnNormalCapture';
 } 
+
+/** If the king stayed in the same row and tried to move two squares left or right, the move is an attemped castle. */
+function isCastle(attemptedMove: MoveEvent): boolean {
+    return attemptedMove.endPos[0] === attemptedMove.startPos[0] && Math.abs(attemptedMove.startPos[1] - attemptedMove.endPos[1]) === 2;
+}

@@ -277,4 +277,65 @@ tg.add('black pawn promotion', () => {
     return classification === 'pawnSingleForward';
 });
 
+tg.add('white queenside castle', () => {
+    setPiece(state, [7, 4], {color: 'white', name: 'king'});
+    const attemptedMove = {
+        startPos: [7, 4],
+        endPos: [7, 2]
+    }
+    const classification = classifyMove(undefined, state, attemptedMove as MoveEvent);
+    return classification === 'castle';
+});
+
+tg.add('white kingside castle', () => {
+    setPiece(state, [7, 4], {color: 'white', name: 'king'});
+    const attemptedMove = {
+        startPos: [7, 4],
+        endPos: [7, 6]
+    }
+    const classification = classifyMove(undefined, state, attemptedMove as MoveEvent);
+    return classification === 'castle';
+});
+
+tg.add('black kingside castle', () => {
+    setPiece(state, [0, 4], {color: 'black', name: 'king'});
+    const attemptedMove = {
+        startPos: [0, 4],
+        endPos: [0, 6]
+    }
+    const classification = classifyMove(undefined, state, attemptedMove as MoveEvent);
+    return classification === 'castle';
+});
+
+tg.add('black queenside castle', () => {
+    setPiece(state, [0, 4], {color: 'black', name: 'king'});
+    const attemptedMove = {
+        startPos: [0, 4],
+        endPos: [0, 2]
+    }
+    const classification = classifyMove(undefined, state, attemptedMove as MoveEvent);
+    return classification === 'castle';
+});
+
+tg.add('normal king move1', () => {
+    setPiece(state, [0, 4], {color: 'black', name: 'king'});
+    const attemptedMove = {
+        startPos: [0, 4],
+        endPos: [1, 3]
+    }
+    const classification = classifyMove(undefined, state, attemptedMove as MoveEvent);
+    return classification === 'normal';
+});
+
+tg.add('normal king move1', () => {
+    setPiece(state, [4, 2], {color: 'white', name: 'king'});
+    const attemptedMove = {
+        startPos: [4, 2],
+        endPos: [1, 2]
+    }
+    const classification = classifyMove(undefined, state, attemptedMove as MoveEvent);
+    return classification === 'normal';
+});
+
+
 tg.execute();
