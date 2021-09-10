@@ -1,20 +1,13 @@
 //Handles attacking squares, etc by piece
-import { clone, flat, itemAt, oppositeColor, posEquals, validPosition } from "../utils/helpers.js";
-import { BOARD_SIZE, MoveEvent } from "../view/boardView.js";
+import { addPositions, clone, itemAt, oppositeColor, posEquals, } from "../utils/helpers.js";
+import { MoveEvent } from "../view/boardView.js";
+import { sameRow } from "./attackVectors.js";
 import { ChessState, Color, Piece, Position, Square } from "./models.js";
 import { classifyMove, isPawnMoveType, PawnMoveType } from "./moveClassifier.js";
-import { attackedSquares, containsPiece, inCheck, isBackRank } from "./stateQueries.js";
+import { attackedSquares, containsPiece, hasAttackers, inCheck, isBackRank } from "./stateQueries.js";
 
-//Typically, a piece can only move to the squares that it attacks.
-//Special cases: 
-//  King cannot move into check (need to know what squares the other pieces are attacking, including the enemy king)
-//  A piece cannot move if it places the king into check (can combine with the above rule and just see if the resulting state would place the king in check.)
-//  Castling (just check the touched property of the relevant Square objects) (cannot move through check)
-//  Pawns:
-//      can move forward unless blocked.
-//      can move two squares forward on first move (determine based on touched property of Square)
-//      en passant (need to know if the previous move was a pawn move. See lastMove parameter.)
-//      queening (check forward movement for back rank)
+export type KingSide = 'left' | 'right';
+
 export function isLegal(precedingMove: MoveEvent | undefined, currentState: ChessState, attemptedMove: MoveEvent): boolean {
     const piece = itemAt(currentState.board, attemptedMove.startPos).piece;
 
@@ -62,7 +55,6 @@ export function isLegal(precedingMove: MoveEvent | undefined, currentState: Ches
 /** 
  * Expects legalMove to have passed the isLegal() checks.
  * Return the state that would follow if legalMove occured on prevState.
- * TODO: handle other moveTypes 
  * */
 export function makeMove(precedingMove: MoveEvent | undefined, prevState: ChessState, legalMove: MoveEvent): ChessState {
     const copy = clone(prevState);
@@ -71,10 +63,8 @@ export function makeMove(precedingMove: MoveEvent | undefined, prevState: ChessS
     //Move the piece at startSquare to endSquare. If there is a piece already at endSquare, remove it.
     const startSquare = itemAt(copy.board, legalMove.startPos);
     const endSquare = itemAt(copy.board, legalMove.endPos);
-    endSquare.piece = startSquare.piece; //piece will be defined since we've assumed a legalMove
-    startSquare.piece = undefined;
-    endSquare.touched = true;
-    startSquare.touched = true;
+
+    movePiece(startSquare, endSquare);
 
     if(isBackRank(endSquare.piece!.color, endSquare.position)) {
         endSquare.piece!.name = 'queen';
@@ -83,13 +73,25 @@ export function makeMove(precedingMove: MoveEvent | undefined, prevState: ChessS
 
     if(moveType === 'pawnPassantCapture') {
         itemAt(copy.board, precedingMove!.endPos).piece = undefined;
-    } 
+    } else if(moveType === 'castle') {
+        const kingColor = itemAt(prevState.board, legalMove.startPos).piece!.color;
+        const side = sideOfKing(kingStartPos(kingColor), legalMove.endPos);
 
-    if(moveType === 'castle') {
-        throw 'unimplemented move type';
+        const rookSquare = itemAt(copy.board, rookStartPos(kingColor, side));
+        const newRookPos = side === 'right' ? addPositions(legalMove.endPos, [0, -1]) : addPositions(legalMove.endPos, [0, 1]);
+        const besideKingSquare = itemAt(copy.board, newRookPos);
+
+        movePiece(rookSquare, besideKingSquare);
     }
 
     return copy;
+}
+
+function movePiece(startSquare: Square, endSquare: Square) {
+    endSquare.piece = startSquare.piece;
+    startSquare.piece = undefined;
+    endSquare.touched = true;
+    startSquare.touched = true;
 }
 
 function targetsOwnPiece(currentState: ChessState, attemptedMove: MoveEvent, piece: Piece): boolean {
@@ -121,7 +123,36 @@ function legalNormalMove(currentState: ChessState, attemptedMove: MoveEvent, pie
 }
 
 function legalCastle(currentState: ChessState, attemptedMove: MoveEvent, piece: Piece): boolean {
-    return false;
+    if(inCheck(currentState, piece.color)) {
+        return false;
+    }
+
+    const kingStart = kingStartPos(piece.color);
+    const side = sideOfKing(kingStart, attemptedMove.endPos);
+    const rookStart = rookStartPos(piece.color, side);
+
+    if(itemAt(currentState.board, kingStart).touched || itemAt(currentState.board, rookStart).touched) {
+        return false;
+    }
+
+    let between: Square[] = [];
+    if(side === 'left') {
+        between = sameRow(kingStart, currentState).filter(s => rookStart[1] < s.position[1] && s.position[1] < kingStart[1]);
+    } else {
+        between = sameRow(kingStart, currentState).filter(s => kingStart[1] < s.position[1] && s.position[1] < rookStart[1]);
+    }
+
+    const pieceBetween = between.find(s => !!s.piece);
+    if(pieceBetween) {
+        return false;
+    }
+
+    const throughCheck = between.find(s => hasAttackers(s, oppositeColor(piece.color), currentState));
+    if(throughCheck) {
+        return false;
+    }
+
+    return true;
 }
 
 function legalPawnMove(precedingMove: MoveEvent | undefined, currentState: ChessState, attemptedMove: MoveEvent, piece: Piece, moveType: PawnMoveType): boolean {
@@ -152,4 +183,20 @@ function legalDoubleForward(currentState: ChessState, attemptedMove: MoveEvent, 
 
     const oneForward: Position = piece.color === 'black' ? [row + 1, col] : [row - 1, col];
     return !containsPiece(currentState, oneForward, attemptedMove.endPos);
+}
+
+function kingStartPos(kingColor: Color): Position  {
+    return kingColor === 'white' ? [7, 4] : [0, 4];
+}
+
+function rookStartPos(rookColor: Color, side: KingSide): Position {
+    if(rookColor == 'white') {
+        return side === 'right' ? [7, 7] : [7, 0];
+    } else {
+        return side === 'right' ? [0, 7] : [0, 0];
+    }
+}
+
+function sideOfKing(kingPos: Position, targetPos: Position): KingSide {
+    return kingPos[1] < targetPos[1] ? 'right' : 'left';
 }
