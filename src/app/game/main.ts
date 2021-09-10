@@ -9,6 +9,7 @@ let lastMove: MoveEvent | undefined = undefined; //The move that led to currentS
 
 drawState(currentState, view);
 // view.showSquarePositions();
+
 view.moveEmitter.subscribe((attemptedMove: MoveEvent) => {
     if(isLegal(lastMove, currentState, attemptedMove)) {
         currentState = makeMove(lastMove, currentState, attemptedMove);
