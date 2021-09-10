@@ -17,7 +17,7 @@ view.moveEmitter.subscribe((attemptedMove: MoveEvent) => {
     }
 });
 
-function initialState(): ChessState {
+export function initialState(): ChessState {
     const board = constructBoard<Square>((pos: Position) => {
         return { 
             position: pos,
