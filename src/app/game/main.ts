@@ -1,21 +1,19 @@
-import { constructBoard, flat, itemAt } from "../utils/helpers.js";
+import { constructBoard, flat } from "../utils/helpers.js";
 import { BoardView, initView, MoveEvent } from "../view/boardView.js";
 import { ChessState, Position, Square } from "./models.js";
-import { classifyMove } from "./moveClassifier.js";
 import { isLegal, makeMove } from "./movements.js";
-import { isBackRank } from "./stateQueries.js";
 
 const view = initView();
 let currentState: ChessState = initialState();
 let lastMove: MoveEvent | undefined = undefined; //The move that led to currentState
 
 drawState(currentState, view);
-view.showSquarePositions();
+// view.showSquarePositions();
 view.moveEmitter.subscribe((attemptedMove: MoveEvent) => {
     if(isLegal(lastMove, currentState, attemptedMove)) {
-        renderMove(currentState, view, lastMove, attemptedMove);
         currentState = makeMove(lastMove, currentState, attemptedMove);
         lastMove = attemptedMove;
+        drawState(currentState, view);
     }
 });
 
@@ -66,34 +64,11 @@ function initialState(): ChessState {
     return { board };
 }
 
-/** Draw the given state. Slower than making a move from an old state. */
-//TODO: this and renderMove could be added to a class in view directory.
 function drawState(state: ChessState, view: BoardView) {
     for(const s of flat(state.board)) {
+        view.removePiece(s.value.position);
         if(s.value.piece) {
             view.drawPiece(s.value.piece, s.index);
         }
-    }
-}
-
-/** 
- * Change the board view to reflect the given move event.
- * After renderMoveEvent is called, the view will match the given state. 
- * */
-function renderMove(state: ChessState, view: BoardView, lastMove: MoveEvent | undefined, attemptedMove: MoveEvent): void {
-    const moveType = classifyMove(lastMove, state, attemptedMove);
-    const piece = itemAt(state.board, attemptedMove.startPos).piece!;
-    if(['normal', 'pawnSingleForward', 'pawnDoubleForward', 'pawnNormalCapture'].includes(moveType)) {
-        view.removePiece(attemptedMove.startPos);
-        view.removePiece(attemptedMove.endPos);
-        if(piece.name === 'pawn' && isBackRank(piece.color, attemptedMove.endPos)) {
-            view.drawPiece({name: 'queen', color: piece.color}, attemptedMove.endPos);
-        } else {
-            view.drawPiece(piece, attemptedMove.endPos);
-        }
-    } else if(moveType === 'pawnPassantCapture') {
-        view.removePiece(attemptedMove.startPos);
-        view.removePiece(lastMove!.endPos);
-        view.drawPiece(piece, attemptedMove.endPos);
     }
 }
