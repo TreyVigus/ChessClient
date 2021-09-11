@@ -140,8 +140,7 @@ function legalPawnMove(precedingMove: MoveEvent | undefined, currentState: Chess
 }
 
 function legalDoubleForward(currentState: ChessState, attemptedMove: MoveEvent, piece: Piece): boolean {
-    const row = attemptedMove.startPos[0];
-    const col = attemptedMove.startPos[1];
+    const [row, col] = attemptedMove.startPos
 
     const firstPawnMove = (piece.color === 'black' && row === 1) || (piece.color === 'white' && row === 6);
     if(!firstPawnMove) {
