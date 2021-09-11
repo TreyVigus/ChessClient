@@ -10,7 +10,6 @@ export type PawnMoveType = 'pawnSingleForward' | 'pawnDoubleForward' | 'pawnNorm
 
 export function isPawnMoveType(moveType: MoveType): boolean {
     return [
-        'pawnPromote', 
         'pawnSingleForward', 
         'pawnDoubleForward', 
         'pawnNormalCapture', 

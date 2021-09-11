@@ -11,21 +11,11 @@ export type KingSide = 'left' | 'right';
 export function isLegal(precedingMove: MoveEvent | undefined, currentState: ChessState, attemptedMove: MoveEvent): boolean {
     const piece = itemAt(currentState.board, attemptedMove.startPos).piece;
 
-    //If there is no piece at the startPos, the move is immediately illegal.
-    if(!piece) {
-        return false;
-    }
-
-    if(targetsOwnPiece(currentState, attemptedMove, piece)) {
+    if(!piece || targetsOwnPiece(currentState, attemptedMove, piece)) {
         return false;
     }
 
     const moveType = classifyMove(precedingMove, currentState, attemptedMove);
-
-    //TODO: this may be removable
-    if(piece.name === 'pawn' && !isPawnMoveType(moveType)) {
-        return false;
-    }
 
     if(moveType === 'normal') {
         if(!legalNormalMove(currentState, attemptedMove, piece)) {
@@ -35,7 +25,7 @@ export function isLegal(precedingMove: MoveEvent | undefined, currentState: Ches
         if(!legalCastle(currentState, attemptedMove, piece)) {
             return false;
         }
-    } else { //pawn move
+    } else if(isPawnMoveType(moveType)) {
         if(!legalPawnMove(precedingMove, currentState, attemptedMove, piece, moveType)) {
             return false;
         }
