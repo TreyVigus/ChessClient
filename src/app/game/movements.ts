@@ -20,12 +20,9 @@ export function isLegal(precedingMove: MoveEvent | undefined, currentState: Ches
         return false;
     }
 
-    if(targetsKing(currentState, attemptedMove)) {
-        return false;
-    }
-
     const moveType = classifyMove(precedingMove, currentState, attemptedMove);
 
+    //TODO: this may be removable
     if(piece.name === 'pawn' && !isPawnMoveType(moveType)) {
         return false;
     }
@@ -66,7 +63,7 @@ export function makeMove(precedingMove: MoveEvent | undefined, prevState: ChessS
 
     movePiece(startSquare, endSquare);
 
-    if(isBackRank(endSquare.piece!.color, endSquare.position)) {
+    if(endSquare.piece!.name === 'pawn' && isBackRank(endSquare.piece!.color, endSquare.position)) {
         endSquare.piece!.name = 'queen';
         return copy;
     }
@@ -101,14 +98,6 @@ function targetsOwnPiece(currentState: ChessState, attemptedMove: MoveEvent, pie
         return false;
     }
     return targetPiece.color === playerColor;
-}
-
-function targetsKing(currentState: ChessState, attemptedMove: MoveEvent): boolean {
-    const targetPiece = itemAt(currentState.board, attemptedMove.endPos).piece;
-    if(!targetPiece) {
-        return false;
-    }
-    return targetPiece.name === 'king';
 }
 
 /** Assumes attemptedMove is of type 'normal'. */
