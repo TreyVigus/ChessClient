@@ -13,13 +13,7 @@ export function sameRow(piecePos: Position, state: ChessState): Square[] {
 }
 
 export function sameColumn(piecePos: Position, state: ChessState): Square[] {
-    let col: Square[] = [];
-    for(const item of flat(state.board)) {
-        if(item.index[1] === piecePos[1]) {
-            col.push(item.value);
-        }
-    }
-    return col;
+    return [...flat(state.board)].filter(sq => sq.index[1] === piecePos[1]).map(sq => sq.value);
 }
 
 export function samePositiveDiagonal(piecePos: Position, state: ChessState): Square[] {
@@ -98,9 +92,6 @@ export function filterBlockedSquares(piecePos: Position, squares: Square[]): Squ
 
 /** 
  * Find a position one square from the given position in the given direction.
- * TODO: handle more than just multiple directions and use this for the king.
- * TODO: could make a more generic version that lets you pass sequences of directions (useful for knight)
- *          e.g. [north, north, west] would go up two and left one
 */
 export function adjacent(pos: Position, direction: VerticalDirection): Position | undefined {
     let adj: Position;

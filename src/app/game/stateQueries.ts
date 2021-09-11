@@ -1,4 +1,4 @@
-import { flat, itemAt, oppositeColor, posEquals, validPosition } from "../utils/helpers.js";
+import { addPositions, flat, itemAt, oppositeColor, posEquals, validPosition } from "../utils/helpers.js";
 import { BOARD_SIZE } from "../view/boardView.js";
 import { filterBlockedSquares, sameColumn, sameNegativeDiagonal, samePositiveDiagonal, sameRow, sameUnitDiagonals } from "./attackVectors.js";
 import { ChessState, Color, Piece, Position, Square } from "./models.js";
@@ -23,18 +23,14 @@ export function attackedSquares(piece: Piece, piecePos: Position, state: ChessSt
 
 /** Return true if the given square has pieces of the given color attacking it. */
 export function hasAttackers(targetSquare: Square, attackingColor: Color, state: ChessState): boolean {
-    for(const sq of flat(state.board)) {
+    return [...flat(state.board)].some(sq => {
         const piece = sq.value.piece;
         if(piece && piece.color === attackingColor) {
             const attacked = attackedSquares(piece, sq.index, state);
             const attacksTarget = attacked.find(a => posEquals(a.position, targetSquare.position));
-            if(attacksTarget) {
-                return true;
-            }
+            return !!attacksTarget;
         }
-    }
-
-    return false;
+    });
 }
 
 /** Return the Square of the king of the given color in the given state. */
@@ -45,8 +41,7 @@ export function findKing(state: ChessState, color: Color): Square {
 /** Is the king in check in the given state? */
 export function inCheck(state: ChessState, kingColor: Color): boolean {
     //king is in check if any piece of the opposite color attacks the king's square.
-    const kingSquare = findKing(state, kingColor);
-    return hasAttackers(kingSquare, oppositeColor(kingColor), state);
+    return hasAttackers(findKing(state, kingColor), oppositeColor(kingColor), state);
 }
 
 /** Do the given positions contain a piece in the given state? */
@@ -56,10 +51,7 @@ export function containsPiece(state: ChessState, ...positions: Position[]): bool
 
 /** Is the given position located on the opposite color's back rank? */
 export function isBackRank(pawnColor: Color, pos: Position): boolean {
-    if(pawnColor === 'white' && pos[0] === 0 || pawnColor === 'black' && pos[0] === BOARD_SIZE - 1) {
-        return true;
-    } 
-    return false;
+    return pawnColor === 'white' && pos[0] === 0 || pawnColor === 'black' && pos[0] === BOARD_SIZE - 1;
 }
 
 function rookAttackedSquares(rookPos: Position, state: ChessState): Square[] {  
@@ -80,32 +72,17 @@ function pawnAttackedSquares(pawnPos: Position, state: ChessState, pawn: Piece):
 }
 
 function kingAttackedSquares(kingPos: Position, state: ChessState, king: Piece): Square[] {
-    const adjacent: Position[] = [
-        [kingPos[0] - 1, kingPos[1] - 1], //northwest
-        [kingPos[0] - 1, kingPos[1]], //north
-        [kingPos[0] - 1, kingPos[1] + 1], //northEast
-        [kingPos[0], kingPos[1] + 1], //east
-        [kingPos[0] + 1, kingPos[1] + 1], //southEast
-        [kingPos[0] + 1, kingPos[1]], //south
-        [kingPos[0] + 1, kingPos[1] - 1], //southWest
-        [kingPos[0], kingPos[1] - 1] //west
-    ];
-
-    return adjacent.filter(pos => validPosition(pos)).map(pos => itemAt(state.board, pos));
+    const vectors: Position[] =  [[-1, -1],[-1, 0],[-1, 1],[0, 1],[1, 1],[1, 0],[1, -1],[0, -1]];
+    return relativeAttackedSquares(kingPos, vectors, state);
 }
 
 function knightAttackedSquares(knightPos: Position, state: ChessState): Square[] {  
-    const attacked: Position[] = [
-        [knightPos[0] - 2, knightPos[1] - 1],
-        [knightPos[0] - 2, knightPos[1] + 1],
-        [knightPos[0] + 2, knightPos[1] - 1],
-        [knightPos[0] + 2, knightPos[1] + 1],
+    const vectors: Position[] =  [[-2, -1],[-2, 1],[2, -1],[2, 1],[1, 2],[1, -2],[-1, 2],[-1, -2]];
+    return relativeAttackedSquares(knightPos, vectors, state);
+}
 
-        [knightPos[0] + 1, knightPos[1] + 2],
-        [knightPos[0] + 1, knightPos[1] - 2],
-        [knightPos[0] - 1, knightPos[1] + 2],
-        [knightPos[0] - 1, knightPos[1] - 2],
-    ];
-
-    return attacked.filter(pos => validPosition(pos)).map(pos => itemAt(state.board, pos));
+function relativeAttackedSquares(piecePos: Position, vectors: Position[], state: ChessState) {
+    return vectors.map(pos => addPositions(pos, piecePos))
+                  .filter(pos => validPosition(pos))
+                  .map(pos => itemAt(state.board, pos));
 }
