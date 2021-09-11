@@ -16,19 +16,12 @@ export function isLegal(precedingMove: MoveEvent | undefined, currentState: Ches
     }
 
     const moveType = classifyMove(precedingMove, currentState, attemptedMove);
-
-    if(moveType === 'normal') {
-        if(!legalNormalMove(currentState, attemptedMove, piece)) {
-            return false;
-        }
-    } else if(moveType === 'castle') {
-        if(!legalCastle(currentState, attemptedMove, piece)) {
-            return false;
-        }
-    } else if(isPawnMoveType(moveType)) {
-        if(!legalPawnMove(precedingMove, currentState, attemptedMove, piece, moveType)) {
-            return false;
-        }
+    if(moveType === 'normal' && !legalNormalMove(currentState, attemptedMove, piece)) {
+        return false;
+    } else if(moveType === 'castle' && !legalCastle(currentState, attemptedMove, piece)) {
+        return false;
+    } else if(isPawnMoveType(moveType) && !legalPawnMove(precedingMove, currentState, attemptedMove, piece, moveType as PawnMoveType)) {
+        return false;
     }
 
     const futureState = makeMove(undefined, currentState, attemptedMove);
