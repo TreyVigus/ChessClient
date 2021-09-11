@@ -20,7 +20,7 @@ export function isLegal(precedingMove: MoveEvent | undefined, currentState: Ches
         return false;
     } else if(moveType === 'castle' && !legalCastle(currentState, attemptedMove, piece)) {
         return false;
-    } else if(isPawnMoveType(moveType) && !legalPawnMove(precedingMove, currentState, attemptedMove, piece, moveType as PawnMoveType)) {
+    } else if(isPawnMoveType(moveType) && !legalPawnMove(precedingMove, currentState, attemptedMove, piece, moveType)) {
         return false;
     }
 

@@ -8,7 +8,7 @@ export type MoveType = 'castle' |  PawnMoveType | 'normal';
 
 export type PawnMoveType = 'pawnSingleForward' | 'pawnDoubleForward' | 'pawnNormalCapture' | 'pawnPassantCapture';
 
-export function isPawnMoveType(moveType: MoveType): boolean {
+export function isPawnMoveType(moveType: MoveType): moveType is PawnMoveType {
     return [
         'pawnSingleForward', 
         'pawnDoubleForward', 
