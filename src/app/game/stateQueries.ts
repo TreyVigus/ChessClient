@@ -5,7 +5,6 @@ import { ChessState, Color, Piece, Position, Square } from "./models.js";
 
 /** Return a list of all squares attacked by the given piece. */
 export function attackedSquares(piece: Piece, piecePos: Position, state: ChessState): Square[] {
-    //This should include pawn & king as well.
     if(piece.name === 'rook') {
         return rookAttackedSquares(piecePos, state)
     } else if(piece.name === 'bishop') {
@@ -28,7 +27,7 @@ export function hasAttackers(targetSquare: Square, attackingColor: Color, state:
         const piece = sq.value.piece;
         if(piece && piece.color === attackingColor) {
             const attacked = attackedSquares(piece, sq.index, state);
-            const attacksTarget = attacked.findIndex(a => posEquals(a.position, targetSquare.position)) > -1;
+            const attacksTarget = attacked.find(a => posEquals(a.position, targetSquare.position));
             if(attacksTarget) {
                 return true;
             }
