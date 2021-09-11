@@ -110,25 +110,16 @@ function legalCastle(currentState: ChessState, attemptedMove: MoveEvent, piece: 
         return false;
     }
 
-    const between = sameRow(kingStart, currentState).filter(s => {
+    //cannot castle if there are pieces between king and rook or pieces attacking squares between king and rook
+    return sameRow(kingStart, currentState).filter(s => {
         if(side === 'left') {
             return rookStart[1] < s.position[1] && s.position[1] < kingStart[1];
         } else {
             return kingStart[1] < s.position[1] && s.position[1] < rookStart[1];
         }
+    }).every(s => {
+        return !s.piece && !hasAttackers(s, oppositeColor(piece.color), currentState);
     });
-
-    const pieceBetween = between.find(s => !!s.piece);
-    if(pieceBetween) {
-        return false;
-    }
-
-    const throughCheck = between.find(s => hasAttackers(s, oppositeColor(piece.color), currentState));
-    if(throughCheck) {
-        return false;
-    }
-
-    return true;
 }
 
 function legalPawnMove(precedingMove: MoveEvent | undefined, currentState: ChessState, attemptedMove: MoveEvent, piece: Piece, moveType: PawnMoveType): boolean {
