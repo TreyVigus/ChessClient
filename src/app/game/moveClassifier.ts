@@ -41,38 +41,38 @@ export function classifyMove(precedingMove: MoveEvent | undefined, currentState:
     return 'normal';
 }
 
-function isPawnSingleForward(pawn: Piece, attemptedMove: MoveEvent): boolean {
+function isPawnSingleForward(pawn: Piece, {startPos, endPos}: MoveEvent): boolean {
     //must be same col
-    if(attemptedMove.startPos[1] !== attemptedMove.endPos[1]) {
+    if(startPos[1] !== endPos[1]) {
         return false;
     }
 
     //must advance one square
     if(pawn.color === 'white') {
-        return attemptedMove.startPos[0] - 1 === attemptedMove.endPos[0];
+        return startPos[0] - 1 === endPos[0];
     } else {
-        return attemptedMove.startPos[0] + 1 === attemptedMove.endPos[0];
+        return startPos[0] + 1 === endPos[0];
     }
 }
 
-function isPawnDoubleForward(pawn: Piece, attemptedMove: MoveEvent): boolean {
+function isPawnDoubleForward(pawn: Piece, {startPos, endPos}: MoveEvent): boolean {
     //must be same col
-    if(attemptedMove.startPos[1] !== attemptedMove.endPos[1]) {
+    if(startPos[1] !== endPos[1]) {
         return false;
     }
 
     //must advance two squares
     if(pawn.color === 'white') {
-        return attemptedMove.startPos[0] - 2 === attemptedMove.endPos[0];
+        return startPos[0] - 2 === endPos[0];
     } else {
-        return attemptedMove.startPos[0] + 2 === attemptedMove.endPos[0];
+        return startPos[0] + 2 === endPos[0];
     }
 }
 
-function isPawnCapture(pawn: Piece, attemptedMove: MoveEvent, state: ChessState): boolean {
+function isPawnCapture(pawn: Piece, {startPos, endPos}: MoveEvent, state: ChessState): boolean {
     const direction = pawn.color === 'white' ? 'north' : 'south';
-    const attacked = sameUnitDiagonals(attemptedMove.startPos, state, direction).map(s => s.position);
-    return attacked.findIndex(s => posEquals(s, attemptedMove.endPos)) > -1; //TODO: searching a position array like this is so common it may be abstractable.
+    const attacked = sameUnitDiagonals(startPos, state, direction).map(s => s.position);
+    return attacked.findIndex(s => posEquals(s, endPos)) > -1; //TODO: searching a position array like this is so common it may be abstractable.
 }
 
 function classifyPawnCapture(pawn: Piece, precedingMove: MoveEvent | undefined, attemptedMove: MoveEvent, state: ChessState): 'pawnNormalCapture' | 'pawnPassantCapture' {
