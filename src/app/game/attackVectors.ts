@@ -61,8 +61,8 @@ export function filterBlockedSquares(piecePos: Position, squares: Square[]): Squ
         return {piece: s.piece, index}
     });
 
-    const leftBlocker = pieceIndices.slice(0, piecePosIndex).filter(s => !!s.piece).pop()?.index ?? 0;
-    const rightBlocker = pieceIndices.slice(piecePosIndex + 1).filter(s => !!s.piece).shift()?.index ?? squares.length - 1;
+    const leftBlocker = pieceIndices.slice(0, piecePosIndex).filter(p => !!p.piece).pop()?.index ?? 0;
+    const rightBlocker = pieceIndices.slice(piecePosIndex + 1).filter(p => !!p.piece).shift()?.index ?? squares.length - 1;
     return squares.slice(leftBlocker, rightBlocker + 1);
 }
 
