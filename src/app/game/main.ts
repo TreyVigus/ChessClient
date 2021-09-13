@@ -3,22 +3,46 @@ import { BoardView, initView, MoveEvent } from "../view/boardView.js";
 import { ChessState, Position, Square } from "./models.js";
 import { isLegal, makeMove } from "./movements.js";
 
+/********* Debugging flags **********/
+const showSquarePositions = false; //render simple board with position info
+const recordMoves = true; //print moves and resulting state to console
+/***********************************/
+
 const view = initView();
-let currentState: ChessState = initialState();
+let currentState = initialState();
 let lastMove: MoveEvent | undefined = undefined; //The move that led to currentState
 
-drawState(currentState, view);
-// view.showSquarePositions();
+if(showSquarePositions) {
+    view.showSquarePositions();
+} else {
+    let moveSequence: MoveEvent[] = [];
+    drawState(currentState, view);
+    view.moveEmitter.subscribe((attemptedMove: MoveEvent) => {
+        processMove(attemptedMove);
+        if(recordMoves) {
+            recordMove(attemptedMove, moveSequence);
+        }
+    });
+}
 
-view.moveEmitter.subscribe((attemptedMove: MoveEvent) => {
+function processMove(attemptedMove: MoveEvent) {
     if(isLegal(lastMove, currentState, attemptedMove)) {
         currentState = makeMove(lastMove, currentState, attemptedMove);
         lastMove = attemptedMove;
         drawState(currentState, view);
     }
-});
+}
 
-export function initialState(): ChessState {
+function drawState(state: ChessState, view: BoardView) {
+    for(const s of flat(state.board)) {
+        view.removePiece(s.value.position);
+        if(s.value.piece) {
+            view.drawPiece(s.value.piece, s.index);
+        }
+    }
+}
+
+function initialState(): ChessState {
     const board = constructBoard<Square>((pos: Position) => {
         return { 
             position: pos,
@@ -65,11 +89,9 @@ export function initialState(): ChessState {
     return { board };
 }
 
-function drawState(state: ChessState, view: BoardView) {
-    for(const s of flat(state.board)) {
-        view.removePiece(s.value.position);
-        if(s.value.piece) {
-            view.drawPiece(s.value.piece, s.index);
-        }
-    }
+function recordMove(attemptedMove: MoveEvent, moveSequence: MoveEvent[]) {
+    moveSequence.push(attemptedMove);
+    const stringSeq = JSON.stringify(moveSequence);
+    const stringState = JSON.stringify(currentState);
+    console.log(`addCase(${stringSeq}, ${stringState})`);
 }

@@ -13,13 +13,7 @@ export function sameRow(piecePos: Position, state: ChessState): Square[] {
 }
 
 export function sameColumn(piecePos: Position, state: ChessState): Square[] {
-    let col: Square[] = [];
-    for(const item of flat(state.board)) {
-        if(item.index[1] === piecePos[1]) {
-            col.push(item.value);
-        }
-    }
-    return col;
+    return [...flat(state.board)].filter(sq => sq.index[1] === piecePos[1]).map(sq => sq.value);
 }
 
 export function samePositiveDiagonal(piecePos: Position, state: ChessState): Square[] {
@@ -41,27 +35,13 @@ export function sameNegativeDiagonal(piecePos: Position, state: ChessState): Squ
  * Useful for pawn movements.
  */
 export function sameUnitDiagonals(piecePos: Position, state: ChessState, direction: VerticalDirection): Square[] {
-    let units = [];
-    if(direction === 'north') {
-        const northWest: Position = [piecePos[0] - 1, piecePos[1] - 1];
-        const northEast: Position = [piecePos[0] - 1, piecePos[1] + 1];
-        if(validPosition(northWest)) {
-            units.push(northWest);
-        }
-        if(validPosition(northEast)) {
-            units.push(northEast);
-        }
-    } else {
-        const southWest: Position = [piecePos[0] + 1, piecePos[1] - 1];
-        const southEast: Position = [piecePos[0] + 1, piecePos[1] + 1];
-        if(validPosition(southWest)) {
-            units.push(southWest);
-        }
-        if(validPosition(southEast)) {
-            units.push(southEast);
-        }
-    }
-    return units.map(pos => itemAt(state.board, pos));
+    const northWest: Position = [-1, -1];
+    const northEast: Position = [-1, 1];
+    const southWest: Position = [1, -1];
+    const southEast: Position = [1, 1];
+
+    const adj = direction === 'north' ? [northWest, northEast] : [southWest, southEast];
+    return adj.map(pos => addPositions(piecePos, pos)).filter(pos => validPosition(pos)).map(pos => itemAt(state.board, pos));
 }
 
 /** 
@@ -74,40 +54,23 @@ export function sameUnitDiagonals(piecePos: Position, state: ChessState, directi
 export function filterBlockedSquares(piecePos: Position, squares: Square[]): Square[] {
     const piecePosIndex = squares.findIndex(s => posEquals(s.position, piecePos));
     if(piecePosIndex === -1) {
-        throw 'piecePos was not found in squares array.'
+        throw 'piecePos was not found in squares array.';
     }
 
-    let leftBlocker = 0;
-    for(let i = piecePosIndex - 1; i > -1; i--) {
-        if(squares[i].piece) {
-            leftBlocker = i;
-            break;
-        }
-    }
+    const pieceIndices = squares.map((s, index) => {
+        return {piece: s.piece, index}
+    });
 
-    let rightBlocker = squares.length - 1;
-    for(let i = piecePosIndex + 1; i < squares.length; i++) {
-        if(squares[i].piece) {
-            rightBlocker = i;
-            break;
-        }
-    }
-
+    const leftBlocker = pieceIndices.slice(0, piecePosIndex).filter(p => !!p.piece).pop()?.index ?? 0;
+    const rightBlocker = pieceIndices.slice(piecePosIndex + 1).filter(p => !!p.piece).shift()?.index ?? squares.length - 1;
     return squares.slice(leftBlocker, rightBlocker + 1);
 }
 
 /** 
  * Find a position one square from the given position in the given direction.
- * TODO: handle more than just multiple directions and use this for the king.
- * TODO: could make a more generic version that lets you pass sequences of directions (useful for knight)
- *          e.g. [north, north, west] would go up two and left one
 */
 export function adjacent(pos: Position, direction: VerticalDirection): Position | undefined {
-    let adj: Position;
-    if(direction === 'north') {
-        adj = addPositions(pos, [-1, 0]);
-    } else {
-        adj = addPositions(pos, [1, 0]);
-    }
+    const vec: Position = direction === 'north' ? [-1, 0] : [1, 0];
+    const adj = addPositions(pos, vec);
     return validPosition(adj) ? adj : undefined;
 }

@@ -8,7 +8,7 @@ export type MoveType = 'castle' |  PawnMoveType | 'normal';
 
 export type PawnMoveType = 'pawnSingleForward' | 'pawnDoubleForward' | 'pawnNormalCapture' | 'pawnPassantCapture';
 
-export function isPawnMoveType(moveType: MoveType): boolean {
+export function isPawnMoveType(moveType: MoveType): moveType is PawnMoveType {
     return [
         'pawnSingleForward', 
         'pawnDoubleForward', 
@@ -41,38 +41,38 @@ export function classifyMove(precedingMove: MoveEvent | undefined, currentState:
     return 'normal';
 }
 
-function isPawnSingleForward(pawn: Piece, attemptedMove: MoveEvent): boolean {
+function isPawnSingleForward(pawn: Piece, {startPos, endPos}: MoveEvent): boolean {
     //must be same col
-    if(attemptedMove.startPos[1] !== attemptedMove.endPos[1]) {
+    if(startPos[1] !== endPos[1]) {
         return false;
     }
 
     //must advance one square
     if(pawn.color === 'white') {
-        return attemptedMove.startPos[0] - 1 === attemptedMove.endPos[0];
+        return startPos[0] - 1 === endPos[0];
     } else {
-        return attemptedMove.startPos[0] + 1 === attemptedMove.endPos[0];
+        return startPos[0] + 1 === endPos[0];
     }
 }
 
-function isPawnDoubleForward(pawn: Piece, attemptedMove: MoveEvent): boolean {
+function isPawnDoubleForward(pawn: Piece, {startPos, endPos}: MoveEvent): boolean {
     //must be same col
-    if(attemptedMove.startPos[1] !== attemptedMove.endPos[1]) {
+    if(startPos[1] !== endPos[1]) {
         return false;
     }
 
     //must advance two squares
     if(pawn.color === 'white') {
-        return attemptedMove.startPos[0] - 2 === attemptedMove.endPos[0];
+        return startPos[0] - 2 === endPos[0];
     } else {
-        return attemptedMove.startPos[0] + 2 === attemptedMove.endPos[0];
+        return startPos[0] + 2 === endPos[0];
     }
 }
 
-function isPawnCapture(pawn: Piece, attemptedMove: MoveEvent, state: ChessState): boolean {
+function isPawnCapture(pawn: Piece, {startPos, endPos}: MoveEvent, state: ChessState): boolean {
     const direction = pawn.color === 'white' ? 'north' : 'south';
-    const attacked = sameUnitDiagonals(attemptedMove.startPos, state, direction).map(s => s.position);
-    return attacked.findIndex(s => posEquals(s, attemptedMove.endPos)) > -1; //TODO: searching a position array like this is so common it may be abstractable.
+    const attacked = sameUnitDiagonals(startPos, state, direction).map(s => s.position);
+    return attacked.findIndex(s => posEquals(s, endPos)) > -1; //TODO: searching a position array like this is so common it may be abstractable.
 }
 
 function classifyPawnCapture(pawn: Piece, precedingMove: MoveEvent | undefined, attemptedMove: MoveEvent, state: ChessState): 'pawnNormalCapture' | 'pawnPassantCapture' {
@@ -109,6 +109,6 @@ function classifyPawnCapture(pawn: Piece, precedingMove: MoveEvent | undefined, 
 } 
 
 /** If the king stayed in the same row and tried to move two squares left or right, the move is an attemped castle. */
-function isCastle(piece: Piece, attemptedMove: MoveEvent): boolean {
-    return piece.name === 'king' && attemptedMove.endPos[0] === attemptedMove.startPos[0] && Math.abs(attemptedMove.startPos[1] - attemptedMove.endPos[1]) === 2;
+function isCastle(piece: Piece, {startPos, endPos}: MoveEvent): boolean {
+    return piece.name === 'king' && endPos[0] === startPos[0] && Math.abs(startPos[1] - endPos[1]) === 2;
 }

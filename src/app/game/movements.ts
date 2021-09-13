@@ -16,19 +16,12 @@ export function isLegal(precedingMove: MoveEvent | undefined, currentState: Ches
     }
 
     const moveType = classifyMove(precedingMove, currentState, attemptedMove);
-
-    if(moveType === 'normal') {
-        if(!legalNormalMove(currentState, attemptedMove, piece)) {
-            return false;
-        }
-    } else if(moveType === 'castle') {
-        if(!legalCastle(currentState, attemptedMove, piece)) {
-            return false;
-        }
-    } else if(isPawnMoveType(moveType)) {
-        if(!legalPawnMove(precedingMove, currentState, attemptedMove, piece, moveType)) {
-            return false;
-        }
+    if(moveType === 'normal' && !legalNormalMove(currentState, attemptedMove, piece)) {
+        return false;
+    } else if(moveType === 'castle' && !legalCastle(currentState, attemptedMove, piece)) {
+        return false;
+    } else if(isPawnMoveType(moveType) && !legalPawnMove(currentState, attemptedMove, piece, moveType)) {
+        return false;
     }
 
     const futureState = makeMove(undefined, currentState, attemptedMove);
@@ -47,7 +40,6 @@ export function makeMove(precedingMove: MoveEvent | undefined, prevState: ChessS
     const copy = clone(prevState);
     const moveType = classifyMove(precedingMove, prevState, legalMove);
 
-    //Move the piece at startSquare to endSquare. If there is a piece already at endSquare, remove it.
     const startSquare = itemAt(copy.board, legalMove.startPos);
     const endSquare = itemAt(copy.board, legalMove.endPos);
 
@@ -74,6 +66,10 @@ export function makeMove(precedingMove: MoveEvent | undefined, prevState: ChessS
     return copy;
 }
 
+/** 
+ * Move the piece at startSquare to endSquare. 
+ * If there is a piece already at endSquare, remove it. 
+ * */
 function movePiece(startSquare: Square, endSquare: Square) {
     endSquare.piece = startSquare.piece;
     startSquare.piece = undefined;
@@ -94,7 +90,7 @@ function targetsOwnPiece(currentState: ChessState, attemptedMove: MoveEvent, pie
 function legalNormalMove(currentState: ChessState, attemptedMove: MoveEvent, piece: Piece): boolean {
     const targetSquare = itemAt(currentState.board, attemptedMove.endPos);
     //does the piece attack the target square?
-    const legalTarget = attackedSquares(piece, attemptedMove.startPos, currentState).findIndex(square => posEquals(square.position, targetSquare.position)) > -1;
+    const legalTarget = attackedSquares(piece, attemptedMove.startPos, currentState).find(square => posEquals(square.position, targetSquare.position));
     if(!legalTarget) {
         return false;
     }
@@ -114,27 +110,19 @@ function legalCastle(currentState: ChessState, attemptedMove: MoveEvent, piece: 
         return false;
     }
 
-    let between: Square[] = [];
-    if(side === 'left') {
-        between = sameRow(kingStart, currentState).filter(s => rookStart[1] < s.position[1] && s.position[1] < kingStart[1]);
-    } else {
-        between = sameRow(kingStart, currentState).filter(s => kingStart[1] < s.position[1] && s.position[1] < rookStart[1]);
-    }
-
-    const pieceBetween = between.find(s => !!s.piece);
-    if(pieceBetween) {
-        return false;
-    }
-
-    const throughCheck = between.find(s => hasAttackers(s, oppositeColor(piece.color), currentState));
-    if(throughCheck) {
-        return false;
-    }
-
-    return true;
+    //cannot castle if there are pieces between king and rook or pieces attacking squares between king and rook
+    return sameRow(kingStart, currentState).filter(s => {
+        if(side === 'left') {
+            return rookStart[1] < s.position[1] && s.position[1] < kingStart[1];
+        } else {
+            return kingStart[1] < s.position[1] && s.position[1] < rookStart[1];
+        }
+    }).every(s => {
+        return !s.piece && !hasAttackers(s, oppositeColor(piece.color), currentState);
+    });
 }
 
-function legalPawnMove(precedingMove: MoveEvent | undefined, currentState: ChessState, attemptedMove: MoveEvent, piece: Piece, moveType: PawnMoveType): boolean {
+function legalPawnMove(currentState: ChessState, attemptedMove: MoveEvent, piece: Piece, moveType: PawnMoveType): boolean {
     if(moveType === 'pawnSingleForward') {
         return !containsPiece(currentState, attemptedMove.endPos);
     } else if(moveType === 'pawnDoubleForward') {
@@ -152,8 +140,7 @@ function legalPawnMove(precedingMove: MoveEvent | undefined, currentState: Chess
 }
 
 function legalDoubleForward(currentState: ChessState, attemptedMove: MoveEvent, piece: Piece): boolean {
-    const row = attemptedMove.startPos[0];
-    const col = attemptedMove.startPos[1];
+    const [row, col] = attemptedMove.startPos
 
     const firstPawnMove = (piece.color === 'black' && row === 1) || (piece.color === 'white' && row === 6);
     if(!firstPawnMove) {
