@@ -19,7 +19,11 @@ export type BoardView = {
 	/** Print the indices on each square. Useful for debugging. */
 	showSquarePositions(): void,
 	/** Hide the indices created from showSquarePositions() */
-	hideSquarePositions(): void
+	hideSquarePositions(): void,
+	/** Highlight the square at the given position. */
+	addHighlight(pos: Position): void,
+	/** Remove highlighting from the square at the given position. */
+	removeHighlight(pos: Position): void
 }
 
 export function initView(): BoardView {
@@ -54,10 +58,19 @@ export function initView(): BoardView {
 		}
 	}
 
+	const highlightClass = 'highlight';
+	const addHighlight = (pos: Position) => {
+		itemAt(board, pos).classList.add(highlightClass);
+	};
+
+	const removeHighlight = (pos: Position) => {
+		itemAt(board, pos).classList.remove(highlightClass);
+	};
+
 	const moveEmitter = createEmitter<MoveEvent>();
 	emitDragDrop(moveEmitter, board);
 
-	return {moveEmitter, drawPiece, removePiece, showSquarePositions, hideSquarePositions};
+	return {moveEmitter, drawPiece, removePiece, showSquarePositions, hideSquarePositions, addHighlight, removeHighlight};
 }
 
 /** Create the board in the DOM and return 2d array of each square. **/
