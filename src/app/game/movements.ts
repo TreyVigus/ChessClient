@@ -20,7 +20,7 @@ export function isLegal(precedingMove: MoveEvent | undefined, currentState: Ches
         return false;
     } else if(moveType === 'castle' && !legalCastle(currentState, attemptedMove, piece)) {
         return false;
-    } else if(isPawnMoveType(moveType) && !legalPawnMove(precedingMove, currentState, attemptedMove, piece, moveType)) {
+    } else if(isPawnMoveType(moveType) && !legalPawnMove(currentState, attemptedMove, piece, moveType)) {
         return false;
     }
 
@@ -122,7 +122,7 @@ function legalCastle(currentState: ChessState, attemptedMove: MoveEvent, piece: 
     });
 }
 
-function legalPawnMove(precedingMove: MoveEvent | undefined, currentState: ChessState, attemptedMove: MoveEvent, piece: Piece, moveType: PawnMoveType): boolean {
+function legalPawnMove(currentState: ChessState, attemptedMove: MoveEvent, piece: Piece, moveType: PawnMoveType): boolean {
     if(moveType === 'pawnSingleForward') {
         return !containsPiece(currentState, attemptedMove.endPos);
     } else if(moveType === 'pawnDoubleForward') {
