@@ -4,12 +4,6 @@ import { itemAt, posSequence } from "../utils/helpers.js";
 import { MoveEvent } from "../view/boardView.js";
 
 
-/** Returns a random legal move for the given color. */
-export function randomMove(precedingMove: MoveEvent | undefined, state: ChessState, color: Color): MoveEvent {
-    const legal = allLegalMoves(precedingMove, state, color);
-    return legal[Math.floor(Math.random()*legal.length)];
-}
-
 /**
  * Find all moves that can be made by the given color in the given state.
  * @param state State to evaluate.

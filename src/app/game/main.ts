@@ -1,3 +1,5 @@
+import { getBotMove } from "../ai/bot.js";
+import { createEmitter } from "../utils/emitter.js";
 import { constructBoard, flat, itemAt, oppositeColor } from "../utils/helpers.js";
 import { BoardView, initView, MoveEvent } from "../view/boardView.js";
 import { ChessState, Color, Position, Square } from "./models.js";
@@ -5,9 +7,12 @@ import { isLegal, makeMove } from "./movements.js";
 
 /********* Debugging flags **********/
 const showSquarePositions = false; //render simple board with position info
-const recordMoves = true; //print moves and resulting state to console
-const enforceTurn = true; //track whose turn it is and prevent multiple moves from same player
 /***********************************/
+
+type Turn = {
+    player: Color,
+    legalMove: MoveEvent | undefined
+}
 
 const view = initView();
 let currentState = initialState();
@@ -18,40 +23,46 @@ if(showSquarePositions) {
 } else {
     drawState(currentState, view);
 
-    /*************************** Event Loop ******************************************/
-    let moveSequence: MoveEvent[] = [];
-    let turn: Color = 'white';
-    view.moveEmitter.subscribe((attemptedMove: MoveEvent) => {
-        if(enforceTurn) {
-            if(correctPlayer(currentState, attemptedMove, turn)) {
-                turn = oppositeColor(turn);
-            } else {
-                console.log('not your turn');
-                return;
-            }
-        }
-        processMove(attemptedMove);
-        if(recordMoves) {
-            recordMove(attemptedMove, moveSequence);
+    const turns = createEmitter<Turn>();
+    turns.subscribe(async (prevTurn: Turn) => {
+        const colorToMove = oppositeColor(prevTurn.player);
+        const attemptedMove = colorToMove === 'white' ? await getPlayerMove() : await getBotMove(lastMove, currentState);
+
+        if(correctColor(currentState, attemptedMove, colorToMove) && isLegal(lastMove, currentState, attemptedMove)) {
+            processMove(attemptedMove);
+            turns.publish({
+                player: colorToMove,
+                legalMove: attemptedMove
+            });
+        } else {
+            turns.publish(prevTurn);
         }
     });
-    /*********************************************************************************/
+
+    //white moves first
+    turns.publish({player: 'black', legalMove: undefined});
 }
 
-function correctPlayer(state: ChessState, attemptedMove: MoveEvent, turn: Color): boolean {
+async function getPlayerMove(): Promise<MoveEvent> {
+    const playerMove = new Promise<MoveEvent>((resolve) => {
+        //TODO: memory leak
+        view.moveEmitter.subscribe((attemptedMove: MoveEvent) => {
+            resolve(attemptedMove);
+        });
+    });
+
+    return playerMove;
+}
+
+function correctColor(state: ChessState, attemptedMove: MoveEvent, expectedColor: Color) {
     const piece = itemAt(state.board, attemptedMove.startPos).piece;
-    if(!piece || piece.color !== turn) {
-        return false;
-    }
-    return true;
+    return piece && piece.color === expectedColor;
 }
 
 function processMove(attemptedMove: MoveEvent) {
-    if(isLegal(lastMove, currentState, attemptedMove)) {
-        currentState = makeMove(lastMove, currentState, attemptedMove);
-        lastMove = attemptedMove;
-        drawState(currentState, view);
-    }
+    currentState = makeMove(lastMove, currentState, attemptedMove);
+    lastMove = attemptedMove;
+    drawState(currentState, view);
 }
 
 function drawState(state: ChessState, view: BoardView) {
@@ -108,11 +119,4 @@ function initialState(): ChessState {
     board[7][7].piece = {color: 'white', name: 'rook'};
 
     return { board };
-}
-
-function recordMove(attemptedMove: MoveEvent, moveSequence: MoveEvent[]) {
-    moveSequence.push(attemptedMove);
-    const stringSeq = JSON.stringify(moveSequence);
-    const stringState = JSON.stringify(currentState);
-    console.log(`addCase(${stringSeq}, ${stringState})`);
 }
