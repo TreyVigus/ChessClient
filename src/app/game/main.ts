@@ -1,11 +1,12 @@
-import { constructBoard, flat } from "../utils/helpers.js";
+import { constructBoard, flat, itemAt, oppositeColor } from "../utils/helpers.js";
 import { BoardView, initView, MoveEvent } from "../view/boardView.js";
-import { ChessState, Position, Square } from "./models.js";
+import { ChessState, Color, Position, Square } from "./models.js";
 import { isLegal, makeMove } from "./movements.js";
 
 /********* Debugging flags **********/
 const showSquarePositions = false; //render simple board with position info
 const recordMoves = true; //print moves and resulting state to console
+const enforceTurn = false; //track who's turn it is and prevent multiple moves from same player
 /***********************************/
 
 const view = initView();
@@ -15,14 +16,30 @@ let lastMove: MoveEvent | undefined = undefined; //The move that led to currentS
 if(showSquarePositions) {
     view.showSquarePositions();
 } else {
-    let moveSequence: MoveEvent[] = [];
     drawState(currentState, view);
+
+    let moveSequence: MoveEvent[] = [];
+    let turn: Color = 'white';
     view.moveEmitter.subscribe((attemptedMove: MoveEvent) => {
+        if(enforceTurn && !correctPlayer(currentState, attemptedMove, turn)) {
+            return;
+        }
         processMove(attemptedMove);
         if(recordMoves) {
             recordMove(attemptedMove, moveSequence);
         }
+        turn = oppositeColor(turn);
     });
+}
+
+function correctPlayer(state: ChessState, attemptedMove: MoveEvent, turn: Color): boolean {
+    const piece = itemAt(state.board, attemptedMove.startPos).piece;
+    if(!piece || piece.color !== turn) {
+        console.log('not your turn');
+        return false;
+    }
+    turn = oppositeColor(turn);
+    return true;
 }
 
 function processMove(attemptedMove: MoveEvent) {
