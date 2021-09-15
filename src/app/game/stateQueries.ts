@@ -1,5 +1,6 @@
+import { allLegalMoves } from "../ai/moveGenerator.js";
 import { addPositions, flat, itemAt, oppositeColor, posEquals, validPosition } from "../utils/helpers.js";
-import { BOARD_SIZE } from "../view/boardView.js";
+import { BOARD_SIZE, MoveEvent } from "../view/boardView.js";
 import { filterBlockedSquares, sameColumn, sameNegativeDiagonal, samePositiveDiagonal, sameRow, sameUnitDiagonals } from "./attackVectors.js";
 import { ChessState, Color, Piece, Position, Square } from "./models.js";
 
@@ -44,22 +45,15 @@ export function inCheck(state: ChessState, kingColor: Color): boolean {
     return hasAttackers(findKing(state, kingColor), oppositeColor(kingColor), state);
 }
 
-// /** Is the king in checkmate in the given state? */
-// export function inCheckMate(state: ChessState, kingColor: Color): boolean {
-//     const kingSquare = findKing(state, kingColor);
-//     const ka = kingAttackedSquares(kingSquare.position, state, kingSquare.piece!);
-// }
+/** Is the king in checkmate in the given state? */
+export function inCheckMate(precedingMove: MoveEvent | undefined, state: ChessState, kingColor: Color): boolean {
+    return inCheck(state, kingColor) && allLegalMoves(precedingMove, state, kingColor).length === 0;
+}
 
-// export function inCheckMate(state: ChessState, kingColor: Color): boolean {
-//     const kingSquare = findKing(state, kingColor);
-//     const ka = kingAttackedSquares(kingSquare.position, state, kingSquare.piece!);
-// }
-
-// /** Is the king in checkmate in the given state? */
-// export function inStaleMate(state: ChessState, kingColor: Color): boolean {
-//     const kingSquare = findKing(state, kingColor);
-//     const ka = kingAttackedSquares(kingSquare.position, state, kingSquare.piece!);
-// }
+/** Is the king in stalemate in the given state? */
+export function inStaleMate(precedingMove: MoveEvent | undefined, state: ChessState, kingColor: Color): boolean {
+    return !inCheck(state, kingColor) && allLegalMoves(precedingMove, state, kingColor).length === 0;
+}
 
 /** Do the given positions contain a piece in the given state? */
 export function containsPiece(state: ChessState, ...positions: Position[]): boolean {
