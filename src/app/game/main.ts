@@ -4,6 +4,7 @@ import { constructBoard, flat, itemAt, oppositeColor } from "../utils/helpers.js
 import { BoardView, initView, MoveEvent } from "../view/boardView.js";
 import { ChessState, Color, Position, Square } from "./models.js";
 import { isLegal, makeMove } from "./movements.js";
+import { inCheckMate, inStaleMate } from "./stateQueries.js";
 
 /********* Debugging flags **********/
 const showSquarePositions = false; //render simple board with position info
@@ -16,7 +17,6 @@ type Turn = {
 
 const view = initView();
 let currentState = initialState();
-let lastMove: MoveEvent | undefined = undefined; //The move that led to currentState
 
 if(showSquarePositions) {
     view.showSquarePositions();
@@ -26,14 +26,21 @@ if(showSquarePositions) {
     const turns = createEmitter<Turn>();
     turns.subscribe(async (prevTurn: Turn) => {
         const colorToMove = oppositeColor(prevTurn.player);
-        const attemptedMove = colorToMove === 'white' ? await getPlayerMove() : await getBotMove(lastMove, currentState);
+        const attemptedMove = colorToMove === 'white' ? await getPlayerMove() : await getBotMove(prevTurn.legalMove, currentState);
 
-        if(correctColor(currentState, attemptedMove, colorToMove) && isLegal(lastMove, currentState, attemptedMove)) {
-            processMove(attemptedMove);
-            turns.publish({
-                player: colorToMove,
-                legalMove: attemptedMove
-            });
+        if(correctColor(currentState, attemptedMove, colorToMove) && isLegal(prevTurn.legalMove, currentState, attemptedMove)) {
+            currentState = makeMove(prevTurn.legalMove, currentState, attemptedMove);
+            drawState(currentState, view);
+
+            if(gameOver(attemptedMove, currentState, oppositeColor(colorToMove))) {
+                console.log('GAME OVER');
+            } else {
+                turns.publish({
+                    player: colorToMove,
+                    legalMove: attemptedMove
+                });
+            }
+
         } else {
             turns.publish(prevTurn);
         }
@@ -54,15 +61,13 @@ async function getPlayerMove(): Promise<MoveEvent> {
     return playerMove;
 }
 
+function gameOver(finalMove: MoveEvent, finalState: ChessState, losingColor: Color): boolean {
+    return inCheckMate(finalMove, finalState, losingColor) || inStaleMate(finalMove, finalState, losingColor);
+}
+
 function correctColor(state: ChessState, attemptedMove: MoveEvent, expectedColor: Color) {
     const piece = itemAt(state.board, attemptedMove.startPos).piece;
     return piece && piece.color === expectedColor;
-}
-
-function processMove(attemptedMove: MoveEvent) {
-    currentState = makeMove(lastMove, currentState, attemptedMove);
-    lastMove = attemptedMove;
-    drawState(currentState, view);
 }
 
 function drawState(state: ChessState, view: BoardView) {
