@@ -6,7 +6,7 @@ import { isLegal, makeMove } from "./movements.js";
 /********* Debugging flags **********/
 const showSquarePositions = false; //render simple board with position info
 const recordMoves = true; //print moves and resulting state to console
-const enforceTurn = false; //track who's turn it is and prevent multiple moves from same player
+const enforceTurn = true; //track whose turn it is and prevent multiple moves from same player
 /***********************************/
 
 const view = initView();
@@ -18,27 +18,31 @@ if(showSquarePositions) {
 } else {
     drawState(currentState, view);
 
+    /*************************** Event Loop ******************************************/
     let moveSequence: MoveEvent[] = [];
     let turn: Color = 'white';
     view.moveEmitter.subscribe((attemptedMove: MoveEvent) => {
-        if(enforceTurn && !correctPlayer(currentState, attemptedMove, turn)) {
-            return;
+        if(enforceTurn) {
+            if(correctPlayer(currentState, attemptedMove, turn)) {
+                turn = oppositeColor(turn);
+            } else {
+                console.log('not your turn');
+                return;
+            }
         }
         processMove(attemptedMove);
         if(recordMoves) {
             recordMove(attemptedMove, moveSequence);
         }
-        turn = oppositeColor(turn);
     });
+    /*********************************************************************************/
 }
 
 function correctPlayer(state: ChessState, attemptedMove: MoveEvent, turn: Color): boolean {
     const piece = itemAt(state.board, attemptedMove.startPos).piece;
     if(!piece || piece.color !== turn) {
-        console.log('not your turn');
         return false;
     }
-    turn = oppositeColor(turn);
     return true;
 }
 
