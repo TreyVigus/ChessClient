@@ -44,6 +44,23 @@ export function inCheck(state: ChessState, kingColor: Color): boolean {
     return hasAttackers(findKing(state, kingColor), oppositeColor(kingColor), state);
 }
 
+// /** Is the king in checkmate in the given state? */
+// export function inCheckMate(state: ChessState, kingColor: Color): boolean {
+//     const kingSquare = findKing(state, kingColor);
+//     const ka = kingAttackedSquares(kingSquare.position, state, kingSquare.piece!);
+// }
+
+// export function inCheckMate(state: ChessState, kingColor: Color): boolean {
+//     const kingSquare = findKing(state, kingColor);
+//     const ka = kingAttackedSquares(kingSquare.position, state, kingSquare.piece!);
+// }
+
+// /** Is the king in checkmate in the given state? */
+// export function inStaleMate(state: ChessState, kingColor: Color): boolean {
+//     const kingSquare = findKing(state, kingColor);
+//     const ka = kingAttackedSquares(kingSquare.position, state, kingSquare.piece!);
+// }
+
 /** Do the given positions contain a piece in the given state? */
 export function containsPiece(state: ChessState, ...positions: Position[]): boolean {
     return positions.findIndex(pos => !!itemAt(state.board, pos).piece) > -1;
