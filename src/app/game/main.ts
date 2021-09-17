@@ -1,7 +1,8 @@
 import { getBotMove } from "../ai/bot.js";
 import { createEmitter } from "../utils/emitter.js";
 import { constructBoard, flat, itemAt, oppositeColor } from "../utils/helpers.js";
-import { BoardView, initView, MoveEvent } from "../view/boardView.js";
+import { BoardView, initBoardView, MoveEvent } from "../view/boardView.js";
+import { displayTurn, displayVictor } from "../view/infoView.js";
 import { ChessState, Color, Position, Square } from "./models.js";
 import { isLegal, makeMove } from "./movements.js";
 import { inCheckMate, inStaleMate } from "./stateQueries.js";
@@ -15,7 +16,7 @@ type Turn = {
     legalMove: MoveEvent | undefined
 }
 
-const view = initView();
+const view = initBoardView();
 let currentState = initialState();
 
 if(showSquarePositions) {
@@ -26,6 +27,7 @@ if(showSquarePositions) {
     const turns = createEmitter<Turn>();
     turns.subscribe(async (prevTurn: Turn) => {
         const colorToMove = oppositeColor(prevTurn.player);
+        displayTurn(colorToMove);
         const attemptedMove = colorToMove === 'white' ? await getPlayerMove() : await getBotMove(prevTurn.legalMove, currentState);
 
         if(correctColor(currentState, attemptedMove, colorToMove) && isLegal(prevTurn.legalMove, currentState, attemptedMove)) {
@@ -33,7 +35,7 @@ if(showSquarePositions) {
             drawState(currentState, view);
 
             if(gameOver(attemptedMove, currentState, oppositeColor(colorToMove))) {
-                console.log('GAME OVER');
+                displayVictor(colorToMove);
             } else {
                 turns.publish({
                     player: colorToMove,
