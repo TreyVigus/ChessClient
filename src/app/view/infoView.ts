@@ -3,9 +3,9 @@ import { Color } from "../game/models";
 export function displayTurn(color: Color) {
     const p = getParagraph();
     if(color === 'white') {
-        p.innerText = 'Turn: white';
+        p.innerText = 'Your move';
     } else {
-        p.innerText = 'Turn: black';
+        p.innerText = 'Computer is thinking';
     }
 }
 
