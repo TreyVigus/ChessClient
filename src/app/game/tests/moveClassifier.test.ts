@@ -1,8 +1,8 @@
-import { createTestGroup } from "../../testing/test-execution.js";
-import { emptyState, setPiece } from "../../testing/test-helpers.js";
-import { MoveEvent } from "../view/boardView.js";
-import { ChessState } from "./models.js";
-import { classifyMove } from "./moveClassifier.js";
+import { createTestGroup } from "../../../testing/test-execution.js";
+import { emptyState, setPiece } from "../../../testing/test-helpers.js";
+import { MoveEvent } from "../../view/boardView.js";
+import { ChessState } from "../models.js";
+import { classifyMove } from "../moveClassifier.js";
 
 let state: ChessState;
 

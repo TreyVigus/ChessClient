@@ -1,8 +1,8 @@
-import { createTestGroup } from "../../testing/test-execution.js";
-import { arrayEquals, emptyState, positionComparator, setPiece } from "../../testing/test-helpers.js";
-import { posEquals } from "../utils/helpers.js";
-import { filterBlockedSquares, adjacent, sameColumn, sameNegativeDiagonal, samePositiveDiagonal, sameRow, sameUnitDiagonals } from "./attackVectors.js";
-import { Position } from "./models.js";
+import { createTestGroup } from "../../../testing/test-execution.js";
+import { arrayEquals, emptyState, positionComparator, setPiece } from "../../../testing/test-helpers.js";
+import { posEquals } from "../../utils/helpers.js";
+import { filterBlockedSquares, adjacent, sameColumn, sameNegativeDiagonal, samePositiveDiagonal, sameRow, sameUnitDiagonals } from "../attackVectors.js";
+import { Position } from "../models.js";
 
 const tg = createTestGroup('Attack Vectors Testing', ()=> {});
 

@@ -1,6 +1,6 @@
-import { createTestGroup } from "../../testing/test-execution.js";
-import { ChessState } from "./models.js";
-import { inCheckMate, inStaleMate } from "./stateQueries.js";
+import { createTestGroup } from "../../../testing/test-execution.js";
+import { ChessState } from "../models.js";
+import { inCheckMate, inStaleMate } from "../stateQueries.js";
 
 const tg = createTestGroup('State Queries Testing');
 
