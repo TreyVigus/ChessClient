@@ -15,7 +15,7 @@ export function attackedSquares(piece: Piece, piecePos: Position, state: ChessSt
     } else if(piece.name === 'pawn') {
         return pawnAttackedSquares(piecePos, state, piece);
     } else if(piece.name === 'king') {
-        return kingAttackedSquares(piecePos, state, piece);
+        return kingAttackedSquares(piecePos, state);
     } else if(piece.name === 'knight') {
         return knightAttackedSquares(piecePos, state);
     }
@@ -82,7 +82,7 @@ function pawnAttackedSquares(pawnPos: Position, state: ChessState, pawn: Piece):
     return sameUnitDiagonals(pawnPos, state, direction);
 }
 
-function kingAttackedSquares(kingPos: Position, state: ChessState, king: Piece): Square[] {
+function kingAttackedSquares(kingPos: Position, state: ChessState): Square[] {
     const vectors: Position[] =  [[-1, -1],[-1, 0],[-1, 1],[0, 1],[1, 1],[1, 0],[1, -1],[0, -1]];
     return relativeAttackedSquares(kingPos, vectors, state);
 }
