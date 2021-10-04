@@ -29,6 +29,10 @@ body {
     background-color: #f0d9b5;
 }
 
+.highlight {
+    background-color: red;
+}
+
 .board {
     display: flex;
     flex-flow: row wrap;

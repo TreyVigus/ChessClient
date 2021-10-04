@@ -1,11 +1,11 @@
 import { getBotMove } from "../ai/bot.js";
 import { createEmitter } from "../utils/emitter.js";
-import { constructBoard, flat, itemAt, oppositeColor } from "../utils/helpers.js";
+import { constructBoard, flat, itemAt, oppositeColor, posSequence } from "../utils/helpers.js";
 import { BoardView, initBoardView, MoveEvent } from "../view/boardView.js";
 import { displayTurn, displayVictor } from "../view/infoView.js";
 import { ChessState, Color, Position, Square } from "./models.js";
 import { isLegal, makeMove } from "./movements.js";
-import { inCheckMate, inStaleMate } from "./stateQueries.js";
+import { findKing, inCheck, inCheckMate, inStaleMate } from "./stateQueries.js";
 
 /********* Debugging flags **********/
 const showSquarePositions = false; //render simple board with position info
@@ -78,6 +78,24 @@ function drawState(state: ChessState, view: BoardView) {
         if(s.value.piece) {
             view.drawPiece(s.value.piece, s.index);
         }
+    }
+    highlightInCheck(state, view);
+}
+
+function highlightInCheck(state: ChessState, view: BoardView) {
+    //clear out any previous highlighting
+    posSequence().forEach(pos => {
+        view.removeHighlight(pos);
+    });
+
+    const whiteKing = findKing(state, 'white').position;
+    if(inCheck(state, 'white')) {
+        view.addHighlight(whiteKing);
+    }
+
+    const blackKing = findKing(state, 'black').position;
+    if(inCheck(state, 'black')) {
+        view.addHighlight(blackKing);
     }
 }
 
