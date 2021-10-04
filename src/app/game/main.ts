@@ -5,7 +5,7 @@ import { BoardView, initBoardView, MoveEvent } from "../view/boardView.js";
 import { displayTurn, displayVictor } from "../view/infoView.js";
 import { ChessState, Color, Position, Square } from "./models.js";
 import { isLegal, makeMove } from "./movements.js";
-import { findKing, inCheck, inCheckMate, inStaleMate } from "./stateQueries.js";
+import { correctColor, findKing, inCheck, inCheckMate, inStaleMate } from "./stateQueries.js";
 
 /********* Debugging flags **********/
 const showSquarePositions = false; //render simple board with position info
@@ -30,7 +30,7 @@ if(showSquarePositions) {
         displayTurn(colorToMove);
         const attemptedMove = colorToMove === 'white' ? await getPlayerMove() : await getBotMove(prevTurn.legalMove, currentState);
 
-        if(correctColor(currentState, attemptedMove, colorToMove) && isLegal(prevTurn.legalMove, currentState, attemptedMove)) {
+        if(correctColor(currentState, attemptedMove.startPos, colorToMove) && isLegal(prevTurn.legalMove, currentState, attemptedMove)) {
             currentState = makeMove(prevTurn.legalMove, currentState, attemptedMove);
             drawState(currentState, view);
 
@@ -65,11 +65,6 @@ async function getPlayerMove(): Promise<MoveEvent> {
 
 function gameOver(finalMove: MoveEvent, finalState: ChessState, losingColor: Color): boolean {
     return inCheckMate(finalMove, finalState, losingColor) || inStaleMate(finalMove, finalState, losingColor);
-}
-
-function correctColor(state: ChessState, attemptedMove: MoveEvent, expectedColor: Color) {
-    const piece = itemAt(state.board, attemptedMove.startPos).piece;
-    return piece && piece.color === expectedColor;
 }
 
 function drawState(state: ChessState, view: BoardView) {

@@ -65,6 +65,12 @@ export function isBackRank(pawnColor: Color, pos: Position): boolean {
     return pawnColor === 'white' && pos[0] === 0 || pawnColor === 'black' && pos[0] === BOARD_SIZE - 1;
 }
 
+/** Is there a piece at the given pos and does it have the expectedColor? */
+export function correctColor(state: ChessState, pos: Position, expectedColor: Color): boolean {
+    const piece = itemAt(state.board, pos).piece;
+    return !!piece && piece.color === expectedColor;
+}
+
 function rookAttackedSquares(rookPos: Position, state: ChessState): Square[] {  
     const row = sameRow(rookPos, state);
     const col = sameColumn(rookPos, state);
