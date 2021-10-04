@@ -1,5 +1,5 @@
-import { MoveEvent } from "../view/boardView.js";
-import { ChessState } from "./models.js";
+import { MoveEvent } from "../../view/boardView.js";
+import { ChessState } from "../models.js";
 
 export type IntegrationCase = {
     sequence: MoveEvent[],

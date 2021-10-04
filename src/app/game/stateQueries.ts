@@ -1,5 +1,6 @@
+import { allLegalMoves } from "../ai/moveGenerator.js";
 import { addPositions, flat, itemAt, oppositeColor, posEquals, validPosition } from "../utils/helpers.js";
-import { BOARD_SIZE } from "../view/boardView.js";
+import { BOARD_SIZE, MoveEvent } from "../view/boardView.js";
 import { filterBlockedSquares, sameColumn, sameNegativeDiagonal, samePositiveDiagonal, sameRow, sameUnitDiagonals } from "./attackVectors.js";
 import { ChessState, Color, Piece, Position, Square } from "./models.js";
 
@@ -14,7 +15,7 @@ export function attackedSquares(piece: Piece, piecePos: Position, state: ChessSt
     } else if(piece.name === 'pawn') {
         return pawnAttackedSquares(piecePos, state, piece);
     } else if(piece.name === 'king') {
-        return kingAttackedSquares(piecePos, state, piece);
+        return kingAttackedSquares(piecePos, state);
     } else if(piece.name === 'knight') {
         return knightAttackedSquares(piecePos, state);
     }
@@ -44,6 +45,16 @@ export function inCheck(state: ChessState, kingColor: Color): boolean {
     return hasAttackers(findKing(state, kingColor), oppositeColor(kingColor), state);
 }
 
+/** Is the king in checkmate in the given state? */
+export function inCheckMate(precedingMove: MoveEvent | undefined, state: ChessState, kingColor: Color): boolean {
+    return inCheck(state, kingColor) && allLegalMoves(precedingMove, state, kingColor).length === 0;
+}
+
+/** Is the king in stalemate in the given state? */
+export function inStaleMate(precedingMove: MoveEvent | undefined, state: ChessState, kingColor: Color): boolean {
+    return !inCheck(state, kingColor) && allLegalMoves(precedingMove, state, kingColor).length === 0;
+}
+
 /** Do the given positions contain a piece in the given state? */
 export function containsPiece(state: ChessState, ...positions: Position[]): boolean {
     return positions.findIndex(pos => !!itemAt(state.board, pos).piece) > -1;
@@ -71,7 +82,7 @@ function pawnAttackedSquares(pawnPos: Position, state: ChessState, pawn: Piece):
     return sameUnitDiagonals(pawnPos, state, direction);
 }
 
-function kingAttackedSquares(kingPos: Position, state: ChessState, king: Piece): Square[] {
+function kingAttackedSquares(kingPos: Position, state: ChessState): Square[] {
     const vectors: Position[] =  [[-1, -1],[-1, 0],[-1, 1],[0, 1],[1, 1],[1, 0],[1, -1],[0, -1]];
     return relativeAttackedSquares(kingPos, vectors, state);
 }

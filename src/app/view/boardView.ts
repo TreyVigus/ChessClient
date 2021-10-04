@@ -26,7 +26,7 @@ export type BoardView = {
 	removeHighlight(pos: Position): void
 }
 
-export function initView(): BoardView {
+export function initBoardView(): BoardView {
 	const board: HTMLDivElement[][] = getBoard();
 
 	const drawPiece = (piece: Piece, pos: Position): void => {

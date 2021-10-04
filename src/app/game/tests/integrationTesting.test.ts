@@ -1,9 +1,9 @@
-import { createTestGroup } from "../../testing/test-execution.js";
-import { constructBoard } from "../utils/helpers.js";
-import { MoveEvent } from "../view/boardView.js";
+import { createTestGroup } from "../../../testing/test-execution.js";
+import { constructBoard } from "../../utils/helpers.js";
+import { MoveEvent } from "../../view/boardView.js";
 import { cases } from "./integrationCases.test.js";
-import { ChessState, Position, Square } from "./models.js";
-import { isLegal, makeMove } from "./movements.js";
+import { ChessState, Position, Square } from "../models.js";
+import { isLegal, makeMove } from "../movements.js";
 
 const tg = createTestGroup('Integration Testing');
 

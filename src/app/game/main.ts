@@ -1,37 +1,75 @@
-import { constructBoard, flat, posSequence } from "../utils/helpers.js";
-import { BoardView, initView, MoveEvent } from "../view/boardView.js";
-import { ChessState, Position, Square } from "./models.js";
+import { getBotMove } from "../ai/bot.js";
+import { createEmitter } from "../utils/emitter.js";
+import { constructBoard, flat, itemAt, oppositeColor, posSequence } from "../utils/helpers.js";
+import { BoardView, initBoardView, MoveEvent } from "../view/boardView.js";
+import { displayTurn, displayVictor } from "../view/infoView.js";
+import { ChessState, Color, Position, Square } from "./models.js";
 import { isLegal, makeMove } from "./movements.js";
-import { findKing, inCheck } from "./stateQueries.js";
+import { findKing, inCheck, inCheckMate, inStaleMate } from "./stateQueries.js";
 
 /********* Debugging flags **********/
 const showSquarePositions = false; //render simple board with position info
-const recordMoves = true; //print moves and resulting state to console
 /***********************************/
 
-const view = initView();
+type Turn = {
+    player: Color,
+    legalMove: MoveEvent | undefined
+}
+
+const view = initBoardView();
 let currentState = initialState();
-let lastMove: MoveEvent | undefined = undefined; //The move that led to currentState
 
 if(showSquarePositions) {
     view.showSquarePositions();
 } else {
-    let moveSequence: MoveEvent[] = [];
     drawState(currentState, view);
-    view.moveEmitter.subscribe((attemptedMove: MoveEvent) => {
-        processMove(attemptedMove);
-        if(recordMoves) {
-            recordMove(attemptedMove, moveSequence);
+
+    const turns = createEmitter<Turn>();
+    turns.subscribe(async (prevTurn: Turn) => {
+        const colorToMove = oppositeColor(prevTurn.player);
+        displayTurn(colorToMove);
+        const attemptedMove = colorToMove === 'white' ? await getPlayerMove() : await getBotMove(prevTurn.legalMove, currentState);
+
+        if(correctColor(currentState, attemptedMove, colorToMove) && isLegal(prevTurn.legalMove, currentState, attemptedMove)) {
+            currentState = makeMove(prevTurn.legalMove, currentState, attemptedMove);
+            drawState(currentState, view);
+
+            if(gameOver(attemptedMove, currentState, oppositeColor(colorToMove))) {
+                displayVictor(colorToMove);
+            } else {
+                turns.publish({
+                    player: colorToMove,
+                    legalMove: attemptedMove
+                });
+            }
+
+        } else {
+            turns.publish(prevTurn);
         }
     });
+
+    //white moves first
+    turns.publish({player: 'black', legalMove: undefined});
 }
 
-function processMove(attemptedMove: MoveEvent) {
-    if(isLegal(lastMove, currentState, attemptedMove)) {
-        currentState = makeMove(lastMove, currentState, attemptedMove);
-        lastMove = attemptedMove;
-        drawState(currentState, view);
-    }
+async function getPlayerMove(): Promise<MoveEvent> {
+    const playerMove = new Promise<MoveEvent>((resolve) => {
+        //TODO: memory leak
+        view.moveEmitter.subscribe((attemptedMove: MoveEvent) => {
+            resolve(attemptedMove);
+        });
+    });
+
+    return playerMove;
+}
+
+function gameOver(finalMove: MoveEvent, finalState: ChessState, losingColor: Color): boolean {
+    return inCheckMate(finalMove, finalState, losingColor) || inStaleMate(finalMove, finalState, losingColor);
+}
+
+function correctColor(state: ChessState, attemptedMove: MoveEvent, expectedColor: Color) {
+    const piece = itemAt(state.board, attemptedMove.startPos).piece;
+    return piece && piece.color === expectedColor;
 }
 
 function drawState(state: ChessState, view: BoardView) {
@@ -106,11 +144,4 @@ function initialState(): ChessState {
     board[7][7].piece = {color: 'white', name: 'rook'};
 
     return { board };
-}
-
-function recordMove(attemptedMove: MoveEvent, moveSequence: MoveEvent[]) {
-    moveSequence.push(attemptedMove);
-    const stringSeq = JSON.stringify(moveSequence);
-    const stringState = JSON.stringify(currentState);
-    console.log(`addCase(${stringSeq}, ${stringState})`);
 }
