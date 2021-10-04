@@ -55,6 +55,10 @@ export function inStaleMate(precedingMove: MoveEvent | undefined, state: ChessSt
     return !inCheck(state, kingColor) && allLegalMoves(precedingMove, state, kingColor).length === 0;
 }
 
+export function gameOver(finalMove: MoveEvent, finalState: ChessState, losingColor: Color): boolean {
+    return inCheckMate(finalMove, finalState, losingColor) || inStaleMate(finalMove, finalState, losingColor);
+}
+
 /** Do the given positions contain a piece in the given state? */
 export function containsPiece(state: ChessState, ...positions: Position[]): boolean {
     return positions.findIndex(pos => !!itemAt(state.board, pos).piece) > -1;
