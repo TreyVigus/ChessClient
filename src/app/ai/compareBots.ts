@@ -1,5 +1,6 @@
 /** Gives a way to compare a new version of the bot to an old version to determine which is better. */
 // TODO: abstraction between this and main.ts
+// TODO: need to implement threefold repetition and 50 move rule to avoid infinite loops
 
 import { ChessState, Color, Position, Square } from "../game/models.js";
 import { isLegal, makeMove } from "../game/movements.js";
