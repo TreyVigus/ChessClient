@@ -55,10 +55,6 @@ export function inStaleMate(precedingMove: MoveEvent | undefined, state: ChessSt
     return !inCheck(state, kingColor) && allLegalMoves(precedingMove, state, kingColor).length === 0;
 }
 
-export function gameOver(finalMove: MoveEvent, finalState: ChessState, losingColor: Color): boolean {
-    return inCheckMate(finalMove, finalState, losingColor) || inStaleMate(finalMove, finalState, losingColor);
-}
-
 /** Do the given positions contain a piece in the given state? */
 export function containsPiece(state: ChessState, ...positions: Position[]): boolean {
     return positions.findIndex(pos => !!itemAt(state.board, pos).piece) > -1;
@@ -67,12 +63,6 @@ export function containsPiece(state: ChessState, ...positions: Position[]): bool
 /** Is the given position located on the opposite color's back rank? */
 export function isBackRank(pawnColor: Color, pos: Position): boolean {
     return pawnColor === 'white' && pos[0] === 0 || pawnColor === 'black' && pos[0] === BOARD_SIZE - 1;
-}
-
-/** Is there a piece at the given pos and does it have the expectedColor? */
-export function correctColor(state: ChessState, pos: Position, expectedColor: Color): boolean {
-    const piece = itemAt(state.board, pos).piece;
-    return !!piece && piece.color === expectedColor;
 }
 
 function rookAttackedSquares(rookPos: Position, state: ChessState): Square[] {  

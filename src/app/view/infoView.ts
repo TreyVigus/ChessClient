@@ -1,3 +1,4 @@
+import { Winner } from "../game/gameLoop";
 import { Color } from "../game/models";
 
 export function displayTurn(color: Color) {
@@ -9,12 +10,14 @@ export function displayTurn(color: Color) {
     }
 }
 
-export function displayVictor(winner: Color) {
+export function displayVictor(winner: Winner) {
     const p = getParagraph();
     if(winner === 'white') {
-        p.innerText = 'You win!';
+        p.innerText = 'White wins!';
+    } else if (winner === 'black') {
+        p.innerText = 'Black wins!';
     } else {
-        p.innerText = 'You lose!';
+        p.innerText = 'Draw';
     }
 }
 
