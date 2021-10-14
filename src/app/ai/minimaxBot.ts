@@ -29,7 +29,7 @@ type Utility = 1 | 0 | -1;
  * TODO: this code is very similar to maxUtility, may be able to refactor.
  */
 function minimax(prevPly: MoveEvent | undefined, state: ChessState, botColor: Color): MoveEvent {
-    let max: Utility = -1;
+    let max = -2;
     let best: MoveEvent;
     allLegalMoves(prevPly, state, botColor).forEach(ply => {
         const child = makeMove(prevPly, state, ply);
@@ -55,7 +55,7 @@ function maxUtility(prevPly: MoveEvent, state: ChessState, minColor: Color, maxC
         return utility(prevPly, state, maxColor);
     }
 
-    let max: Utility = -1;
+    let max = -2;
     allLegalMoves(prevPly, state, maxColor).forEach(ply => {
         const child = makeMove(prevPly, state, ply);
         const util = minUtility(ply, child, minColor, maxColor);
@@ -64,7 +64,7 @@ function maxUtility(prevPly: MoveEvent, state: ChessState, minColor: Color, maxC
         }
     });
 
-    return max;
+    return max as Utility;
 }
 
 /**
@@ -80,7 +80,7 @@ function minUtility(prevPly: MoveEvent, state: ChessState, minColor: Color, maxC
         return utility(prevPly, state, maxColor);
     }
 
-    let min: Utility = 1;
+    let min = 2;
     allLegalMoves(prevPly, state, minColor).forEach(ply => {
         const child = makeMove(prevPly, state, ply);
         const util = maxUtility(ply, child, minColor, maxColor);
@@ -89,7 +89,7 @@ function minUtility(prevPly: MoveEvent, state: ChessState, minColor: Color, maxC
         }
     });
 
-    return min;
+    return min as Utility;
 }
 
 function terminal(prevPly: MoveEvent, state: ChessState): boolean {
