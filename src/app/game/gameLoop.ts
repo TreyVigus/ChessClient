@@ -1,8 +1,8 @@
-import { constructBoard, itemAt, oppositeColor } from "../utils/helpers.js";
+import { constructBoard, flat, itemAt, oppositeColor } from "../utils/helpers.js";
 import { MoveEvent } from "../view/boardView.js";
 import { ChessState, Color, Position, Square } from "./models.js";
 import { isLegal, makeMove } from "./movements.js";
-import { inCheckMate, inStaleMate } from "./stateQueries.js";
+import { countPieces, inCheckMate, inStaleMate } from "./stateQueries.js";
 
 export type Ply = {
     /** Board state at the end of the ply. */
@@ -38,13 +38,23 @@ export async function gameLoop(
 
     subscriptions?.onInitialState?.call(undefined, prevPly.state);
 
+    //50 move rule counter
+    let counter = 0;
     while(true) {
         const player = turn === 'white' ? white : black;
         const moveEvent = await player.move(prevPly.move, prevPly.state);
         const validMove = correctColor(prevPly.state, moveEvent.startPos, turn) && isLegal(prevPly.move, prevPly.state, moveEvent);
         if(validMove) {
+            const newState = makeMove(prevPly.move, prevPly.state, moveEvent);
+
+            if(resetCounter(prevPly.state, moveEvent, newState)) {
+                counter = 0;
+            } else {
+                counter++;
+            }
+
             prevPly = {
-                state: makeMove(prevPly.move, prevPly.state, moveEvent),
+                state: newState,
                 color: turn,
                 move: moveEvent
             };
@@ -53,7 +63,7 @@ export async function gameLoop(
 
             turn = oppositeColor(turn);
 
-            const winner = gameOver(moveEvent, prevPly.state, turn);
+            const winner = gameOver(moveEvent, prevPly.state, turn, counter);
             if(winner) {
                 subscriptions?.onGameEnd?.call(undefined, prevPly, winner);
                 break;
@@ -62,11 +72,11 @@ export async function gameLoop(
     }
 }
 
-//TODO: add threefold repetition and 50 move rule
-function gameOver(finalMove: MoveEvent, finalState: ChessState, losingColor: Color): Winner | false {
+//TODO: add threefold repetition
+function gameOver(finalMove: MoveEvent, finalState: ChessState, losingColor: Color, counter: number): Winner | false {
     if(inCheckMate(finalMove, finalState, losingColor)) {
         return oppositeColor(losingColor);
-    } else if(inStaleMate(finalMove, finalState, losingColor)) {
+    } else if(inStaleMate(finalMove, finalState, losingColor) || counter === 100) {
         return 'draw';
     } else {
         return false;
@@ -76,6 +86,23 @@ function gameOver(finalMove: MoveEvent, finalState: ChessState, losingColor: Col
 function correctColor(state: ChessState, pos: Position, expectedColor: Color): boolean {
     const piece = itemAt(state.board, pos).piece;
     return !!piece && piece.color === expectedColor;
+}
+
+/**
+ * If there are 50 moves (100 ply) without a capture or pawn move, we have a draw.
+ */
+function resetCounter(prevState: ChessState, legalMove: MoveEvent, newState: ChessState): boolean {
+    const pawnMove = itemAt(prevState.board, legalMove.startPos).piece!.name === 'pawn';
+    if(pawnMove) {
+        return true;
+    }
+
+    const capture = countPieces(prevState) > countPieces(newState);
+    if(capture) {
+        return true;
+    }
+
+    return false;
 }
 
 function initialState(): ChessState {

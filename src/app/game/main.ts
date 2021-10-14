@@ -8,7 +8,7 @@ import { findKing, inCheck } from "./stateQueries.js";
 
 /********* Debugging flags **********/
 const showSquarePositions = false; //render simple board with position info
-const useBots = true; //have bots play each other
+const useBots = false; //have bots play each other
 /***********************************/
 
 const view = initBoardView();

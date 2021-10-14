@@ -65,6 +65,13 @@ export function isBackRank(pawnColor: Color, pos: Position): boolean {
     return pawnColor === 'white' && pos[0] === 0 || pawnColor === 'black' && pos[0] === BOARD_SIZE - 1;
 }
 
+/** Returns the number of pieces (white or black) in the given state. */
+export function countPieces(state: ChessState): number {
+    return [...flat(state.board)].reduce((sum, sq) => {
+        return sum + (sq.value.piece ? 1 : 0);
+    }, 0);
+}
+
 function rookAttackedSquares(rookPos: Position, state: ChessState): Square[] {  
     const row = sameRow(rookPos, state);
     const col = sameColumn(rookPos, state);
