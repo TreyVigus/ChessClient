@@ -1,8 +1,9 @@
-import { constructBoard, flat, itemAt, oppositeColor } from "../utils/helpers.js";
+import { constructBoard, itemAt, oppositeColor } from "../utils/helpers.js";
 import { MoveEvent } from "../view/boardView.js";
+import { countPieces } from "../ai/countPieces.js";
 import { ChessState, Color, Position, Square } from "./models.js";
 import { isLegal, makeMove } from "./movements.js";
-import { countPieces, inCheckMate, inStaleMate } from "./stateQueries.js";
+import { inCheckMate, inStaleMate } from "./stateQueries.js";
 
 export type Ply = {
     /** Board state at the end of the ply. */
