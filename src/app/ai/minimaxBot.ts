@@ -1,9 +1,10 @@
 import { Player } from "../game/gameLoop";
-import { ChessState, Color } from "../game/models";
+import { ChessState, Color, Piece } from "../game/models";
 import { makeMove } from "../game/movements";
 import { inCheckMate, inStaleMate } from "../game/stateQueries";
-import { oppositeColor } from "../utils/helpers";
+import { flat, oppositeColor } from "../utils/helpers";
 import { MoveEvent } from "../view/boardView";
+import { countPieces, FilterPiece } from "./countPieces";
 import { allLegalMoves } from "./moveGenerator";
 
 export function minimaxbot(color: Color): Player {
@@ -99,7 +100,6 @@ function terminal(prevPly: MoveEvent, state: ChessState): boolean {
            inStaleMate(prevPly, state, 'white');
 }
 
-
 function utility(prevPly: MoveEvent, terminalState: ChessState, botColor: Color): Utility {
     if(inCheckMate(prevPly, terminalState, botColor)) {
         return -1;
@@ -110,4 +110,48 @@ function utility(prevPly: MoveEvent, terminalState: ChessState, botColor: Color)
     }
 
     return 0;
+}
+
+/**
+ * Materialistic evaluation function
+ * Bot material - opponent material
+ */
+function eval(prevPly: MoveEvent, state: ChessState, botColor: Color): number {
+    if(inCheckMate(prevPly, state, oppositeColor(botColor))) {
+        return 1000;
+    }
+
+    if(inCheckMate(prevPly, state, botColor)) {
+        return -1000;
+    } 
+
+    if(inStaleMate(prevPly, state, 'black') || inStaleMate(prevPly, state, 'white')) {
+        return 0;
+    }
+
+    let value = 0;
+    [...flat(state.board)].filter(sq => sq.value.piece).map(sq => sq.value.piece!).forEach(piece => {
+        if(piece.color === botColor) {
+            value = value + material(piece);
+        } else {
+            value = value - material(piece);
+        }
+    });
+    return value;
+}
+
+function material(p: Piece): number {
+    if(p.name === 'pawn') {
+        return 1;
+    } else if(p.name === 'knight') {
+        return 3;
+    } else if(p.name === 'bishop') {
+        return 3;
+    } else if(p.name === 'rook') {
+        return 5;
+    } else if(p.name === 'queen') {
+        return 9;
+    } 
+    //king's material shouldn't matter
+    return -1;
 }
