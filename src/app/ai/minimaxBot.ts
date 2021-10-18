@@ -10,7 +10,7 @@ export function minimaxbot(color: Color): Player {
     return {
         move: (prevPly: MoveEvent | undefined, state: ChessState) => {
             return new Promise<MoveEvent>((resolve) => {
-                const maxDepth = 4;
+                const maxDepth = 2;
                 resolve(minimax(prevPly, state, color, maxDepth));
             });
         }
@@ -26,7 +26,8 @@ const MIN_EVAL_SENTINEL = -1000;
  * TODO: this code is very similar to maxUtility, may be able to refactor.
  */
 function minimax(prevPly: MoveEvent | undefined, state: ChessState, botColor: Color, maxDepth: number): MoveEvent {
-    let maxChildEval = MIN_EVAL_SENTINEL;
+    console.log('run minimax');
+    let maxChildEval = MIN_EVAL_SENTINEL - 1;
     let best: MoveEvent;
     allLegalMoves(prevPly, state, botColor).forEach(ply => {
         const childState = makeMove(prevPly, state, ply);
@@ -48,11 +49,12 @@ function minimax(prevPly: MoveEvent | undefined, state: ChessState, botColor: Co
  *          assuming best play from MIN.
  */
 function maxEval(prevPly: MoveEvent, state: ChessState, minColor: Color, maxColor: Color, depth: number, maxDepth: number): number {
+    console.log("depth in max: ", depth);
     if(terminal(prevPly, state) || depth === maxDepth) {
         return evaluate(prevPly, state, maxColor);
     }
 
-    let maxChildEval = MIN_EVAL_SENTINEL;
+    let maxChildEval = MIN_EVAL_SENTINEL - 1;
     allLegalMoves(prevPly, state, maxColor).forEach(ply => {
         const childState = makeMove(prevPly, state, ply);
         const childEval = minEval(ply, childState, minColor, maxColor, depth + 1, maxDepth);
@@ -75,7 +77,7 @@ function minEval(prevPly: MoveEvent, state: ChessState, minColor: Color, maxColo
         return evaluate(prevPly, state, maxColor);
     }
 
-    let minChildEval = MAX_EVAL_SENTINEL;
+    let minChildEval = MAX_EVAL_SENTINEL + 1;
     allLegalMoves(prevPly, state, minColor).forEach(ply => {
         const childState = makeMove(prevPly, state, ply);
         const childEval = maxEval(ply, childState, minColor, maxColor, depth + 1, maxDepth);
