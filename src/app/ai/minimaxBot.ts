@@ -1,10 +1,10 @@
-import { Player } from "../game/gameLoop";
-import { ChessState, Color, Piece } from "../game/models";
-import { makeMove } from "../game/movements";
-import { inCheckMate, inStaleMate } from "../game/stateQueries";
-import { flat, oppositeColor } from "../utils/helpers";
-import { MoveEvent } from "../view/boardView";
-import { allLegalMoves } from "./moveGenerator";
+import { Player } from "../game/gameLoop.js";
+import { ChessState, Color, Piece } from "../game/models.js";
+import { makeMove } from "../game/movements.js";
+import { inCheckMate, inStaleMate } from "../game/stateQueries.js";
+import { flat, oppositeColor } from "../utils/helpers.js";
+import { MoveEvent } from "../view/boardView.js";
+import { allLegalMoves } from "./moveGenerator.js";
 
 export function minimaxbot(color: Color): Player {
     return {
