@@ -37,7 +37,9 @@ export async function gameLoop(
     }
     let turn: Color = 'white';
 
-    subscriptions?.onInitialState?.call(undefined, prevPly.state);
+    await runAnimation(() => {
+        subscriptions?.onInitialState?.call(undefined, prevPly.state);
+    });
 
     //50 move rule counter
     let counter = 0;
@@ -60,13 +62,17 @@ export async function gameLoop(
                 move: moveEvent
             };
 
-            subscriptions?.onLegalPly?.call(undefined, prevPly);
+            await runAnimation(() => {
+                subscriptions?.onLegalPly?.call(undefined, prevPly);
+            });
 
             turn = oppositeColor(turn);
 
             const winner = gameOver(moveEvent, prevPly.state, turn, counter);
             if(winner) {
-                subscriptions?.onGameEnd?.call(undefined, prevPly, winner);
+                await runAnimation(() => {
+                    subscriptions?.onGameEnd?.call(undefined, prevPly, winner);
+                });
                 break;
             }
         }
@@ -104,6 +110,17 @@ function resetCounter(prevState: ChessState, legalMove: MoveEvent, newState: Che
     }
 
     return false;
+}
+
+/** 
+ * Run the given function and wait for painting to occur.
+ * Useful since the bot may be slow and block painting. 
+ * We want to render the player's move BEFORE the bot moves.
+ * */
+ async function runAnimation(f: Function): Promise<void> {
+    await new Promise(requestAnimationFrame);
+    f();
+    await new Promise(requestAnimationFrame);
 }
 
 function initialState(): ChessState {
