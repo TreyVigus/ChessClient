@@ -6,7 +6,7 @@ import { flat, oppositeColor } from "../utils/helpers.js";
 import { MoveEvent } from "../view/boardView.js";
 import { allLegalMoves } from "./moveGenerator.js";
 
-const MAX_DEPTH = 1;
+const SEARCH_DEPTH = 2;
 const MAX_EVAL_SENTINEL = 1000;
 const MIN_EVAL_SENTINEL = -1000;
 
@@ -48,7 +48,7 @@ function minimax(prevPly: MoveEvent | undefined, state: ChessState, botColor: Co
  *          assuming best play from MIN.
  */
 function maxEval(prevPly: MoveEvent, state: ChessState, minColor: Color, maxColor: Color, depth: number): number {
-    if(terminal(prevPly, state) || depth === MAX_DEPTH) {
+    if(terminal(prevPly, state) || depth === SEARCH_DEPTH) {
         return evaluate(prevPly, state, maxColor);
     }
 
@@ -71,7 +71,7 @@ function maxEval(prevPly: MoveEvent, state: ChessState, minColor: Color, maxColo
  *          assuming best play from MAX.
  */
 function minEval(prevPly: MoveEvent, state: ChessState, minColor: Color, maxColor: Color, depth: number): number {
-    if(terminal(prevPly, state) || depth === MAX_DEPTH) {
+    if(terminal(prevPly, state) || depth === SEARCH_DEPTH) {
         return evaluate(prevPly, state, maxColor);
     }
 
