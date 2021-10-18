@@ -4,39 +4,35 @@ import { makeMove } from "../game/movements";
 import { inCheckMate, inStaleMate } from "../game/stateQueries";
 import { flat, oppositeColor } from "../utils/helpers";
 import { MoveEvent } from "../view/boardView";
-import { countPieces, FilterPiece } from "./countPieces";
 import { allLegalMoves } from "./moveGenerator";
 
 export function minimaxbot(color: Color): Player {
     return {
         move: (prevPly: MoveEvent | undefined, state: ChessState) => {
             return new Promise<MoveEvent>((resolve) => {
-                resolve(minimax(prevPly, state, color));
+                const maxDepth = 4;
+                resolve(minimax(prevPly, state, color, maxDepth));
             });
         }
     }
 }
 
-/** 
- * 1: the bot (MAX) wins
- * 0: a draw
- * -1: the other player (MIN) wins
- * */
-type Utility = 1 | 0 | -1;
+const MAX_EVAL_SENTINEL = 1000;
+const MIN_EVAL_SENTINEL = -1000;
 
 /**
  * Get the best move for the bot in the given position.
  * Assumes the bot is the MAX player and the opponent is the MIN player.
  * TODO: this code is very similar to maxUtility, may be able to refactor.
  */
-function minimax(prevPly: MoveEvent | undefined, state: ChessState, botColor: Color): MoveEvent {
-    let max = -2;
+function minimax(prevPly: MoveEvent | undefined, state: ChessState, botColor: Color, maxDepth: number): MoveEvent {
+    let maxChildEval = MIN_EVAL_SENTINEL;
     let best: MoveEvent;
     allLegalMoves(prevPly, state, botColor).forEach(ply => {
-        const child = makeMove(prevPly, state, ply);
-        const util = minUtility(ply, child, oppositeColor(botColor), botColor);
-        if(util > max) {
-            max = util;
+        const childState = makeMove(prevPly, state, ply);
+        const childEval = minEval(ply, childState, oppositeColor(botColor), botColor, 1, maxDepth);
+        if(childEval > maxChildEval) {
+            maxChildEval = childEval;
             best = ply;
         }
     });
@@ -48,24 +44,22 @@ function minimax(prevPly: MoveEvent | undefined, state: ChessState, botColor: Co
  * @param state   The current state to consider
  * @param minColor MIN
  * @param maxColor MAX
- * @returns The highest utility (for MAX) that MAX can guarentee in the given state,
+ * @returns The highest evaluation (for MAX) that MAX can guarentee in the given state,
  *          assuming best play from MIN.
  */
-function maxUtility(prevPly: MoveEvent, state: ChessState, minColor: Color, maxColor: Color): Utility {
-    if(terminal(prevPly, state)) {
-        return utility(prevPly, state, maxColor);
+function maxEval(prevPly: MoveEvent, state: ChessState, minColor: Color, maxColor: Color, depth: number, maxDepth: number): number {
+    if(terminal(prevPly, state) || depth === maxDepth) {
+        return evaluate(prevPly, state, maxColor);
     }
 
-    let max = -2;
+    let maxChildEval = MIN_EVAL_SENTINEL;
     allLegalMoves(prevPly, state, maxColor).forEach(ply => {
-        const child = makeMove(prevPly, state, ply);
-        const util = minUtility(ply, child, minColor, maxColor);
-        if(util > max) {
-            max = util;
-        }
+        const childState = makeMove(prevPly, state, ply);
+        const childEval = minEval(ply, childState, minColor, maxColor, depth + 1, maxDepth);
+        maxChildEval = Math.max(maxChildEval, childEval);
     });
 
-    return max as Utility;
+    return maxChildEval;
 }
 
 /**
@@ -73,24 +67,22 @@ function maxUtility(prevPly: MoveEvent, state: ChessState, minColor: Color, maxC
  * @param state   The current state to consider
  * @param minColor MIN
  * @param maxColor MAX
- * @returns The lowest utility (for MAX) that MIN can guarentee in the given state,
+ * @returns The lowest evaluation (for MAX) that MIN can guarentee in the given state,
  *          assuming best play from MAX.
  */
-function minUtility(prevPly: MoveEvent, state: ChessState, minColor: Color, maxColor: Color): Utility {
-    if(terminal(prevPly, state)) {
-        return utility(prevPly, state, maxColor);
+function minEval(prevPly: MoveEvent, state: ChessState, minColor: Color, maxColor: Color, depth: number, maxDepth: number): number {
+    if(terminal(prevPly, state) || depth === maxDepth) {
+        return evaluate(prevPly, state, maxColor);
     }
 
-    let min = 2;
+    let minChildEval = MAX_EVAL_SENTINEL;
     allLegalMoves(prevPly, state, minColor).forEach(ply => {
-        const child = makeMove(prevPly, state, ply);
-        const util = maxUtility(ply, child, minColor, maxColor);
-        if(util < min) {
-            min = util;
-        }
+        const childState = makeMove(prevPly, state, ply);
+        const childEval = maxEval(ply, childState, minColor, maxColor, depth + 1, maxDepth);
+        minChildEval = Math.min(minChildEval, childEval);
     });
 
-    return min as Utility;
+    return minChildEval;
 }
 
 function terminal(prevPly: MoveEvent, state: ChessState): boolean {
@@ -100,29 +92,17 @@ function terminal(prevPly: MoveEvent, state: ChessState): boolean {
            inStaleMate(prevPly, state, 'white');
 }
 
-function utility(prevPly: MoveEvent, terminalState: ChessState, botColor: Color): Utility {
-    if(inCheckMate(prevPly, terminalState, botColor)) {
-        return -1;
-    } 
-    
-    if(inCheckMate(prevPly, terminalState, oppositeColor(botColor))) {
-        return 1;
-    }
-
-    return 0;
-}
-
 /**
  * Materialistic evaluation function
  * Bot material - opponent material
  */
-function eval(prevPly: MoveEvent, state: ChessState, botColor: Color): number {
+function evaluate(prevPly: MoveEvent, state: ChessState, botColor: Color): number {
     if(inCheckMate(prevPly, state, oppositeColor(botColor))) {
-        return 1000;
+        return MAX_EVAL_SENTINEL;
     }
 
     if(inCheckMate(prevPly, state, botColor)) {
-        return -1000;
+        return -MIN_EVAL_SENTINEL;
     } 
 
     if(inStaleMate(prevPly, state, 'black') || inStaleMate(prevPly, state, 'white')) {
