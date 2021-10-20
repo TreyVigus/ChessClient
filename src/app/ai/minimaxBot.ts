@@ -4,6 +4,7 @@ import { makeMove } from "../game/movements.js";
 import { inCheckMate, inStaleMate } from "../game/stateQueries.js";
 import { flatten, oppositeColor } from "../utils/helpers.js";
 import { MoveEvent } from "../view/boardView.js";
+import { EvalCache, getEmptyCache } from "./cache.js";
 import { allLegalMoves } from "./moveGenerator.js";
 
 const SEARCH_DEPTH = 2;
@@ -11,10 +12,11 @@ const MAX_EVAL_SENTINEL = 1000;
 const MIN_EVAL_SENTINEL = -1000;
 
 export function minimaxbot(color: Color): Player {
+    const cache = getEmptyCache();
     return {
         move: (prevPly: MoveEvent | undefined, state: ChessState) => {
             return new Promise<MoveEvent>((resolve) => {
-                resolve(minimax(prevPly, state, color));
+                resolve(minimax(prevPly, state, color, cache));
             });
         }
     }
@@ -25,12 +27,12 @@ export function minimaxbot(color: Color): Player {
  * Assumes the bot is the MAX player and the opponent is the MIN player.
  * TODO: this code is very similar to maxUtility, may be able to refactor.
  */
-function minimax(prevPly: MoveEvent | undefined, state: ChessState, botColor: Color): MoveEvent {
+function minimax(prevPly: MoveEvent | undefined, state: ChessState, botColor: Color, cache: EvalCache): MoveEvent {
     let maxChildEval = MIN_EVAL_SENTINEL - 1;
     let best: MoveEvent;
     allLegalMoves(prevPly, state, botColor).forEach(ply => {
         const childState = makeMove(prevPly, state, ply);
-        const childEval = minEval(ply, childState, oppositeColor(botColor), botColor, 1);
+        const childEval = minEval(ply, childState, oppositeColor(botColor), botColor, 1, cache);
         if(childEval > maxChildEval) {
             maxChildEval = childEval;
             best = ply;
@@ -47,18 +49,27 @@ function minimax(prevPly: MoveEvent | undefined, state: ChessState, botColor: Co
  * @returns The highest evaluation (for MAX) that MAX can guarentee in the given state,
  *          assuming best play from MIN.
  */
-function maxEval(prevPly: MoveEvent, state: ChessState, minColor: Color, maxColor: Color, depth: number): number {
+function maxEval(prevPly: MoveEvent, state: ChessState, minColor: Color, maxColor: Color, depth: number, cache: EvalCache): number {
     if(terminal(prevPly, state) || depth === SEARCH_DEPTH) {
+        const evaluation = evaluate(prevPly, state, maxColor);
+        //terminal nodes always cached under maxColor
+        cache.add(maxColor, state, evaluation);
         return evaluate(prevPly, state, maxColor);
+    }
+
+    const cached = cache.get(maxColor, state);
+    if(cached) {
+        return cached;
     }
 
     let maxChildEval = MIN_EVAL_SENTINEL - 1;
     allLegalMoves(prevPly, state, maxColor).forEach(ply => {
         const childState = makeMove(prevPly, state, ply);
-        const childEval = minEval(ply, childState, minColor, maxColor, depth + 1);
+        const childEval = minEval(ply, childState, minColor, maxColor, depth + 1, cache);
         maxChildEval = Math.max(maxChildEval, childEval);
     });
 
+    cache.add(maxColor, state, maxChildEval);
     return maxChildEval;
 }
 
@@ -70,18 +81,27 @@ function maxEval(prevPly: MoveEvent, state: ChessState, minColor: Color, maxColo
  * @returns The lowest evaluation (for MAX) that MIN can guarentee in the given state,
  *          assuming best play from MAX.
  */
-function minEval(prevPly: MoveEvent, state: ChessState, minColor: Color, maxColor: Color, depth: number): number {
+function minEval(prevPly: MoveEvent, state: ChessState, minColor: Color, maxColor: Color, depth: number, cache: EvalCache): number {
     if(terminal(prevPly, state) || depth === SEARCH_DEPTH) {
-        return evaluate(prevPly, state, maxColor);
+        const evaluation = evaluate(prevPly, state, maxColor);
+        //terminal nodes always cached under maxColor
+        cache.add(maxColor, state, evaluation);
+        return evaluation;
+    }
+
+    const cached = cache.get(minColor, state);
+    if(cached) {
+        return cached;
     }
 
     let minChildEval = MAX_EVAL_SENTINEL + 1;
     allLegalMoves(prevPly, state, minColor).forEach(ply => {
         const childState = makeMove(prevPly, state, ply);
-        const childEval = maxEval(ply, childState, minColor, maxColor, depth + 1);
+        const childEval = maxEval(ply, childState, minColor, maxColor, depth + 1, cache);
         minChildEval = Math.min(minChildEval, childEval);
     });
 
+    cache.add(minColor, state, minChildEval);
     return minChildEval;
 }
 
