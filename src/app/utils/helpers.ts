@@ -1,4 +1,4 @@
-import { Color, Position } from "../game/models.js";
+import { ChessState, Color, Position, Square } from "../game/models.js";
 import { BOARD_SIZE } from "../view/boardView.js";
 
 export function oppositeColor(color: Color): Color {
@@ -109,4 +109,31 @@ export function addPositions(...positions: Position[]): Position {
         sum[1] = sum[1] + pos[1];
     });
     return sum;
+}
+
+/** 
+ * Returns a deep copy of the given state.  
+ * Faster than clone().
+ * */
+export function cloneState(state: ChessState): ChessState {
+    const boardClone = constructBoard<Square>((pos: Position) => {
+        const square = itemAt(state.board, pos);
+
+        let squareClone: Square = { position: pos };
+
+        if(square.piece) {
+            squareClone.piece = {
+                color: square.piece.color,
+                name: square.piece.name
+            }
+        }
+
+        if(square.touched) {
+            squareClone.touched = true;
+        }
+
+        return squareClone;
+    });
+
+    return { board: boardClone }
 }

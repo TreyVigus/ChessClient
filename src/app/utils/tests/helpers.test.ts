@@ -1,8 +1,8 @@
 import { createTestGroup } from "../../../testing/test-execution.js";
 import { arrayEquals } from "../../../testing/test-helpers.js";
-import { Color, Position } from "../../game/models.js";
+import { ChessState, Color, Position } from "../../game/models.js";
 import { BOARD_SIZE } from "../../view/boardView.js";
-import { addPositions, clone, constructBoard, flat, itemAt, oppositeColor, posColor, posEquals, posSequence } from "../helpers.js";
+import { addPositions, clone, cloneState, constructBoard, flat, itemAt, oppositeColor, posColor, posEquals, posSequence } from "../helpers.js";
 
 const tg = createTestGroup('Helpers Testing', ()=> {
 });
@@ -162,6 +162,65 @@ tg.add('addPositions', () => {
     }
 
     return true;
+});
+
+tg.add('clone state has same string rep', () => {
+    const state: ChessState = {"board":[[{"position":[0,0],"piece":{"color":"black","name":"rook"}},{"position":[0,1],"piece":{"color":"black","name":"knight"}},{"position":[0,2],"piece":{"color":"black","name":"bishop"}},{"position":[0,3],"piece":{"color":"black","name":"queen"}},{"position":[0,4],"piece":{"color":"black","name":"king"}},{"position":[0,5],"piece":{"color":"black","name":"bishop"}},{"position":[0,6],"piece":{"color":"black","name":"knight"}},{"position":[0,7],"piece":{"color":"black","name":"rook"}}],[{"position":[1,0],"piece":{"color":"black","name":"pawn"}},{"position":[1,1],"piece":{"color":"black","name":"pawn"}},{"position":[1,2],"piece":{"color":"black","name":"pawn"}},{"position":[1,3],"piece":{"color":"black","name":"pawn"}},{"position":[1,4],"touched":true},{"position":[1,5],"piece":{"color":"black","name":"pawn"}},{"position":[1,6],"piece":{"color":"black","name":"pawn"}},{"position":[1,7],"piece":{"color":"black","name":"pawn"}}],[{"position":[2,0]},{"position":[2,1]},{"position":[2,2]},{"position":[2,3]},{"position":[2,4]},{"position":[2,5]},{"position":[2,6]},{"position":[2,7]}],[{"position":[3,0]},{"position":[3,1]},{"position":[3,2]},{"position":[3,3]},{"position":[3,4],"piece":{"color":"black","name":"pawn"},"touched":true},{"position":[3,5]},{"position":[3,6]},{"position":[3,7]}],[{"position":[4,0]},{"position":[4,1]},{"position":[4,2]},{"position":[4,3]},{"position":[4,4],"piece":{"color":"white","name":"pawn"},"touched":true},{"position":[4,5]},{"position":[4,6]},{"position":[4,7]}],[{"position":[5,0]},{"position":[5,1]},{"position":[5,2]},{"position":[5,3]},{"position":[5,4]},{"position":[5,5],"piece":{"color":"white","name":"knight"},"touched":true},{"position":[5,6]},{"position":[5,7]}],[{"position":[6,0],"piece":{"color":"white","name":"pawn"}},{"position":[6,1],"piece":{"color":"white","name":"pawn"}},{"position":[6,2],"piece":{"color":"white","name":"pawn"}},{"position":[6,3],"piece":{"color":"white","name":"pawn"}},{"position":[6,4],"touched":true},{"position":[6,5],"piece":{"color":"white","name":"pawn"}},{"position":[6,6],"piece":{"color":"white","name":"pawn"}},{"position":[6,7],"piece":{"color":"white","name":"pawn"}}],[{"position":[7,0],"piece":{"color":"white","name":"rook"}},{"position":[7,1],"piece":{"color":"white","name":"knight"}},{"position":[7,2],"piece":{"color":"white","name":"bishop"}},{"position":[7,3],"piece":{"color":"white","name":"queen"}},{"position":[7,4],"piece":{"color":"white","name":"king"}},{"position":[7,5],"piece":{"color":"white","name":"bishop"}},{"position":[7,6],"touched":true},{"position":[7,7],"piece":{"color":"white","name":"rook"}}]]};
+    const clone = cloneState(state);
+
+    if(JSON.stringify(state) !== JSON.stringify(clone)) {
+        return false;
+    }
+    return true;
+});
+
+tg.add('cloned state does not modify original piece', () => {
+    const state: ChessState = {"board":[[{"position":[0,0],"piece":{"color":"black","name":"rook"}},{"position":[0,1],"piece":{"color":"black","name":"knight"}},{"position":[0,2],"piece":{"color":"black","name":"bishop"}},{"position":[0,3],"piece":{"color":"black","name":"queen"}},{"position":[0,4],"piece":{"color":"black","name":"king"}},{"position":[0,5],"piece":{"color":"black","name":"bishop"}},{"position":[0,6],"piece":{"color":"black","name":"knight"}},{"position":[0,7],"piece":{"color":"black","name":"rook"}}],[{"position":[1,0],"piece":{"color":"black","name":"pawn"}},{"position":[1,1],"piece":{"color":"black","name":"pawn"}},{"position":[1,2],"piece":{"color":"black","name":"pawn"}},{"position":[1,3],"piece":{"color":"black","name":"pawn"}},{"position":[1,4],"touched":true},{"position":[1,5],"piece":{"color":"black","name":"pawn"}},{"position":[1,6],"piece":{"color":"black","name":"pawn"}},{"position":[1,7],"piece":{"color":"black","name":"pawn"}}],[{"position":[2,0]},{"position":[2,1]},{"position":[2,2]},{"position":[2,3]},{"position":[2,4]},{"position":[2,5]},{"position":[2,6]},{"position":[2,7]}],[{"position":[3,0]},{"position":[3,1]},{"position":[3,2]},{"position":[3,3]},{"position":[3,4],"piece":{"color":"black","name":"pawn"},"touched":true},{"position":[3,5]},{"position":[3,6]},{"position":[3,7]}],[{"position":[4,0]},{"position":[4,1]},{"position":[4,2]},{"position":[4,3]},{"position":[4,4],"piece":{"color":"white","name":"pawn"},"touched":true},{"position":[4,5]},{"position":[4,6]},{"position":[4,7]}],[{"position":[5,0]},{"position":[5,1]},{"position":[5,2]},{"position":[5,3]},{"position":[5,4]},{"position":[5,5],"piece":{"color":"white","name":"knight"},"touched":true},{"position":[5,6]},{"position":[5,7]}],[{"position":[6,0],"piece":{"color":"white","name":"pawn"}},{"position":[6,1],"piece":{"color":"white","name":"pawn"}},{"position":[6,2],"piece":{"color":"white","name":"pawn"}},{"position":[6,3],"piece":{"color":"white","name":"pawn"}},{"position":[6,4],"touched":true},{"position":[6,5],"piece":{"color":"white","name":"pawn"}},{"position":[6,6],"piece":{"color":"white","name":"pawn"}},{"position":[6,7],"piece":{"color":"white","name":"pawn"}}],[{"position":[7,0],"piece":{"color":"white","name":"rook"}},{"position":[7,1],"piece":{"color":"white","name":"knight"}},{"position":[7,2],"piece":{"color":"white","name":"bishop"}},{"position":[7,3],"piece":{"color":"white","name":"queen"}},{"position":[7,4],"piece":{"color":"white","name":"king"}},{"position":[7,5],"piece":{"color":"white","name":"bishop"}},{"position":[7,6],"touched":true},{"position":[7,7],"piece":{"color":"white","name":"rook"}}]]};
+    const clone = cloneState(state);
+
+    itemAt(clone.board, [0, 1]).piece!.name = 'king';
+    itemAt(clone.board, [0, 1]).piece!.color = 'white';
+
+    if(itemAt(state.board, [0, 1]).piece!.name === 'king' || itemAt(state.board, [0, 1]).piece!.color === 'white') {
+        return false;
+    }
+
+    return true;
+});
+
+tg.add('cloned state does not modify original touched', () => {
+    const state: ChessState = {"board":[[{"position":[0,0],"piece":{"color":"black","name":"rook"}},{"position":[0,1],"piece":{"color":"black","name":"knight"}},{"position":[0,2],"piece":{"color":"black","name":"bishop"}},{"position":[0,3],"piece":{"color":"black","name":"queen"}},{"position":[0,4],"piece":{"color":"black","name":"king"}},{"position":[0,5],"piece":{"color":"black","name":"bishop"}},{"position":[0,6],"piece":{"color":"black","name":"knight"}},{"position":[0,7],"piece":{"color":"black","name":"rook"}}],[{"position":[1,0],"piece":{"color":"black","name":"pawn"}},{"position":[1,1],"piece":{"color":"black","name":"pawn"}},{"position":[1,2],"piece":{"color":"black","name":"pawn"}},{"position":[1,3],"piece":{"color":"black","name":"pawn"}},{"position":[1,4],"touched":true},{"position":[1,5],"piece":{"color":"black","name":"pawn"}},{"position":[1,6],"piece":{"color":"black","name":"pawn"}},{"position":[1,7],"piece":{"color":"black","name":"pawn"}}],[{"position":[2,0]},{"position":[2,1]},{"position":[2,2]},{"position":[2,3]},{"position":[2,4]},{"position":[2,5]},{"position":[2,6]},{"position":[2,7]}],[{"position":[3,0]},{"position":[3,1]},{"position":[3,2]},{"position":[3,3]},{"position":[3,4],"piece":{"color":"black","name":"pawn"},"touched":true},{"position":[3,5]},{"position":[3,6]},{"position":[3,7]}],[{"position":[4,0]},{"position":[4,1]},{"position":[4,2]},{"position":[4,3]},{"position":[4,4],"piece":{"color":"white","name":"pawn"},"touched":true},{"position":[4,5]},{"position":[4,6]},{"position":[4,7]}],[{"position":[5,0]},{"position":[5,1]},{"position":[5,2]},{"position":[5,3]},{"position":[5,4]},{"position":[5,5],"piece":{"color":"white","name":"knight"},"touched":true},{"position":[5,6]},{"position":[5,7]}],[{"position":[6,0],"piece":{"color":"white","name":"pawn"}},{"position":[6,1],"piece":{"color":"white","name":"pawn"}},{"position":[6,2],"piece":{"color":"white","name":"pawn"}},{"position":[6,3],"piece":{"color":"white","name":"pawn"}},{"position":[6,4],"touched":true},{"position":[6,5],"piece":{"color":"white","name":"pawn"}},{"position":[6,6],"piece":{"color":"white","name":"pawn"}},{"position":[6,7],"piece":{"color":"white","name":"pawn"}}],[{"position":[7,0],"piece":{"color":"white","name":"rook"}},{"position":[7,1],"piece":{"color":"white","name":"knight"}},{"position":[7,2],"piece":{"color":"white","name":"bishop"}},{"position":[7,3],"piece":{"color":"white","name":"queen"}},{"position":[7,4],"piece":{"color":"white","name":"king"}},{"position":[7,5],"piece":{"color":"white","name":"bishop"}},{"position":[7,6],"touched":true},{"position":[7,7],"piece":{"color":"white","name":"rook"}}]]};
+    const clone = cloneState(state);
+
+    itemAt(clone.board, [0, 0]).touched = true;
+
+    if(itemAt(state.board, [0, 0]).touched) {
+        return false;
+    }
+
+    return true;
+});
+
+tg.add('clone state deep check', () => {
+    const state: ChessState = {"board":[[{"position":[0,0],"piece":{"color":"black","name":"rook"}},{"position":[0,1],"piece":{"color":"black","name":"knight"}},{"position":[0,2],"piece":{"color":"black","name":"bishop"}},{"position":[0,3],"piece":{"color":"black","name":"queen"}},{"position":[0,4],"piece":{"color":"black","name":"king"}},{"position":[0,5],"piece":{"color":"black","name":"bishop"}},{"position":[0,6],"piece":{"color":"black","name":"knight"}},{"position":[0,7],"piece":{"color":"black","name":"rook"}}],[{"position":[1,0],"piece":{"color":"black","name":"pawn"}},{"position":[1,1],"piece":{"color":"black","name":"pawn"}},{"position":[1,2],"piece":{"color":"black","name":"pawn"}},{"position":[1,3],"piece":{"color":"black","name":"pawn"}},{"position":[1,4],"touched":true},{"position":[1,5],"piece":{"color":"black","name":"pawn"}},{"position":[1,6],"piece":{"color":"black","name":"pawn"}},{"position":[1,7],"piece":{"color":"black","name":"pawn"}}],[{"position":[2,0]},{"position":[2,1]},{"position":[2,2]},{"position":[2,3]},{"position":[2,4]},{"position":[2,5]},{"position":[2,6]},{"position":[2,7]}],[{"position":[3,0]},{"position":[3,1]},{"position":[3,2]},{"position":[3,3]},{"position":[3,4],"piece":{"color":"black","name":"pawn"},"touched":true},{"position":[3,5]},{"position":[3,6]},{"position":[3,7]}],[{"position":[4,0]},{"position":[4,1]},{"position":[4,2]},{"position":[4,3]},{"position":[4,4],"piece":{"color":"white","name":"pawn"},"touched":true},{"position":[4,5]},{"position":[4,6]},{"position":[4,7]}],[{"position":[5,0]},{"position":[5,1]},{"position":[5,2]},{"position":[5,3]},{"position":[5,4]},{"position":[5,5],"piece":{"color":"white","name":"knight"},"touched":true},{"position":[5,6]},{"position":[5,7]}],[{"position":[6,0],"piece":{"color":"white","name":"pawn"}},{"position":[6,1],"piece":{"color":"white","name":"pawn"}},{"position":[6,2],"piece":{"color":"white","name":"pawn"}},{"position":[6,3],"piece":{"color":"white","name":"pawn"}},{"position":[6,4],"touched":true},{"position":[6,5],"piece":{"color":"white","name":"pawn"}},{"position":[6,6],"piece":{"color":"white","name":"pawn"}},{"position":[6,7],"piece":{"color":"white","name":"pawn"}}],[{"position":[7,0],"piece":{"color":"white","name":"rook"}},{"position":[7,1],"piece":{"color":"white","name":"knight"}},{"position":[7,2],"piece":{"color":"white","name":"bishop"}},{"position":[7,3],"piece":{"color":"white","name":"queen"}},{"position":[7,4],"piece":{"color":"white","name":"king"}},{"position":[7,5],"piece":{"color":"white","name":"bishop"}},{"position":[7,6],"touched":true},{"position":[7,7],"piece":{"color":"white","name":"rook"}}]]};
+    const clone = cloneState(state);
+
+    let pass = true;
+    posSequence().forEach(pos => {
+        const stateSq = itemAt(state.board, pos);
+        const cloneSq = itemAt(clone.board, pos);
+        if(
+            stateSq.piece?.color !== cloneSq.piece?.color ||
+            stateSq.piece?.name !== cloneSq.piece?.name ||
+            stateSq.position[0] !== cloneSq.position[0] ||
+            stateSq.position[1] !== cloneSq.position[1] ||
+            stateSq.touched !== cloneSq.touched
+        ) {
+            pass = false;
+        }
+    });
+
+    return pass;
 });
 
 tg.execute();
