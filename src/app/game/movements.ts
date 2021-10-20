@@ -1,5 +1,5 @@
 //Handles attacking squares, etc by piece
-import { addPositions, clone, itemAt, oppositeColor, posEquals, } from "../utils/helpers.js";
+import { addPositions, cloneState, itemAt, oppositeColor, posEquals, } from "../utils/helpers.js";
 import { MoveEvent } from "../view/boardView.js";
 import { sameRow } from "./attackVectors.js";
 import { ChessState, Color, Piece, Position, Square } from "./models.js";
@@ -37,7 +37,7 @@ export function isLegal(precedingMove: MoveEvent | undefined, currentState: Ches
  * Return the state that would follow if legalMove occured on prevState.
  * */
 export function makeMove(precedingMove: MoveEvent | undefined, prevState: ChessState, legalMove: MoveEvent): ChessState {
-    const copy = clone(prevState);
+    const copy = cloneState(prevState);
     const moveType = classifyMove(precedingMove, prevState, legalMove);
 
     const startSquare = itemAt(copy.board, legalMove.startPos);

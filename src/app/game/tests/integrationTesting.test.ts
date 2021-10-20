@@ -4,6 +4,7 @@ import { MoveEvent } from "../../view/boardView.js";
 import { cases } from "./integrationCases.test.js";
 import { ChessState, Position, Square } from "../models.js";
 import { isLegal, makeMove } from "../movements.js";
+import { stateEquals } from "../../../testing/test-helpers.js";
 
 const tg = createTestGroup('Integration Testing');
 
@@ -28,11 +29,7 @@ function testMoveSequence(sequence: MoveEvent[], endState: ChessState): boolean 
             lastMove = move;
         }
     });
-    return sameState(currentState, endState);
-}
-
-function sameState(a: ChessState, b: ChessState): boolean {
-    return JSON.stringify(a) === JSON.stringify(b);
+    return stateEquals(currentState, endState);
 }
 
 // TODO: copied and pasted this from main.ts, importing will cause errors.
