@@ -2,7 +2,7 @@ import { createTestGroup } from "../../../testing/test-execution.js";
 import { arrayEquals, stateEquals } from "../../../testing/test-helpers.js";
 import { ChessState, Color, Position } from "../../game/models.js";
 import { BOARD_SIZE } from "../../view/boardView.js";
-import { addPositions, clone, cloneState, constructBoard, flat, itemAt, oppositeColor, posColor, posEquals, posSequence } from "../helpers.js";
+import { addPositions, BoardElement, clone, cloneState, constructBoard, flat, flatten, itemAt, oppositeColor, posColor, posEquals, posSequence } from "../helpers.js";
 
 const tg = createTestGroup('Helpers Testing', ()=> {
 });
@@ -71,6 +71,26 @@ tg.add('flattenedBoard', () => {
     const board = constructBoard((pos: Position) => false);
     const flattened: {index: Position, value: boolean}[] = [];
     for(const tile of flat(board)) {
+        flattened.push(tile);
+    }
+
+    const expected: {index: Position, value: boolean}[] = posSequence().map(pos => {
+        return {
+            index: pos,
+            value: false
+        }
+    });
+
+
+    return arrayEquals(flattened, expected, (aEl, bEl) => {
+        return posEquals(aEl.index, bEl.index) && aEl.value === bEl.value;
+    });
+});
+
+tg.add('flattenedBoard 2', () => {
+    const board = constructBoard((pos: Position) => false);
+    const flattened: BoardElement<boolean>[] = [];
+    for(const tile of flatten(board)) {
         flattened.push(tile);
     }
 

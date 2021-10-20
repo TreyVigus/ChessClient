@@ -1,4 +1,4 @@
-import { addPositions, flat, itemAt, posEquals, validPosition } from "../utils/helpers.js";
+import { addPositions, flatten, itemAt, posEquals, validPosition } from "../utils/helpers.js";
 import { ChessState, Position, Square } from "./models.js";
 
 export type Direction = 'north' | 'northEast' | 'east' | 'southEast' | 'south' | 'southWest' | 'west' | 'northWest';
@@ -13,19 +13,19 @@ export function sameRow(piecePos: Position, state: ChessState): Square[] {
 }
 
 export function sameColumn(piecePos: Position, state: ChessState): Square[] {
-    return [...flat(state.board)].filter(sq => sq.index[1] === piecePos[1]).map(sq => sq.value);
+    return [...flatten(state.board)].filter(sq => sq.index[1] === piecePos[1]).map(sq => sq.value);
 }
 
 export function samePositiveDiagonal(piecePos: Position, state: ChessState): Square[] {
     //a positive diagonal consists of all squares with the same sum of coordinates.
     const diagSum = piecePos[0] + piecePos[1];
-    return [...flat(state.board)].map(sq => sq.value).filter(s => (s.position[0] + s.position[1]) === diagSum);
+    return [...flatten(state.board)].map(sq => sq.value).filter(s => (s.position[0] + s.position[1]) === diagSum);
 }
 
 export function sameNegativeDiagonal(piecePos: Position, state: ChessState): Square[] {
     //a positive diagonal consists of all squares with the same difference of coordinates.
     const diagDiff = piecePos[0] - piecePos[1];
-    return [...flat(state.board)].map(sq => sq.value).filter(s => (s.position[0] - s.position[1]) === diagDiff);
+    return [...flatten(state.board)].map(sq => sq.value).filter(s => (s.position[0] - s.position[1]) === diagDiff);
 }
 
 /** 

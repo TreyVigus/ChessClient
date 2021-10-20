@@ -52,12 +52,18 @@ export function constructBoard<T>(next: (pos: Position) => T): T[][] {
     return board;
 }
 
+export type BoardElement<T> = {
+    index: Position,
+    value: T
+}
+
 /**
  * @param board An 8x8 array
+ * @todo this is a performance bottleneck
  * 
  * Converts the given 8x8 array to an Iterable, which can be used in a for...of or spread construct.
  */
-export function flat<T>(board: T[][]): Iterable<{index: Position, value: T}> {
+export function flat<T>(board: T[][]): Iterable<BoardElement<T>> {
     const seq = posSequence();
     let currIndex = 0;
     const next: () => IteratorResult<{index: Position, value: T}> = function() {
@@ -81,6 +87,21 @@ export function flat<T>(board: T[][]): Iterable<{index: Position, value: T}> {
             return { next }
         }
     }
+}
+
+/**
+ * Faster flattening than flat<T>
+ */
+export function flatten<T>(board: T[][]): BoardElement<T>[] {
+    const flat: BoardElement<T>[] = [];
+    posSequence().forEach(pos => {
+        const element = {
+            index: pos,
+            value: itemAt(board, pos)
+        }
+        flat.push(element);
+    });
+    return flat;
 }
 
 export function itemAt<T>(board: T[][], pos: Position): T {

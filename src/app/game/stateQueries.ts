@@ -1,5 +1,5 @@
 import { allLegalMoves } from "../ai/moveGenerator.js";
-import { addPositions, flat, itemAt, oppositeColor, posEquals, validPosition } from "../utils/helpers.js";
+import { addPositions, flatten, itemAt, oppositeColor, posEquals, validPosition } from "../utils/helpers.js";
 import { BOARD_SIZE, MoveEvent } from "../view/boardView.js";
 import { filterBlockedSquares, sameColumn, sameNegativeDiagonal, samePositiveDiagonal, sameRow, sameUnitDiagonals } from "./attackVectors.js";
 import { ChessState, Color, Piece, Position, Square } from "./models.js";
@@ -24,7 +24,7 @@ export function attackedSquares(piece: Piece, piecePos: Position, state: ChessSt
 
 /** Return true if the given square has pieces of the given color attacking it. */
 export function hasAttackers(targetSquare: Square, attackingColor: Color, state: ChessState): boolean {
-    return [...flat(state.board)].some(sq => {
+    return [...flatten(state.board)].some(sq => {
         const piece = sq.value.piece;
         if(piece && piece.color === attackingColor) {
             const attacked = attackedSquares(piece, sq.index, state);
@@ -36,7 +36,7 @@ export function hasAttackers(targetSquare: Square, attackingColor: Color, state:
 
 /** Return the Square of the king of the given color in the given state. */
 export function findKing(state: ChessState, color: Color): Square {
-    return [...flat(state.board)].map(sq => sq.value).filter(s => s.piece).find(s => s.piece!.name === 'king' && s.piece!.color === color)!;
+    return [...flatten(state.board)].map(sq => sq.value).filter(s => s.piece).find(s => s.piece!.name === 'king' && s.piece!.color === color)!;
 }
 
 /** Is the king in check in the given state? */

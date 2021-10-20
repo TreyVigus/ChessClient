@@ -2,7 +2,7 @@ import { Player } from "../game/gameLoop.js";
 import { ChessState, Color, Piece } from "../game/models.js";
 import { makeMove } from "../game/movements.js";
 import { inCheckMate, inStaleMate } from "../game/stateQueries.js";
-import { flat, oppositeColor } from "../utils/helpers.js";
+import { flatten, oppositeColor } from "../utils/helpers.js";
 import { MoveEvent } from "../view/boardView.js";
 import { allLegalMoves } from "./moveGenerator.js";
 
@@ -110,7 +110,7 @@ function evaluate(prevPly: MoveEvent, state: ChessState, botColor: Color): numbe
     }
 
     let value = 0;
-    [...flat(state.board)].filter(sq => sq.value.piece).map(sq => sq.value.piece!).forEach(piece => {
+    [...flatten(state.board)].filter(sq => sq.value.piece).map(sq => sq.value.piece!).forEach(piece => {
         if(piece.color === botColor) {
             value = value + material(piece);
         } else {
