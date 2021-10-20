@@ -1,4 +1,5 @@
 import { addPositions, flatten, itemAt, posEquals, validPosition } from "../utils/helpers.js";
+import { BOARD_SIZE } from "../view/boardView.js";
 import { ChessState, Position, Square } from "./models.js";
 
 export type Direction = 'north' | 'northEast' | 'east' | 'southEast' | 'south' | 'southWest' | 'west' | 'northWest';
@@ -13,7 +14,11 @@ export function sameRow(piecePos: Position, state: ChessState): Square[] {
 }
 
 export function sameColumn(piecePos: Position, state: ChessState): Square[] {
-    return [...flatten(state.board)].filter(sq => sq.index[1] === piecePos[1]).map(sq => sq.value);
+    let col: Square[] = [];
+    for(let i = 0; i < BOARD_SIZE; i++) {
+        col.push(state.board[i][piecePos[1]]);
+    }
+    return col;
 }
 
 export function samePositiveDiagonal(piecePos: Position, state: ChessState): Square[] {
