@@ -24,13 +24,25 @@ export function sameColumn(piecePos: Position, state: ChessState): Square[] {
 export function samePositiveDiagonal(piecePos: Position, state: ChessState): Square[] {
     //a positive diagonal consists of all squares with the same sum of coordinates.
     const diagSum = piecePos[0] + piecePos[1];
-    return [...flatten(state.board)].map(sq => sq.value).filter(s => (s.position[0] + s.position[1]) === diagSum);
+    let diag: Square[] = [];
+    let iterator: Position = diagSum <= 7 ? [0, diagSum] : [diagSum - 7, 7];
+    while(iterator[0] <= 7 && iterator[1] >= 0) {
+        diag.push(itemAt(state.board, iterator));
+        iterator = addPositions(iterator, [1, -1]);
+    }
+    return diag;
 }
 
 export function sameNegativeDiagonal(piecePos: Position, state: ChessState): Square[] {
-    //a positive diagonal consists of all squares with the same difference of coordinates.
+    //a negative diagonal consists of all squares with the same difference of coordinates.
     const diagDiff = piecePos[0] - piecePos[1];
-    return [...flatten(state.board)].map(sq => sq.value).filter(s => (s.position[0] - s.position[1]) === diagDiff);
+    let diag: Square[] = [];
+    let iterator: Position = diagDiff >= 0 ? [diagDiff, 0] : [0, -1*diagDiff];
+    while(iterator[0] <= 7 && iterator[1] <= 7) {
+        diag.push(itemAt(state.board, iterator));
+        iterator = addPositions(iterator, [1, 1]);
+    }
+    return diag;
 }
 
 /** 
