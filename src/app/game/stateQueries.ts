@@ -5,6 +5,7 @@ import { filterBlockedSquares, sameColumn, sameNegativeDiagonal, samePositiveDia
 import { ChessState, Color, Piece, Position, Square } from "./models.js";
 
 /** Return a list of all squares attacked by the given piece. */
+//TODO: this can return Position[] since all usages of this convert to position.
 export function attackedSquares(piece: Piece, piecePos: Position, state: ChessState): Square[] {
     if(piece.name === 'rook') {
         return rookAttackedSquares(piecePos, state)
@@ -24,19 +25,38 @@ export function attackedSquares(piece: Piece, piecePos: Position, state: ChessSt
 
 /** Return true if the given square has pieces of the given color attacking it. */
 export function hasAttackers(targetSquare: Square, attackingColor: Color, state: ChessState): boolean {
-    return [...flatten(state.board)].some(sq => {
-        const piece = sq.value.piece;
-        if(piece && piece.color === attackingColor) {
-            const attacked = attackedSquares(piece, sq.index, state);
-            const attacksTarget = attacked.find(a => posEquals(a.position, targetSquare.position));
-            return !!attacksTarget;
+    for(let i = 0; i < BOARD_SIZE; i++) {
+        for(let j = 0; j < BOARD_SIZE; j++) {
+            const pos: Position = [i, j];
+            const s = itemAt(state.board, pos);
+            if(s.piece && s.piece.color === attackingColor) {
+                const attacked = attackedSquares(s.piece, pos, state);
+                const attacksTarget = attacked.find(a => posEquals(a.position, targetSquare.position));
+                if(attacksTarget) {
+                    return true;
+                }
+            }
         }
-    });
+    }
+
+    return false;
 }
 
 /** Return the Square of the king of the given color in the given state. */
 export function findKing(state: ChessState, color: Color): Square {
-    return [...flatten(state.board)].map(sq => sq.value).filter(s => s.piece).find(s => s.piece!.name === 'king' && s.piece!.color === color)!;
+    //TODO: make a 'fast-search' helper to handle searching a board in this style
+    for(let i = 0; i < BOARD_SIZE; i++) {
+        for(let j = 0; j < BOARD_SIZE; j++) {
+            const pos: Position = [i, j];
+            const s = itemAt(state.board, pos);
+            if(s.piece && s.piece.name === 'king' && s.piece.color === color) {
+                return s;
+            }
+        }
+    }
+
+    //unreachable
+    return null as unknown as Square;
 }
 
 /** Is the king in check in the given state? */
