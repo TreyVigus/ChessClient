@@ -1,6 +1,8 @@
 import { ChessState, Color, Square } from "../game/models.js";
 import { itemAt, posSequence } from "../utils/helpers.js";
 
+//TODO: can make a decorator that is applied to a function that will track its args and cache if seen before...
+
 export type EvalCache = {
     add(moveColor: Color, state: ChessState, evaluation: number): void,
     /** Returns undefined if not present. */
