@@ -1,12 +1,11 @@
 import { allLegalMoves } from "../ai/moveGenerator.js";
-import { addPositions, flatten, itemAt, oppositeColor, posEquals, validPosition } from "../utils/helpers.js";
+import { addPositions, itemAt, oppositeColor, posEquals, validPosition } from "../utils/helpers.js";
 import { BOARD_SIZE, MoveEvent } from "../view/boardView.js";
 import { filterBlockedSquares, sameColumn, sameNegativeDiagonal, samePositiveDiagonal, sameRow, sameUnitDiagonals } from "./attackVectors.js";
 import { ChessState, Color, Piece, Position, Square } from "./models.js";
 
 /** Return a list of all squares attacked by the given piece. */
-//TODO: this can return Position[] since all usages of this convert to position.
-export function attackedSquares(piece: Piece, piecePos: Position, state: ChessState): Square[] {
+export function attackedPositions(piece: Piece, piecePos: Position, state: ChessState): Position[] {
     if(piece.name === 'rook') {
         return rookAttackedSquares(piecePos, state)
     } else if(piece.name === 'bishop') {
@@ -30,8 +29,8 @@ export function hasAttackers(targetSquare: Square, attackingColor: Color, state:
             const pos: Position = [i, j];
             const s = itemAt(state.board, pos);
             if(s.piece && s.piece.color === attackingColor) {
-                const attacked = attackedSquares(s.piece, pos, state);
-                const attacksTarget = attacked.find(a => posEquals(a.position, targetSquare.position));
+                const attacked = attackedPositions(s.piece, pos, state);
+                const attacksTarget = attacked.find(a => posEquals(a, targetSquare.position));
                 if(attacksTarget) {
                     return true;
                 }
@@ -85,35 +84,34 @@ export function isBackRank(pawnColor: Color, pos: Position): boolean {
     return pawnColor === 'white' && pos[0] === 0 || pawnColor === 'black' && pos[0] === BOARD_SIZE - 1;
 }
 
-function rookAttackedSquares(rookPos: Position, state: ChessState): Square[] {  
+function rookAttackedSquares(rookPos: Position, state: ChessState): Position[] {  
     const row = sameRow(rookPos, state);
     const col = sameColumn(rookPos, state);
-    return filterBlockedSquares(rookPos, row).concat(filterBlockedSquares(rookPos, col));
+    return filterBlockedSquares(rookPos, row).concat(filterBlockedSquares(rookPos, col)).map(s => s.position);
 }
 
-function bishopAttackedSquares(bishopPos: Position, state: ChessState): Square[] {
+function bishopAttackedSquares(bishopPos: Position, state: ChessState): Position[] {
     const posDiag = samePositiveDiagonal(bishopPos, state);
     const negDiag = sameNegativeDiagonal(bishopPos, state);
-    return filterBlockedSquares(bishopPos, posDiag).concat(filterBlockedSquares(bishopPos, negDiag));
+    return filterBlockedSquares(bishopPos, posDiag).concat(filterBlockedSquares(bishopPos, negDiag)).map(s => s.position);
 }
 
-function pawnAttackedSquares(pawnPos: Position, state: ChessState, pawn: Piece): Square[] {
+function pawnAttackedSquares(pawnPos: Position, state: ChessState, pawn: Piece): Position[] {
     const direction = pawn.color === 'white' ? 'north' : 'south';
-    return sameUnitDiagonals(pawnPos, state, direction);
+    return sameUnitDiagonals(pawnPos, state, direction).map(s => s.position);
 }
 
-function kingAttackedSquares(kingPos: Position, state: ChessState): Square[] {
+function kingAttackedSquares(kingPos: Position, state: ChessState): Position[] {
     const vectors: Position[] =  [[-1, -1],[-1, 0],[-1, 1],[0, 1],[1, 1],[1, 0],[1, -1],[0, -1]];
     return relativeAttackedSquares(kingPos, vectors, state);
 }
 
-function knightAttackedSquares(knightPos: Position, state: ChessState): Square[] {  
+function knightAttackedSquares(knightPos: Position, state: ChessState): Position[] {  
     const vectors: Position[] =  [[-2, -1],[-2, 1],[2, -1],[2, 1],[1, 2],[1, -2],[-1, 2],[-1, -2]];
     return relativeAttackedSquares(knightPos, vectors, state);
 }
 
-function relativeAttackedSquares(piecePos: Position, vectors: Position[], state: ChessState) {
+function relativeAttackedSquares(piecePos: Position, vectors: Position[], state: ChessState): Position[] {
     return vectors.map(pos => addPositions(pos, piecePos))
                   .filter(pos => validPosition(pos))
-                  .map(pos => itemAt(state.board, pos));
 }

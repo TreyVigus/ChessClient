@@ -4,7 +4,7 @@ import { MoveEvent } from "../view/boardView.js";
 import { sameRow } from "./attackVectors.js";
 import { ChessState, Color, Piece, Position, Square } from "./models.js";
 import { classifyMove, isPawnMoveType, PawnMoveType } from "./moveClassifier.js";
-import { attackedSquares, containsPiece, hasAttackers, inCheck, isBackRank } from "./stateQueries.js";
+import { attackedPositions, containsPiece, hasAttackers, inCheck, isBackRank } from "./stateQueries.js";
 
 export type KingSide = 'left' | 'right';
 
@@ -90,7 +90,7 @@ function targetsOwnPiece(currentState: ChessState, attemptedMove: MoveEvent, pie
 function legalNormalMove(currentState: ChessState, attemptedMove: MoveEvent, piece: Piece): boolean {
     const targetSquare = itemAt(currentState.board, attemptedMove.endPos);
     //does the piece attack the target square?
-    const legalTarget = attackedSquares(piece, attemptedMove.startPos, currentState).find(square => posEquals(square.position, targetSquare.position));
+    const legalTarget = attackedPositions(piece, attemptedMove.startPos, currentState).find(pos => posEquals(pos, targetSquare.position));
     if(!legalTarget) {
         return false;
     }
