@@ -70,16 +70,23 @@ export function sameUnitDiagonals(piecePos: Position, state: ChessState, directi
  */
 export function filterBlockedSquares(piecePos: Position, squares: Square[]): Square[] {
     const piecePosIndex = squares.findIndex(s => posEquals(s.position, piecePos));
-    if(piecePosIndex === -1) {
-        throw 'piecePos was not found in squares array.';
+
+    let leftBlocker = 0;
+    for(let i = piecePosIndex - 1; i > 0; i--) {
+        if(squares[i].piece) {
+            leftBlocker = i;
+            break;
+        }
     }
 
-    const pieceIndices = squares.map((s, index) => {
-        return {piece: s.piece, index}
-    });
+    let rightBlocker = squares.length - 1;
+    for(let i = piecePosIndex + 1; i < squares.length - 1; i++) {
+        if(squares[i].piece) {
+            rightBlocker = i;
+            break;
+        }
+    }
 
-    const leftBlocker = pieceIndices.slice(0, piecePosIndex).filter(p => !!p.piece).pop()?.index ?? 0;
-    const rightBlocker = pieceIndices.slice(piecePosIndex + 1).filter(p => !!p.piece).shift()?.index ?? squares.length - 1;
     return squares.slice(leftBlocker, rightBlocker + 1);
 }
 
