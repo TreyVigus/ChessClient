@@ -5,6 +5,11 @@ import { filterBlockedSquares, sameColumn, sameNegativeDiagonal, samePositiveDia
 import { ChessState, Color, Piece, Position, Square } from "./models.js";
 
 /** Return a list of all squares attacked by the given piece. */
+//TODO: every usage of this function is just going to search the Position[] and see if a piece can attack a target
+//      this can be changed to 'pieceAttacks(...piecePos, targetPos)'
+//      this may make optimizing easier...for example, we could check if the target position is on the same diagonal as a bishop
+//          by performing a simple summation instead of generating all squares on the diagonal, filtering blockers, etc.
+//      also, if we determine a move is on the same diagonal, we know WHICH diagonal, so we don't need to generate both diagonals.
 export function attackedPositions(piece: Piece, piecePos: Position, state: ChessState): Position[] {
     if(piece.name === 'rook') {
         return rookAttackedSquares(piecePos, state)

@@ -20,6 +20,7 @@ export function allLegalMoves(precedingMove: MoveEvent | undefined, state: Chess
 /** 
  * Every possible move in the given position. 
  * This generates 64*64 = 4096 moves.
+ * TODO: this can be cached
  * */
 function allMoves(): MoveEvent[] {
     let moves: MoveEvent[] = [];
