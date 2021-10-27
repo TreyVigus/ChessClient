@@ -27,6 +27,18 @@ export function attackedPositions(piece: Piece, piecePos: Position, state: Chess
     return [];
 }
 
+//TODO: optimize
+export function pieceAttacks(piece: Piece, piecePos: Position, targetPos: Position, state: ChessState): boolean {
+    if(piece.name === 'rook') {
+        return rookAttacks(piecePos, targetPos, state);
+    } else if(piece.name === 'bishop') {
+        return bishopAttacks(piecePos, targetPos, state); 
+    } else if(piece.name === 'queen') {
+        return rookAttacks(piecePos, targetPos, state) || bishopAttacks(piecePos, targetPos, state);
+    }
+    return attackedPositions(piece, piecePos, state).findIndex(pos => posEquals(pos, targetPos)) > -1;
+}
+
 /** Return true if the given square has pieces of the given color attacking it. */
 export function hasAttackers(targetSquare: Square, attackingColor: Color, state: ChessState): boolean {
     for(let i = 0; i < BOARD_SIZE; i++) {
@@ -34,9 +46,8 @@ export function hasAttackers(targetSquare: Square, attackingColor: Color, state:
             const pos: Position = [i, j];
             const s = itemAt(state.board, pos);
             if(s.piece && s.piece.color === attackingColor) {
-                const attacked = attackedPositions(s.piece, pos, state);
-                const attacksTarget = attacked.find(a => posEquals(a, targetSquare.position));
-                if(attacksTarget) {
+                const attacks = pieceAttacks(s.piece, pos, targetSquare.position, state);
+                if(attacks) {
                     return true;
                 }
             }
@@ -93,6 +104,34 @@ function rookAttackedSquares(rookPos: Position, state: ChessState): Position[] {
     const row = sameRow(rookPos, state);
     const col = sameColumn(rookPos, state);
     return filterBlockedSquares(rookPos, row).concat(filterBlockedSquares(rookPos, col)).map(s => s.position);
+}
+
+function rookAttacks(rookPos: Position, targetPos: Position, state: ChessState): boolean {
+    if(rookPos[0] === targetPos[0]) {
+        const row = sameRow(rookPos, state);
+        return filterBlockedSquares(rookPos, row).findIndex(s => posEquals(s.position, targetPos)) > -1;
+    }
+    
+    if(rookPos[1] === targetPos[1]) {
+        const col = sameColumn(rookPos, state);
+        return filterBlockedSquares(rookPos, col).findIndex(s => posEquals(s.position, targetPos)) > -1;
+    }
+
+    return false;
+}
+
+function bishopAttacks(bishopPos: Position, targetPos: Position, state: ChessState): boolean {
+    if((bishopPos[0] + bishopPos[1]) === (targetPos[0] + targetPos[1])) {
+        const posDiag = samePositiveDiagonal(bishopPos, state);
+        return filterBlockedSquares(bishopPos, posDiag).findIndex(s => posEquals(s.position, targetPos)) > -1;
+    }
+    
+    if((bishopPos[0] - bishopPos[1]) === (targetPos[0] - targetPos[1])) {
+        const negDiag = sameNegativeDiagonal(bishopPos, state);
+        return filterBlockedSquares(bishopPos, negDiag).findIndex(s => posEquals(s.position, targetPos)) > -1;
+    }
+
+    return false;
 }
 
 function bishopAttackedSquares(bishopPos: Position, state: ChessState): Position[] {
