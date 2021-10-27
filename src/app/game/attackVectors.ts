@@ -1,6 +1,6 @@
 import { addPositions, flatten, itemAt, posEquals, validPosition } from "../utils/helpers.js";
 import { BOARD_SIZE } from "../view/boardView.js";
-import { ChessState, Position, Square } from "./models.js";
+import { ChessState, Color, Position, Square } from "./models.js";
 
 export type Direction = 'north' | 'northEast' | 'east' | 'southEast' | 'south' | 'southWest' | 'west' | 'northWest';
 
@@ -44,18 +44,13 @@ export function sameNegativeDiagonal(piecePos: Position, state: ChessState): Squ
 
 /** 
  * Given the piecePos [i, j] 
- * if direction is up, return [i-1, j-1] and [i-1, j+1]
- * if direction is down, return [i+1, j-1] and [i+1, j+1]
+ * if color is white, return [i-1, j-1] and [i-1, j+1]
+ * if color is white, return [i+1, j-1] and [i+1, j+1]
  * Useful for pawn movements.
  */
-export function sameUnitDiagonals(piecePos: Position, state: ChessState, direction: VerticalDirection): Square[] {
-    const northWest: Position = [-1, -1];
-    const northEast: Position = [-1, 1];
-    const southWest: Position = [1, -1];
-    const southEast: Position = [1, 1];
-
-    const adj = direction === 'north' ? [northWest, northEast] : [southWest, southEast];
-    return adj.map(pos => addPositions(piecePos, pos)).filter(pos => validPosition(pos)).map(pos => itemAt(state.board, pos));
+export function sameUnitDiagonals(piecePos: Position, state: ChessState, color: Color): Square[] {
+    const adj = color === 'white' ? [[-1, -1], [-1, 1]] : [[1, -1], [1, 1]];
+    return adj.map(pos => addPositions(piecePos, pos as Position)).filter(pos => validPosition(pos)).map(pos => itemAt(state.board, pos));
 }
 
 /** 

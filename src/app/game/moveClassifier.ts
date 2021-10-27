@@ -70,8 +70,7 @@ function isPawnDoubleForward(pawn: Piece, {startPos, endPos}: MoveEvent): boolea
 }
 
 function isPawnCapture(pawn: Piece, {startPos, endPos}: MoveEvent, state: ChessState): boolean {
-    const direction = pawn.color === 'white' ? 'north' : 'south';
-    const attacked = sameUnitDiagonals(startPos, state, direction).map(s => s.position);
+    const attacked = sameUnitDiagonals(startPos, state, pawn.color).map(s => s.position);
     return attacked.findIndex(s => posEquals(s, endPos)) > -1; //TODO: searching a position array like this is so common it may be abstractable.
 }
 

@@ -141,8 +141,7 @@ function bishopAttackedSquares(bishopPos: Position, state: ChessState): Position
 }
 
 function pawnAttackedSquares(pawnPos: Position, state: ChessState, pawn: Piece): Position[] {
-    const direction = pawn.color === 'white' ? 'north' : 'south';
-    return sameUnitDiagonals(pawnPos, state, direction).map(s => s.position);
+    return sameUnitDiagonals(pawnPos, state, pawn.color).map(s => s.position);
 }
 
 function kingAttackedSquares(kingPos: Position, state: ChessState): Position[] {
