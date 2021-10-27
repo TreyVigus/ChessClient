@@ -4,12 +4,11 @@ import { BOARD_SIZE, MoveEvent } from "../view/boardView.js";
 import { filterBlockedSquares, sameColumn, sameNegativeDiagonal, samePositiveDiagonal, sameRow, sameUnitDiagonals } from "./attackVectors.js";
 import { ChessState, Color, Piece, Position, Square } from "./models.js";
 
-/** Return a list of all squares attacked by the given piece. */
-//TODO: every usage of this function is just going to search the Position[] and see if a piece can attack a target
-//      this can be changed to 'pieceAttacks(...piecePos, targetPos)'
-//      this may make optimizing easier...for example, we could check if the target position is on the same diagonal as a bishop
-//          by performing a simple summation instead of generating all squares on the diagonal, filtering blockers, etc.
-//      also, if we determine a move is on the same diagonal, we know WHICH diagonal, so we don't need to generate both diagonals.
+/** 
+ * Return a list of all squares attacked by the given piece. 
+ * Note: this is slow and pieceAttacks() should be preferred.
+ * */
+
 export function attackedPositions(piece: Piece, piecePos: Position, state: ChessState): Position[] {
     if(piece.name === 'rook') {
         return rookAttackedSquares(piecePos, state)
@@ -27,7 +26,6 @@ export function attackedPositions(piece: Piece, piecePos: Position, state: Chess
     return [];
 }
 
-//TODO: optimize
 export function pieceAttacks(piece: Piece, piecePos: Position, targetPos: Position, state: ChessState): boolean {
     if(piece.name === 'rook') {
         return rookAttacks(piecePos, targetPos, state);
