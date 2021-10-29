@@ -5,7 +5,7 @@ import { inCheckMate, inStaleMate } from "../game/stateQueries.js";
 import { flatten, oppositeColor } from "../utils/helpers.js";
 import { MoveEvent } from "../view/boardView.js";
 import { EvalCache, getEmptyCache } from "./cache.js";
-import { allLegalMoves } from "./moveGenerator.js";
+import { allLegalMoves, slowLegalMoves } from "./moveGenerator.js";
 
 const SEARCH_DEPTH = 2;
 const MAX_EVAL_SENTINEL = 1000;

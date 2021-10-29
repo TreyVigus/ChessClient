@@ -1,10 +1,11 @@
 import { createTestGroup } from "../../../testing/test-execution.js";
-import { constructBoard } from "../../utils/helpers.js";
+import { constructBoard, itemAt, oppositeColor, posSequence } from "../../utils/helpers.js";
 import { MoveEvent } from "../../view/boardView.js";
 import { cases } from "./integrationCases.test.js";
-import { ChessState, Position, Square } from "../models.js";
+import { ChessState, Color, Position, Square } from "../models.js";
 import { isLegal, makeMove } from "../movements.js";
 import { stateEquals } from "../../../testing/test-helpers.js";
+import { compareMoves } from "../../ai/moveGenerator.js";
 
 const tg = createTestGroup('Integration Testing');
 
@@ -23,12 +24,17 @@ tg.execute();
 function testMoveSequence(sequence: MoveEvent[], endState: ChessState): boolean {
     let currentState = initialState();
     let lastMove: MoveEvent | undefined = undefined;
-    sequence.forEach(move => {
+    for(let move of sequence) {
         if(isLegal(lastMove, currentState, move)) {
             currentState = makeMove(lastMove, currentState, move);
             lastMove = move;
+
+            const color: Color = oppositeColor(itemAt(currentState.board, move.endPos).piece!.color);
+            if(!compareMoves(lastMove, currentState, color)) {
+                return false;
+            }
         }
-    });
+    }
     return stateEquals(currentState, endState);
 }
 

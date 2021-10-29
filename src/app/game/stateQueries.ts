@@ -98,7 +98,7 @@ export function isBackRank(pawnColor: Color, pos: Position): boolean {
     return pawnColor === 'white' && pos[0] === 0 || pawnColor === 'black' && pos[0] === BOARD_SIZE - 1;
 }
 
-function rookAttackedSquares(rookPos: Position, state: ChessState): Position[] {  
+export function rookAttackedSquares(rookPos: Position, state: ChessState): Position[] {  
     const row = sameRow(rookPos, state);
     const col = sameColumn(rookPos, state);
     return filterBlockedSquares(rookPos, row).concat(filterBlockedSquares(rookPos, col)).map(s => s.position);
@@ -132,22 +132,22 @@ function bishopAttacks(bishopPos: Position, targetPos: Position, state: ChessSta
     return false;
 }
 
-function bishopAttackedSquares(bishopPos: Position, state: ChessState): Position[] {
+export function bishopAttackedSquares(bishopPos: Position, state: ChessState): Position[] {
     const posDiag = samePositiveDiagonal(bishopPos, state);
     const negDiag = sameNegativeDiagonal(bishopPos, state);
     return filterBlockedSquares(bishopPos, posDiag).concat(filterBlockedSquares(bishopPos, negDiag)).map(s => s.position);
 }
 
-function pawnAttackedSquares(pawnPos: Position, state: ChessState, pawn: Piece): Position[] {
+export function pawnAttackedSquares(pawnPos: Position, state: ChessState, pawn: Piece): Position[] {
     return sameUnitDiagonals(pawnPos, state, pawn.color).map(s => s.position);
 }
 
-function kingAttackedSquares(kingPos: Position, state: ChessState): Position[] {
+export function kingAttackedSquares(kingPos: Position, state: ChessState): Position[] {
     const vectors: Position[] =  [[-1, -1],[-1, 0],[-1, 1],[0, 1],[1, 1],[1, 0],[1, -1],[0, -1]];
     return relativeAttackedSquares(kingPos, vectors, state);
 }
 
-function knightAttackedSquares(knightPos: Position, state: ChessState): Position[] {  
+export function knightAttackedSquares(knightPos: Position, state: ChessState): Position[] {  
     const vectors: Position[] =  [[-2, -1],[-2, 1],[2, -1],[2, 1],[1, 2],[1, -2],[-1, 2],[-1, -2]];
     return relativeAttackedSquares(knightPos, vectors, state);
 }
