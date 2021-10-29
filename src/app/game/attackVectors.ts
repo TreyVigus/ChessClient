@@ -1,47 +1,56 @@
-import { addPositions, flat, itemAt, posEquals, validPosition } from "../utils/helpers.js";
-import { ChessState, Position, Square } from "./models.js";
+import { addPositions, flatten, itemAt, posEquals, validPosition } from "../utils/helpers.js";
+import { BOARD_SIZE } from "../view/boardView.js";
+import { ChessState, Color, Position, Square } from "./models.js";
 
 export type Direction = 'north' | 'northEast' | 'east' | 'southEast' | 'south' | 'southWest' | 'west' | 'northWest';
 
 export type VerticalDirection = 'north' | 'south';
-
-//TODO: these should probably return Position[], not Square[]. (wouldn't need any knowledge of the state if we did this, which is elegant)
-//TODO: after doing the above, name this 'relativePositions.ts' May want to move filterBlockedSquares somewhere else as well (maybe state queries?)
 
 export function sameRow(piecePos: Position, state: ChessState): Square[] {
     return state.board[piecePos[0]];
 }
 
 export function sameColumn(piecePos: Position, state: ChessState): Square[] {
-    return [...flat(state.board)].filter(sq => sq.index[1] === piecePos[1]).map(sq => sq.value);
+    let col: Square[] = [];
+    for(let i = 0; i < BOARD_SIZE; i++) {
+        col.push(state.board[i][piecePos[1]]);
+    }
+    return col;
 }
 
 export function samePositiveDiagonal(piecePos: Position, state: ChessState): Square[] {
     //a positive diagonal consists of all squares with the same sum of coordinates.
     const diagSum = piecePos[0] + piecePos[1];
-    return [...flat(state.board)].map(sq => sq.value).filter(s => (s.position[0] + s.position[1]) === diagSum);
+    let diag: Square[] = [];
+    let iterator: Position = diagSum <= 7 ? [0, diagSum] : [diagSum - 7, 7];
+    while(iterator[0] <= 7 && iterator[1] >= 0) {
+        diag.push(itemAt(state.board, iterator));
+        iterator = addPositions(iterator, [1, -1]);
+    }
+    return diag;
 }
 
 export function sameNegativeDiagonal(piecePos: Position, state: ChessState): Square[] {
-    //a positive diagonal consists of all squares with the same difference of coordinates.
+    //a negative diagonal consists of all squares with the same difference of coordinates.
     const diagDiff = piecePos[0] - piecePos[1];
-    return [...flat(state.board)].map(sq => sq.value).filter(s => (s.position[0] - s.position[1]) === diagDiff);
+    let diag: Square[] = [];
+    let iterator: Position = diagDiff >= 0 ? [diagDiff, 0] : [0, -1*diagDiff];
+    while(iterator[0] <= 7 && iterator[1] <= 7) {
+        diag.push(itemAt(state.board, iterator));
+        iterator = addPositions(iterator, [1, 1]);
+    }
+    return diag;
 }
 
 /** 
  * Given the piecePos [i, j] 
- * if direction is up, return [i-1, j-1] and [i-1, j+1]
- * if direction is down, return [i+1, j-1] and [i+1, j+1]
+ * if color is white, return [i-1, j-1] and [i-1, j+1]
+ * if color is white, return [i+1, j-1] and [i+1, j+1]
  * Useful for pawn movements.
  */
-export function sameUnitDiagonals(piecePos: Position, state: ChessState, direction: VerticalDirection): Square[] {
-    const northWest: Position = [-1, -1];
-    const northEast: Position = [-1, 1];
-    const southWest: Position = [1, -1];
-    const southEast: Position = [1, 1];
-
-    const adj = direction === 'north' ? [northWest, northEast] : [southWest, southEast];
-    return adj.map(pos => addPositions(piecePos, pos)).filter(pos => validPosition(pos)).map(pos => itemAt(state.board, pos));
+export function sameUnitDiagonals(piecePos: Position, state: ChessState, color: Color): Square[] {
+    const adj = color === 'white' ? [[-1, -1], [-1, 1]] : [[1, -1], [1, 1]];
+    return adj.map(pos => addPositions(piecePos, pos as Position)).filter(pos => validPosition(pos)).map(pos => itemAt(state.board, pos));
 }
 
 /** 
@@ -53,16 +62,23 @@ export function sameUnitDiagonals(piecePos: Position, state: ChessState, directi
  */
 export function filterBlockedSquares(piecePos: Position, squares: Square[]): Square[] {
     const piecePosIndex = squares.findIndex(s => posEquals(s.position, piecePos));
-    if(piecePosIndex === -1) {
-        throw 'piecePos was not found in squares array.';
+
+    let leftBlocker = 0;
+    for(let i = piecePosIndex - 1; i > 0; i--) {
+        if(squares[i].piece) {
+            leftBlocker = i;
+            break;
+        }
     }
 
-    const pieceIndices = squares.map((s, index) => {
-        return {piece: s.piece, index}
-    });
+    let rightBlocker = squares.length - 1;
+    for(let i = piecePosIndex + 1; i < squares.length - 1; i++) {
+        if(squares[i].piece) {
+            rightBlocker = i;
+            break;
+        }
+    }
 
-    const leftBlocker = pieceIndices.slice(0, piecePosIndex).filter(p => !!p.piece).pop()?.index ?? 0;
-    const rightBlocker = pieceIndices.slice(piecePosIndex + 1).filter(p => !!p.piece).shift()?.index ?? squares.length - 1;
     return squares.slice(leftBlocker, rightBlocker + 1);
 }
 

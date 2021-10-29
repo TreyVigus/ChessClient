@@ -87,7 +87,7 @@ tg.add('sameRow', () => {
 
 tg.add('sameUnitDiagonals1', () => {
     const state = emptyState();
-    const pos = sameUnitDiagonals([7, 1], state, 'north').map(s => s.position);
+    const pos = sameUnitDiagonals([7, 1], state, 'white').map(s => s.position);
     return arrayEquals(pos, [
         [6, 0],
         [6, 2],
@@ -96,13 +96,13 @@ tg.add('sameUnitDiagonals1', () => {
 
 tg.add('sameUnitDiagonals2', () => {
     const state = emptyState();
-    const pos = sameUnitDiagonals([7, 1], state, 'south').map(s => s.position);
+    const pos = sameUnitDiagonals([7, 1], state, 'black').map(s => s.position);
     return pos.length === 0;
 });
 
 tg.add('sameUnitDiagonals4', () => {
     const state = emptyState();
-    const pos = sameUnitDiagonals([0, 7], state, 'south').map(s => s.position);
+    const pos = sameUnitDiagonals([0, 7], state, 'black').map(s => s.position);
     return arrayEquals(pos, [
         [1, 6],
     ], positionComparator())
@@ -110,7 +110,7 @@ tg.add('sameUnitDiagonals4', () => {
 
 tg.add('sameUnitDiagonals5', () => {
     const state = emptyState();
-    const pos = sameUnitDiagonals([3, 4], state, 'south').map(s => s.position);
+    const pos = sameUnitDiagonals([3, 4], state, 'black').map(s => s.position);
     return arrayEquals(pos, [
         [4, 3],
         [4, 5],

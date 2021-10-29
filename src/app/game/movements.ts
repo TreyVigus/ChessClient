@@ -1,10 +1,10 @@
 //Handles attacking squares, etc by piece
-import { addPositions, clone, itemAt, oppositeColor, posEquals, } from "../utils/helpers.js";
+import { addPositions, cloneState, itemAt, oppositeColor, posEquals, } from "../utils/helpers.js";
 import { MoveEvent } from "../view/boardView.js";
 import { sameRow } from "./attackVectors.js";
 import { ChessState, Color, Piece, Position, Square } from "./models.js";
 import { classifyMove, isPawnMoveType, PawnMoveType } from "./moveClassifier.js";
-import { attackedSquares, containsPiece, hasAttackers, inCheck, isBackRank } from "./stateQueries.js";
+import { containsPiece, hasAttackers, inCheck, isBackRank, pieceAttacks } from "./stateQueries.js";
 
 export type KingSide = 'left' | 'right';
 
@@ -37,7 +37,7 @@ export function isLegal(precedingMove: MoveEvent | undefined, currentState: Ches
  * Return the state that would follow if legalMove occured on prevState.
  * */
 export function makeMove(precedingMove: MoveEvent | undefined, prevState: ChessState, legalMove: MoveEvent): ChessState {
-    const copy = clone(prevState);
+    const copy = cloneState(prevState);
     const moveType = classifyMove(precedingMove, prevState, legalMove);
 
     const startSquare = itemAt(copy.board, legalMove.startPos);
@@ -88,13 +88,7 @@ function targetsOwnPiece(currentState: ChessState, attemptedMove: MoveEvent, pie
 
 /** Assumes attemptedMove is of type 'normal'. */
 function legalNormalMove(currentState: ChessState, attemptedMove: MoveEvent, piece: Piece): boolean {
-    const targetSquare = itemAt(currentState.board, attemptedMove.endPos);
-    //does the piece attack the target square?
-    const legalTarget = attackedSquares(piece, attemptedMove.startPos, currentState).find(square => posEquals(square.position, targetSquare.position));
-    if(!legalTarget) {
-        return false;
-    }
-    return true;
+    return pieceAttacks(piece, attemptedMove.startPos, attemptedMove.endPos, currentState);
 }
 
 function legalCastle(currentState: ChessState, attemptedMove: MoveEvent, piece: Piece): boolean {
