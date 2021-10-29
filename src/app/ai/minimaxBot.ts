@@ -7,6 +7,11 @@ import { MoveEvent } from "../view/boardView.js";
 import { EvalCache, getEmptyCache } from "./cache.js";
 import { allLegalMoves, slowLegalMoves } from "./moveGenerator.js";
 
+/**
+ * @todo slowness because terminal test and eval are both calling inCheck (indirectly)
+ *       can we reduce the number of calls?
+ */
+
 const SEARCH_DEPTH = 2;
 const MAX_EVAL_SENTINEL = 1000;
 const MIN_EVAL_SENTINEL = -1000;
@@ -50,10 +55,7 @@ function minimax(prevPly: MoveEvent | undefined, state: ChessState, botColor: Co
  *          assuming best play from MIN.
  */
 function maxEval(prevPly: MoveEvent, state: ChessState, minColor: Color, maxColor: Color, depth: number, cache: EvalCache): number {
-    if(terminal(prevPly, state) || depth === SEARCH_DEPTH) {
-        const evaluation = evaluate(prevPly, state, maxColor);
-        //terminal nodes always cached under maxColor
-        cache.add(maxColor, state, evaluation);
+    if(depth === SEARCH_DEPTH || terminal(prevPly, state)) {
         return evaluate(prevPly, state, maxColor);
     }
 
@@ -82,11 +84,8 @@ function maxEval(prevPly: MoveEvent, state: ChessState, minColor: Color, maxColo
  *          assuming best play from MAX.
  */
 function minEval(prevPly: MoveEvent, state: ChessState, minColor: Color, maxColor: Color, depth: number, cache: EvalCache): number {
-    if(terminal(prevPly, state) || depth === SEARCH_DEPTH) {
-        const evaluation = evaluate(prevPly, state, maxColor);
-        //terminal nodes always cached under maxColor
-        cache.add(maxColor, state, evaluation);
-        return evaluation;
+    if(depth === SEARCH_DEPTH || terminal(prevPly, state)) {
+        return evaluate(prevPly, state, maxColor);
     }
 
     const cached = cache.get(minColor, state);
