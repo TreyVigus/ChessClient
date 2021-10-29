@@ -11,9 +11,6 @@ import { BOARD_SIZE, MoveEvent } from "../view/boardView.js";
  * @param state State to evaluate.
  * @param precedingMove The move that led to state.
  * @param color The color to generate moves for.
- * @todo this can be sped up by never generating any illegal moves, so they don't trigger failures in 'isLegal'
- *       e.g. if the piece is a bishop, any move to a square the bishop attacks is legal.
- *       will need to pass king and pawn through the isLegal check since they have special cases.
  */
 export function allLegalMoves(precedingMove: MoveEvent | undefined, state: ChessState, color: Color): MoveEvent[] {
     let moves: MoveEvent[] = [];
