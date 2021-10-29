@@ -1,20 +1,21 @@
 import { ChessState, Color, Square } from "../game/models.js";
 import { itemAt, posSequence } from "../utils/helpers.js";
+import { EvalResult } from "./minimaxBot.js";
 
 //TODO: can make a decorator that is applied to a function that will track its args and cache if seen before...
 
 export type EvalCache = {
-    add(moveColor: Color, state: ChessState, evaluation: number): void,
+    add(moveColor: Color, state: ChessState, evaluation: EvalResult): void,
     /** Returns undefined if not present. */
-    get(moveColor: Color, state: ChessState): number | undefined,
+    get(moveColor: Color, state: ChessState): EvalResult | undefined,
     size(): number
 }
 
 export function getEmptyCache(): EvalCache {
-    const whiteMap: Map<string, number> = new Map();
-    const blackMap: Map<string, number> = new Map();
+    const whiteMap: Map<string, EvalResult> = new Map();
+    const blackMap: Map<string, EvalResult> = new Map();
 
-    const add = (moveColor: Color, state: ChessState, evaluation: number) => {
+    const add = (moveColor: Color, state: ChessState, evaluation: EvalResult) => {
         const ser = serialize(state);
         if(moveColor === 'white') {
             whiteMap.set(ser, evaluation);
