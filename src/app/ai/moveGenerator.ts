@@ -1,9 +1,11 @@
-import { adjacent } from "../game/attackVectors.js";
+import { ok } from "assert";
 import { ChessState, Color, Piece, Position } from "../game/models.js";
 import { isLegal } from "../game/movements.js";
 import { bishopAttackedSquares, kingAttackedSquares, knightAttackedSquares, pawnAttackedSquares, rookAttackedSquares } from "../game/stateQueries.js";
 import { addPositions, flatten, itemAt, posEquals, posSequence, validPosition } from "../utils/helpers.js";
-import { BOARD_SIZE, MoveEvent } from "../view/boardView.js";
+import { MoveEvent } from "../view/boardView.js";
+
+type PlyCategory = 'capture' | 'other'; 
 
 
 /**
@@ -13,90 +15,92 @@ import { BOARD_SIZE, MoveEvent } from "../view/boardView.js";
  * @param color The color to generate moves for.
  */
 export function allLegalMoves(precedingMove: MoveEvent | undefined, state: ChessState, color: Color): MoveEvent[] {
-    let moves: MoveEvent[] = [];
+    //NOTE: this will eventually become a priority queue...
+    let plyTypes = new Map<PlyCategory, MoveEvent[]>();
+    plyTypes.set('capture', []);
+    plyTypes.set('other', []);
+
     flatten(state.board).forEach(sq => {
         const piece = sq.value.piece;
         if(piece && piece.color === color) {
             const piecePos = sq.index;
             if(piece.name === 'pawn') {
-                moves.push(...pawnMoves(piece, piecePos, state, precedingMove));
+                pawnMoves(piece, piecePos, state, precedingMove, plyTypes);
             } else if(piece.name === 'bishop') {
-                moves.push(...bishopMoves(piecePos, state, precedingMove));
+                bishopMoves(piecePos, state, precedingMove, plyTypes)
             } else if(piece.name === 'rook') {
-                moves.push(...rookMoves(piecePos, state, precedingMove));
+                rookMoves(piecePos, state, precedingMove, plyTypes);
             } else if(piece.name === 'queen') {
-                moves.push(...queenMoves(piecePos, state, precedingMove));
+                queenMoves(piecePos, state, precedingMove, plyTypes);
             } else if(piece.name === 'knight') {
-                moves.push(...knightMoves(piecePos, state, precedingMove));
+                knightMoves(piecePos, state, precedingMove, plyTypes);
             } else if(piece.name === 'king') {
-                moves.push(...kingMoves(piecePos, state, precedingMove));
+                kingMoves(piecePos, state, precedingMove, plyTypes);
             }
         }
     });
+
+    let moves: MoveEvent[] = [];
+    moves.push(...plyTypes.get('capture')!);
+    moves.push(...plyTypes.get('other')!);
     return moves;
 }
 
-function bishopMoves(bishopPos: Position, state: ChessState, precedingMove: MoveEvent | undefined): MoveEvent[] {
-    let moves: MoveEvent[] = [];
+function bishopMoves(bishopPos: Position, state: ChessState, precedingMove: MoveEvent | undefined, plyTypes: Map<PlyCategory, MoveEvent[]>) {
     const attacked = bishopAttackedSquares(bishopPos, state);
     attacked.forEach(pos => {
-        let move: MoveEvent = {startPos: bishopPos, endPos: pos};
-        if(!posEquals(pos, bishopPos) && isLegal(precedingMove, state, move)) {
-            moves.push(move)
+        let ply: MoveEvent = {startPos: bishopPos, endPos: pos};
+        if(!posEquals(pos, bishopPos) && isLegal(precedingMove, state, ply)) {
+            const category = categorize(ply, state);
+            plyTypes.get(category)!.push(ply);
         }
     });
-    return moves;
 }
 
-function rookMoves(rookPos: Position, state: ChessState, precedingMove: MoveEvent | undefined): MoveEvent[] {
-    let moves: MoveEvent[] = [];
+function rookMoves(rookPos: Position, state: ChessState, precedingMove: MoveEvent | undefined, plyTypes: Map<PlyCategory, MoveEvent[]>) {
     const attacked = rookAttackedSquares(rookPos, state);
     attacked.forEach(pos => {
-        let move: MoveEvent = {startPos: rookPos, endPos: pos};
-        if(!posEquals(pos, rookPos) && isLegal(precedingMove, state, move)) {
-            moves.push(move)
+        let ply: MoveEvent = {startPos: rookPos, endPos: pos};
+        if(!posEquals(pos, rookPos) && isLegal(precedingMove, state, ply)) {
+            const category = categorize(ply, state);
+            plyTypes.get(category)!.push(ply);
         }
     });
-    return moves;
 }
 
-function knightMoves(knightPos: Position, state: ChessState, precedingMove: MoveEvent | undefined): MoveEvent[] {
-    let moves: MoveEvent[] = [];
+function knightMoves(knightPos: Position, state: ChessState, precedingMove: MoveEvent | undefined, plyTypes: Map<PlyCategory, MoveEvent[]>) {
     const attacked = knightAttackedSquares(knightPos, state);
     attacked.forEach(pos => {
-        let move: MoveEvent = {startPos: knightPos, endPos: pos};
-        if(!posEquals(pos, knightPos) && isLegal(precedingMove, state, move)) {
-            moves.push(move)
+        let ply: MoveEvent = {startPos: knightPos, endPos: pos};
+        if(!posEquals(pos, knightPos) && isLegal(precedingMove, state, ply)) {
+            const category = categorize(ply, state);
+            plyTypes.get(category)!.push(ply);
         }
     });
-    return moves;
 }
 
-function queenMoves(queenPos: Position, state: ChessState, precedingMove: MoveEvent | undefined): MoveEvent[] {
-    let moves: MoveEvent[] = [];
+function queenMoves(queenPos: Position, state: ChessState, precedingMove: MoveEvent | undefined, plyTypes: Map<PlyCategory, MoveEvent[]>) {
     const attacked = rookAttackedSquares(queenPos, state).concat(bishopAttackedSquares(queenPos, state));
     attacked.forEach(pos => {
-        let move: MoveEvent = {startPos: queenPos, endPos: pos};
-        if(!posEquals(pos, queenPos) && isLegal(precedingMove, state, move)) {
-            moves.push(move)
+        let ply: MoveEvent = {startPos: queenPos, endPos: pos};
+        if(!posEquals(pos, queenPos) && isLegal(precedingMove, state, ply)) {
+            const category = categorize(ply, state);
+            plyTypes.get(category)!.push(ply);
         }
     });
-    return moves;
 }
 
-function kingMoves(kingPos: Position, state: ChessState, precedingMove: MoveEvent | undefined): MoveEvent[] {
-    let moves: MoveEvent[] = [];
-    kingAttackedSquares(kingPos, state)
+function kingMoves(kingPos: Position, state: ChessState, precedingMove: MoveEvent | undefined, plyTypes: Map<PlyCategory, MoveEvent[]>) {
     posSequence().forEach(endPos => {
-        const move = {startPos: kingPos, endPos: endPos};
-        if(!posEquals(endPos, kingPos) && isLegal(precedingMove, state, move)) {
-            moves.push({startPos: kingPos, endPos: endPos})
+        const ply = {startPos: kingPos, endPos: endPos};
+        if(!posEquals(endPos, kingPos) && isLegal(precedingMove, state, ply)) {
+            const category = categorize(ply, state);
+            plyTypes.get(category)!.push(ply);
         }
     });
-    return moves;
 }
 
-function pawnMoves(pawn: Piece, pawnPos: Position, state: ChessState, precedingMove: MoveEvent | undefined): MoveEvent[] {
+function pawnMoves(pawn: Piece, pawnPos: Position, state: ChessState, precedingMove: MoveEvent | undefined, plyTypes: Map<PlyCategory, MoveEvent[]>) {
     const attacked = pawnAttackedSquares(pawnPos, state, pawn);
     if(pawn.color === 'white') {
         const one = addPositions(pawnPos, [-1, 0]);
@@ -120,14 +124,20 @@ function pawnMoves(pawn: Piece, pawnPos: Position, state: ChessState, precedingM
         }
     }
 
-    let moves: MoveEvent[] = [];
     attacked.forEach(pos => {
-        let move: MoveEvent = {startPos: pawnPos, endPos: pos};
-        if(!posEquals(pos, pawnPos) && isLegal(precedingMove, state, move)) {
-            moves.push(move)
+        let ply: MoveEvent = {startPos: pawnPos, endPos: pos};
+        if(!posEquals(pos, pawnPos) && isLegal(precedingMove, state, ply)) {
+            const category = categorize(ply, state);
+            plyTypes.get(category)!.push(ply);
         }
     });
-    return moves;
+}
+
+function categorize(ply: MoveEvent, state: ChessState): PlyCategory {
+    if(itemAt(state.board, ply.endPos).piece!) {
+        return 'capture';
+    }
+    return 'other';
 }
 
 /********** USED FOR TESTING ONLY **********/

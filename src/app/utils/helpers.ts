@@ -91,6 +91,7 @@ export function flat<T>(board: T[][]): Iterable<BoardElement<T>> {
 
 /**
  * Faster flattening than flat<T>
+ * @todo: could possibly store the flat version of the board as part of the state
  */
 export function flatten<T>(board: T[][]): BoardElement<T>[] {
     const flat: BoardElement<T>[] = [];
