@@ -147,7 +147,7 @@ function evaluate(prevPly: MoveEvent, state: ChessState, botColor: Color): numbe
     }
 
     if(inCheckMate(prevPly, state, botColor)) {
-        return -MIN_EVAL_SENTINEL;
+        return MIN_EVAL_SENTINEL;
     } 
 
     if(inStaleMate(prevPly, state, 'black') || inStaleMate(prevPly, state, 'white')) {
