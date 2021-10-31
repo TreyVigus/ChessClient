@@ -29,7 +29,7 @@ export function minimaxbot(color: Color): Player {
     }
 }
 
-const SEARCH_DEPTH = 4;
+const SEARCH_DEPTH = 3;
 const MAX_EVAL_SENTINEL = 1000;
 const MIN_EVAL_SENTINEL = -1000;
 
@@ -69,14 +69,14 @@ function maxEval(prevPly: MoveEvent | undefined, state: ChessState, minColor: Co
         if(childEval > maxChildEval) {
             maxChildEval = childEval;
             best = ply;
-        }
 
-        if(maxChildEval >= beta) {
-            break;
-        }
+            if(maxChildEval >= beta) {
+                break;
+            }
 
-        if(maxChildEval > alpha) {
-            alpha = maxChildEval;
+            if(maxChildEval > alpha) {
+                alpha = maxChildEval;
+            }
         }
     }
 
@@ -113,14 +113,14 @@ function minEval(prevPly: MoveEvent, state: ChessState, minColor: Color, maxColo
         if(childEval < minChildEval) {
             minChildEval = childEval;
             best = ply;
-        }
 
-        if(minChildEval <= alpha) {
-            break;
-        }
+            if(minChildEval <= alpha) {
+                break;
+            }
 
-        if(minChildEval < beta) {
-            beta = minChildEval;
+            if(minChildEval < beta) {
+                beta = minChildEval;
+            }
         }
     };
 
