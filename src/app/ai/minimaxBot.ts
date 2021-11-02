@@ -1,7 +1,7 @@
 import { Player } from "../game/gameLoop.js";
 import { ChessState, Color, Piece } from "../game/models.js";
 import { makeMove } from "../game/movements.js";
-import { inCheck, inCheckMate, inStaleMate } from "../game/stateQueries.js";
+import { inCheck } from "../game/stateQueries.js";
 import { flatten, oppositeColor } from "../utils/helpers.js";
 import { MoveEvent } from "../view/boardView.js";
 import { EvalCache, getEmptyCache } from "./cache.js";

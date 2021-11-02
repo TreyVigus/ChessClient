@@ -57,9 +57,23 @@ export function hasAttackers(targetSquare: Square, attackingColor: Color, state:
 
 /** Return the Square of the king of the given color in the given state. */
 export function findKing(state: ChessState, color: Color): Square {
-    //TODO: make a 'fast-search' helper to handle searching a board in this style
-    for(let i = 0; i < BOARD_SIZE; i++) {
-        for(let j = 0; j < BOARD_SIZE; j++) {
+
+    //black king is more likely to be at top of the board
+    if(color == 1) {
+        for(let i = 0; i < BOARD_SIZE; i++) {
+            for(let j = 0; j < BOARD_SIZE; j++) {
+                const pos: Position = [i, j];
+                const s = itemAt(state.board, pos);
+                if(s.piece && s.piece.name === 1 && s.piece.color === color) {
+                    return s;
+                }
+            }
+        }
+    }
+
+    //white king is more likely to be at bottom of the board
+    for(let i = BOARD_SIZE - 1; i > -1; i--) {
+        for(let j = BOARD_SIZE - 1; j > -1; j--) {
             const pos: Position = [i, j];
             const s = itemAt(state.board, pos);
             if(s.piece && s.piece.name === 1 && s.piece.color === color) {
