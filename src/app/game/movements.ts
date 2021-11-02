@@ -148,21 +148,21 @@ function legalPawnMove(currentState: ChessState, attemptedMove: MoveEvent, piece
 function legalDoubleForward(currentState: ChessState, attemptedMove: MoveEvent, piece: Piece): boolean {
     const [row, col] = attemptedMove.startPos
 
-    const firstPawnMove = (piece.color === 'black' && row === 1) || (piece.color === 'white' && row === 6);
+    const firstPawnMove = (piece.color === 1 && row === 1) || (piece.color === 2 && row === 6);
     if(!firstPawnMove) {
         return false;
     }
 
-    const oneForward: Position = piece.color === 'black' ? [row + 1, col] : [row - 1, col];
+    const oneForward: Position = piece.color === 1 ? [row + 1, col] : [row - 1, col];
     return !containsPiece(currentState, oneForward, attemptedMove.endPos);
 }
 
 function kingStartPos(kingColor: Color): Position  {
-    return kingColor === 'white' ? [7, 4] : [0, 4];
+    return kingColor === 2 ? [7, 4] : [0, 4];
 }
 
 function rookStartPos(rookColor: Color, side: KingSide): Position {
-    if(rookColor == 'white') {
+    if(rookColor == 2) {
         return side === 'right' ? [7, 7] : [7, 0];
     } else {
         return side === 'right' ? [0, 7] : [0, 0];

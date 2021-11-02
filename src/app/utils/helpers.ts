@@ -2,19 +2,19 @@ import { ChessState, Color, Position, Square } from "../game/models.js";
 import { BOARD_SIZE } from "../view/boardView.js";
 
 export function oppositeColor(color: Color): Color {
-    if(color === 'white') {
-        return 'black';
+    if(color === 2) {
+        return 1;
     }
-    return 'white';
+    return 2;
 }
 
 export function posColor(pos: Position): Color {
     const evenRow = pos[0] % 2 === 0;
     const evenCol = pos[1] % 2 === 0;
     if(evenRow) {
-        return evenCol ? 'white' : 'black';
+        return evenCol ? 2 : 1;
     } else {
-        return evenCol ? 'black' : 'white';
+        return evenCol ? 1 : 2;
     }
 }
 

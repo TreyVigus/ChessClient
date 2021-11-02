@@ -95,7 +95,7 @@ export function containsPiece(state: ChessState, ...positions: Position[]): bool
 
 /** Is the given position located on the opposite color's back rank? */
 export function isBackRank(pawnColor: Color, pos: Position): boolean {
-    return pawnColor === 'white' && pos[0] === 0 || pawnColor === 'black' && pos[0] === BOARD_SIZE - 1;
+    return pawnColor === 2 && pos[0] === 0 || pawnColor === 1 && pos[0] === BOARD_SIZE - 1;
 }
 
 export function rookAttackedSquares(rookPos: Position, state: ChessState): Position[] {  

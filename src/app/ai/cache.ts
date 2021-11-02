@@ -17,7 +17,7 @@ export function getEmptyCache(): EvalCache {
 
     const add = (moveColor: Color, state: ChessState, evaluation: EvalResult) => {
         const ser = serialize(state);
-        if(moveColor === 'white') {
+        if(moveColor === 2) {
             whiteMap.set(ser, evaluation);
         } else {
             blackMap.set(ser, evaluation);
@@ -26,7 +26,7 @@ export function getEmptyCache(): EvalCache {
 
     const get = (moveColor: Color, state: ChessState) => {
         const ser = serialize(state);
-        if(moveColor === 'white') {
+        if(moveColor === 2) {
             return whiteMap.get(ser);
         } else {
             return blackMap.get(ser);

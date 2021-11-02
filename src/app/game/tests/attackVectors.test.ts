@@ -87,7 +87,7 @@ tg.add('sameRow', () => {
 
 tg.add('sameUnitDiagonals1', () => {
     const state = emptyState();
-    const pos = sameUnitDiagonals([7, 1], state, 'white').map(s => s.position);
+    const pos = sameUnitDiagonals([7, 1], state, 2).map(s => s.position);
     return arrayEquals(pos, [
         [6, 0],
         [6, 2],
@@ -96,13 +96,13 @@ tg.add('sameUnitDiagonals1', () => {
 
 tg.add('sameUnitDiagonals2', () => {
     const state = emptyState();
-    const pos = sameUnitDiagonals([7, 1], state, 'black').map(s => s.position);
+    const pos = sameUnitDiagonals([7, 1], state, 1).map(s => s.position);
     return pos.length === 0;
 });
 
 tg.add('sameUnitDiagonals4', () => {
     const state = emptyState();
-    const pos = sameUnitDiagonals([0, 7], state, 'black').map(s => s.position);
+    const pos = sameUnitDiagonals([0, 7], state, 1).map(s => s.position);
     return arrayEquals(pos, [
         [1, 6],
     ], positionComparator())
@@ -110,7 +110,7 @@ tg.add('sameUnitDiagonals4', () => {
 
 tg.add('sameUnitDiagonals5', () => {
     const state = emptyState();
-    const pos = sameUnitDiagonals([3, 4], state, 'black').map(s => s.position);
+    const pos = sameUnitDiagonals([3, 4], state, 1).map(s => s.position);
     return arrayEquals(pos, [
         [4, 3],
         [4, 5],
@@ -120,8 +120,8 @@ tg.add('sameUnitDiagonals5', () => {
 tg.add('filterBlockedSquares', () => {
     const state = emptyState();
     const attackingPiecePos: Position = [7, 1];
-    setPiece(state, attackingPiecePos, {name: 6, color: 'white'});
-    setPiece(state, [7,6], {name: 6, color: 'white'});
+    setPiece(state, attackingPiecePos, {name: 6, color: 2});
+    setPiece(state, [7,6], {name: 6, color: 2});
     const attacking = filterBlockedSquares(attackingPiecePos, sameRow(attackingPiecePos, state)).map(s => s.position);
     return arrayEquals(attacking, [
         [7, 0],
@@ -137,11 +137,11 @@ tg.add('filterBlockedSquares', () => {
 tg.add('filterBlockedSquares2', () => {
     const state = emptyState();
     const attackingPiecePos: Position = [5, 2];
-    setPiece(state, attackingPiecePos, {name: 6, color: 'white'});
+    setPiece(state, attackingPiecePos, {name: 6, color: 2});
 
-    setPiece(state, [3, 0], {name: 3, color: 'black'});
-    setPiece(state, [4, 1], {name: 3, color: 'black'});
-    setPiece(state, [6, 3], {name: 3, color: 'black'});
+    setPiece(state, [3, 0], {name: 3, color: 1});
+    setPiece(state, [4, 1], {name: 3, color: 1});
+    setPiece(state, [6, 3], {name: 3, color: 1});
     const attacking = filterBlockedSquares(attackingPiecePos, sameNegativeDiagonal(attackingPiecePos, state)).map(s => s.position);
     return arrayEquals(attacking, [
         [4, 1],
@@ -153,7 +153,7 @@ tg.add('filterBlockedSquares2', () => {
 tg.add('filterBlockedSquares3', () => {
     const state = emptyState();
     const attackingPiecePos: Position = [1, 2];
-    setPiece(state, attackingPiecePos, {name: 6, color: 'white'});
+    setPiece(state, attackingPiecePos, {name: 6, color: 2});
     const attacking = filterBlockedSquares(attackingPiecePos, sameNegativeDiagonal(attackingPiecePos, state)).map(s => s.position);
     return arrayEquals(attacking, [
         [0, 1],
@@ -169,11 +169,11 @@ tg.add('filterBlockedSquares3', () => {
 tg.add('filterBlockedSquares4', () => {
     const state = emptyState();
     const attackingPiecePos: Position = [4, 3];
-    setPiece(state, attackingPiecePos, {name: 3, color: 'black'});
-    setPiece(state, [4, 0], {name: 3, color: 'black'});
-    setPiece(state, [4, 2], {name: 3, color: 'black'});
-    setPiece(state, [4, 5], {name: 3, color: 'black'});
-    setPiece(state, [4, 7], {name: 3, color: 'black'});
+    setPiece(state, attackingPiecePos, {name: 3, color: 1});
+    setPiece(state, [4, 0], {name: 3, color: 1});
+    setPiece(state, [4, 2], {name: 3, color: 1});
+    setPiece(state, [4, 5], {name: 3, color: 1});
+    setPiece(state, [4, 7], {name: 3, color: 1});
     const attacking = filterBlockedSquares(attackingPiecePos, sameRow(attackingPiecePos, state)).map(s => s.position);
     return arrayEquals(attacking, [
         [4, 2],

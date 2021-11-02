@@ -48,7 +48,7 @@ function isPawnSingleForward(pawn: Piece, {startPos, endPos}: MoveEvent): boolea
     }
 
     //must advance one square
-    if(pawn.color === 'white') {
+    if(pawn.color === 2) {
         return startPos[0] - 1 === endPos[0];
     } else {
         return startPos[0] + 1 === endPos[0];
@@ -62,7 +62,7 @@ function isPawnDoubleForward(pawn: Piece, {startPos, endPos}: MoveEvent): boolea
     }
 
     //must advance two squares
-    if(pawn.color === 'white') {
+    if(pawn.color === 2) {
         return startPos[0] - 2 === endPos[0];
     } else {
         return startPos[0] + 2 === endPos[0];
@@ -85,7 +85,7 @@ function classifyPawnCapture(pawn: Piece, precedingMove: MoveEvent | undefined, 
 
     //if the preceding pawn move wasn't made from the pawn's starting position, we have a normal capture
     const precedingColor = itemAt(state.board, precedingMove.endPos).piece!.color;
-    if((precedingColor === 'black' && precedingMove.startPos[0] !== 1) || (precedingColor === 'white' && precedingMove.startPos[0] !== 6)) {
+    if((precedingColor === 1 && precedingMove.startPos[0] !== 1) || (precedingColor === 2 && precedingMove.startPos[0] !== 6)) {
         return 'pawnNormalCapture';
     }
     
@@ -96,7 +96,7 @@ function classifyPawnCapture(pawn: Piece, precedingMove: MoveEvent | undefined, 
     }
 
     //If current pawn attacks one square behind preceding pawn, return 'pawnPassantCapture'.
-    const currPawnDirection = pawn.color === 'white' ? 'north' : 'south';
+    const currPawnDirection = pawn.color === 2 ? 'north' : 'south';
     //find the position that is one behind the preceding move's end position
     const behind = adjacent(precedingMove.endPos, currPawnDirection)!; //assumes previous pawn is opposite color as current pawn
 

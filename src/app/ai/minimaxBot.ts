@@ -149,14 +149,14 @@ function minEval(prevPly: MoveEvent, state: ChessState, minColor: Color, maxColo
 function terminalEvaluation(prevPly: MoveEvent, state: ChessState, turnColor: Color, maxColor: Color, depth: number): EvalResult | undefined {
     let terminalVal: number | undefined = undefined;
 
-    if(turnColor === 'white' && allLegalMoves(prevPly, state, 'white').length === 0) {
-        if(inCheck(state, 'white')) {
+    if(turnColor === 2 && allLegalMoves(prevPly, state, 2).length === 0) {
+        if(inCheck(state, 2)) {
             terminalVal = MAX_EVAL_SENTINEL;
         } else {
             terminalVal = 0;
         }
-    } else if(turnColor === 'black' && allLegalMoves(prevPly, state, 'black').length === 0) {
-        if(inCheck(state, 'black')) {
+    } else if(turnColor === 1 && allLegalMoves(prevPly, state, 1).length === 0) {
+        if(inCheck(state, 1)) {
             terminalVal = MIN_EVAL_SENTINEL;
         } else {
             terminalVal = 0;
