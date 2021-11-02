@@ -7,7 +7,7 @@ export type Color = 'black' | 'white';
 
 export type Piece = {
 	color: Color,
-	name: 'king' | 'queen' | 'bishop' | 'knight' | 'pawn' | 'rook'
+	name: 1 | 2 | 'bishop' | 'knight' | 'pawn' | 'rook'
 };
 
 export type Square = {

@@ -278,7 +278,7 @@ tg.add('black pawn promotion', () => {
 });
 
 tg.add('white queenside castle', () => {
-    setPiece(state, [7, 4], {color: 'white', name: 'king'});
+    setPiece(state, [7, 4], {color: 'white', name: 1});
     const attemptedMove = {
         startPos: [7, 4],
         endPos: [7, 2]
@@ -288,7 +288,7 @@ tg.add('white queenside castle', () => {
 });
 
 tg.add('white kingside castle', () => {
-    setPiece(state, [7, 4], {color: 'white', name: 'king'});
+    setPiece(state, [7, 4], {color: 'white', name: 1});
     const attemptedMove = {
         startPos: [7, 4],
         endPos: [7, 6]
@@ -298,7 +298,7 @@ tg.add('white kingside castle', () => {
 });
 
 tg.add('black kingside castle', () => {
-    setPiece(state, [0, 4], {color: 'black', name: 'king'});
+    setPiece(state, [0, 4], {color: 'black', name: 1});
     const attemptedMove = {
         startPos: [0, 4],
         endPos: [0, 6]
@@ -308,7 +308,7 @@ tg.add('black kingside castle', () => {
 });
 
 tg.add('black queenside castle', () => {
-    setPiece(state, [0, 4], {color: 'black', name: 'king'});
+    setPiece(state, [0, 4], {color: 'black', name: 1});
     const attemptedMove = {
         startPos: [0, 4],
         endPos: [0, 2]
@@ -318,7 +318,7 @@ tg.add('black queenside castle', () => {
 });
 
 tg.add('normal king move1', () => {
-    setPiece(state, [0, 4], {color: 'black', name: 'king'});
+    setPiece(state, [0, 4], {color: 'black', name: 1});
     const attemptedMove = {
         startPos: [0, 4],
         endPos: [1, 3]
@@ -328,7 +328,7 @@ tg.add('normal king move1', () => {
 });
 
 tg.add('normal king move1', () => {
-    setPiece(state, [4, 2], {color: 'white', name: 'king'});
+    setPiece(state, [4, 2], {color: 'white', name: 1});
     const attemptedMove = {
         startPos: [4, 2],
         endPos: [1, 2]

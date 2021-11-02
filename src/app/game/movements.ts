@@ -46,7 +46,7 @@ export function makeMove(precedingMove: MoveEvent | undefined, prevState: ChessS
     movePiece(startSquare, endSquare);
 
     if(endSquare.piece!.name === 'pawn' && isBackRank(endSquare.piece!.color, endSquare.position)) {
-        endSquare.piece!.name = 'queen';
+        endSquare.piece!.name = 2;
         return copy;
     }
 

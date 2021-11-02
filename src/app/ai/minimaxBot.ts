@@ -204,7 +204,7 @@ function material(p: Piece): number {
         return 3;
     } else if(p.name === 'rook') {
         return 5;
-    } else if(p.name === 'queen') {
+    } else if(p.name === 2) {
         return 9;
     } 
     //king's material shouldn't matter

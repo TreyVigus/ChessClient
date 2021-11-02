@@ -30,11 +30,11 @@ export function allLegalMoves(precedingMove: MoveEvent | undefined, state: Chess
                 bishopMoves(piecePos, state, precedingMove, plyTypes)
             } else if(piece.name === 'rook') {
                 rookMoves(piecePos, state, precedingMove, plyTypes);
-            } else if(piece.name === 'queen') {
+            } else if(piece.name === 2) {
                 queenMoves(piecePos, state, precedingMove, plyTypes);
             } else if(piece.name === 'knight') {
                 knightMoves(piecePos, state, precedingMove, plyTypes);
-            } else if(piece.name === 'king') {
+            } else if(piece.name === 1) {
                 kingMoves(piecePos, state, precedingMove, plyTypes);
             }
         }

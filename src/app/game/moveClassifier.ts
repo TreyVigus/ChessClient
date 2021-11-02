@@ -109,5 +109,5 @@ function classifyPawnCapture(pawn: Piece, precedingMove: MoveEvent | undefined, 
 
 /** If the king stayed in the same row and tried to move two squares left or right, the move is an attemped castle. */
 function isCastle(piece: Piece, {startPos, endPos}: MoveEvent): boolean {
-    return piece.name === 'king' && endPos[0] === startPos[0] && Math.abs(startPos[1] - endPos[1]) === 2;
+    return piece.name === 1 && endPos[0] === startPos[0] && Math.abs(startPos[1] - endPos[1]) === 2;
 }

@@ -14,11 +14,11 @@ export function attackedPositions(piece: Piece, piecePos: Position, state: Chess
         return rookAttackedSquares(piecePos, state)
     } else if(piece.name === 'bishop') {
         return bishopAttackedSquares(piecePos, state);
-    } else if(piece.name === 'queen') {
+    } else if(piece.name === 2) {
         return rookAttackedSquares(piecePos, state).concat(bishopAttackedSquares(piecePos, state));
     } else if(piece.name === 'pawn') {
         return pawnAttackedSquares(piecePos, state, piece);
-    } else if(piece.name === 'king') {
+    } else if(piece.name === 1) {
         return kingAttackedSquares(piecePos, state);
     } else if(piece.name === 'knight') {
         return knightAttackedSquares(piecePos, state);
@@ -31,7 +31,7 @@ export function pieceAttacks(piece: Piece, piecePos: Position, targetPos: Positi
         return rookAttacks(piecePos, targetPos, state);
     } else if(piece.name === 'bishop') {
         return bishopAttacks(piecePos, targetPos, state); 
-    } else if(piece.name === 'queen') {
+    } else if(piece.name === 2) {
         return rookAttacks(piecePos, targetPos, state) || bishopAttacks(piecePos, targetPos, state);
     }
     return attackedPositions(piece, piecePos, state).findIndex(pos => posEquals(pos, targetPos)) > -1;
@@ -62,7 +62,7 @@ export function findKing(state: ChessState, color: Color): Square {
         for(let j = 0; j < BOARD_SIZE; j++) {
             const pos: Position = [i, j];
             const s = itemAt(state.board, pos);
-            if(s.piece && s.piece.name === 'king' && s.piece.color === color) {
+            if(s.piece && s.piece.name === 1 && s.piece.color === color) {
                 return s;
             }
         }
