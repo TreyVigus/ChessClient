@@ -196,13 +196,13 @@ function evaluate(state: ChessState, botColor: Color): number {
 }
 
 function material(p: Piece): number {
-    if(p.name === 'pawn') {
+    if(p.name === 5) {
         return 1;
-    } else if(p.name === 'knight') {
+    } else if(p.name === 4) {
         return 3;
-    } else if(p.name === 'bishop') {
+    } else if(p.name === 3) {
         return 3;
-    } else if(p.name === 'rook') {
+    } else if(p.name === 6) {
         return 5;
     } else if(p.name === 2) {
         return 9;

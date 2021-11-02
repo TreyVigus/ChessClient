@@ -24,7 +24,7 @@ export function isPawnMoveType(moveType: MoveType): moveType is PawnMoveType {
 export function classifyMove(precedingMove: MoveEvent | undefined, currentState: ChessState, attemptedMove: MoveEvent): MoveType {
     //e.g. a move can be classified as 'castle' if the king attempts to move right two squares from start pos.
     const piece = itemAt(currentState.board, attemptedMove.startPos).piece!;
-    if(piece.name === 'pawn') {
+    if(piece.name === 5) {
         if(isPawnSingleForward(piece, attemptedMove)) {
             return 'pawnSingleForward';
         } else if(isPawnDoubleForward(piece, attemptedMove)) {
@@ -76,7 +76,7 @@ function isPawnCapture(pawn: Piece, {startPos, endPos}: MoveEvent, state: ChessS
 
 function classifyPawnCapture(pawn: Piece, precedingMove: MoveEvent | undefined, attemptedMove: MoveEvent, state: ChessState): 'pawnNormalCapture' | 'pawnPassantCapture' {
     //if the preceding move wasn't a pawn move, attemptedMove must be a normal capture.
-    if(!precedingMove || itemAt(state.board, precedingMove.endPos).piece?.name !== 'pawn') {
+    if(!precedingMove || itemAt(state.board, precedingMove.endPos).piece?.name !== 5) {
         return 'pawnNormalCapture';
     }
 

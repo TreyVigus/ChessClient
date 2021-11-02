@@ -10,26 +10,26 @@ import { ChessState, Color, Piece, Position, Square } from "./models.js";
  * */
 
 export function attackedPositions(piece: Piece, piecePos: Position, state: ChessState): Position[] {
-    if(piece.name === 'rook') {
+    if(piece.name === 6) {
         return rookAttackedSquares(piecePos, state)
-    } else if(piece.name === 'bishop') {
+    } else if(piece.name === 3) {
         return bishopAttackedSquares(piecePos, state);
     } else if(piece.name === 2) {
         return rookAttackedSquares(piecePos, state).concat(bishopAttackedSquares(piecePos, state));
-    } else if(piece.name === 'pawn') {
+    } else if(piece.name === 5) {
         return pawnAttackedSquares(piecePos, state, piece);
     } else if(piece.name === 1) {
         return kingAttackedSquares(piecePos, state);
-    } else if(piece.name === 'knight') {
+    } else if(piece.name === 4) {
         return knightAttackedSquares(piecePos, state);
     }
     return [];
 }
 
 export function pieceAttacks(piece: Piece, piecePos: Position, targetPos: Position, state: ChessState): boolean {
-    if(piece.name === 'rook') {
+    if(piece.name === 6) {
         return rookAttacks(piecePos, targetPos, state);
-    } else if(piece.name === 'bishop') {
+    } else if(piece.name === 3) {
         return bishopAttacks(piecePos, targetPos, state); 
     } else if(piece.name === 2) {
         return rookAttacks(piecePos, targetPos, state) || bishopAttacks(piecePos, targetPos, state);

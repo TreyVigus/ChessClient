@@ -11,7 +11,7 @@ const tg = createTestGroup('Move Classifier Testing', () => {
 });
 
 tg.add('non pawn move is normal move', () => {
-    setPiece(state, [4, 3], {color: 'black', name: 'bishop'});
+    setPiece(state, [4, 3], {color: 'black', name: 3});
     const attempedMove = {
         startPos: [4, 3],
         endPos: [0, 7]
@@ -21,7 +21,7 @@ tg.add('non pawn move is normal move', () => {
 });
 
 tg.add('white pawn single forward', () => {
-    setPiece(state, [3, 7], {color: 'white', name: 'pawn'});
+    setPiece(state, [3, 7], {color: 'white', name: 5});
     const attempedMove = {
         startPos: [3, 7],
         endPos: [2, 7]
@@ -31,7 +31,7 @@ tg.add('white pawn single forward', () => {
 });
 
 tg.add('black pawn single forward', () => {
-    setPiece(state, [3, 7], {color: 'black', name: 'pawn'});
+    setPiece(state, [3, 7], {color: 'black', name: 5});
     const attempedMove = {
         startPos: [3, 7],
         endPos: [4, 7]
@@ -41,7 +41,7 @@ tg.add('black pawn single forward', () => {
 });
 
 tg.add('white pawn double forward', () => {
-    setPiece(state, [6, 7], {color: 'white', name: 'pawn'});
+    setPiece(state, [6, 7], {color: 'white', name: 5});
     const attempedMove = {
         startPos: [6, 7],
         endPos: [4, 7]
@@ -51,7 +51,7 @@ tg.add('white pawn double forward', () => {
 });
 
 tg.add('black pawn double forward', () => {
-    setPiece(state, [2, 3], {color: 'black', name: 'pawn'});
+    setPiece(state, [2, 3], {color: 'black', name: 5});
     const attempedMove = {
         startPos: [2, 3],
         endPos: [4, 3]
@@ -61,7 +61,7 @@ tg.add('black pawn double forward', () => {
 });
 
 tg.add('pawn moving backward is classified as normal', () => {
-    setPiece(state, [3, 7], {color: 'black', name: 'pawn'});
+    setPiece(state, [3, 7], {color: 'black', name: 5});
     const attempedMove = {
         startPos: [3, 7],
         endPos: [2, 7]
@@ -71,7 +71,7 @@ tg.add('pawn moving backward is classified as normal', () => {
 });
 
 tg.add('white pawn moving one square to the right is classified as normal', () => {
-    setPiece(state, [3, 7], {color: 'white', name: 'pawn'});
+    setPiece(state, [3, 7], {color: 'white', name: 5});
     const attempedMove = {
         startPos: [3, 7],
         endPos: [3, 6]
@@ -81,7 +81,7 @@ tg.add('white pawn moving one square to the right is classified as normal', () =
 });
 
 tg.add('white pawn normal capture 1', () => {
-    setPiece(state, [2, 5], {color: 'white', name: 'pawn'});
+    setPiece(state, [2, 5], {color: 'white', name: 5});
     const attempedMove = {
         startPos: [2, 5],
         endPos: [1, 6]
@@ -91,8 +91,8 @@ tg.add('white pawn normal capture 1', () => {
 });
 
 tg.add('white pawn normal capture 2', () => {
-    setPiece(state, [1, 1], {color: 'white', name: 'pawn'});
-    setPiece(state, [0, 0], {color: 'black', name: 'bishop'});
+    setPiece(state, [1, 1], {color: 'white', name: 5});
+    setPiece(state, [0, 0], {color: 'black', name: 3});
     const attempedMove = {
         startPos: [1, 1],
         endPos: [0, 0]
@@ -102,7 +102,7 @@ tg.add('white pawn normal capture 2', () => {
 });
 
 tg.add('black pawn normal capture 1', () => {
-    setPiece(state, [4, 3], {color: 'black', name: 'pawn'});
+    setPiece(state, [4, 3], {color: 'black', name: 5});
     const attempedMove = {
         startPos: [4, 3],
         endPos: [5, 4]
@@ -112,7 +112,7 @@ tg.add('black pawn normal capture 1', () => {
 });
 
 tg.add('black pawn capturing backwards is classified as normal', () => {
-    setPiece(state, [4, 3], {color: 'black', name: 'pawn'});
+    setPiece(state, [4, 3], {color: 'black', name: 5});
     const attempedMove = {
         startPos: [4, 3],
         endPos: [3, 2]
@@ -122,12 +122,12 @@ tg.add('black pawn capturing backwards is classified as normal', () => {
 });
 
 tg.add('white pawn en passant 1', () => {
-    setPiece(state, [3, 6], {color: 'black', name: 'pawn'});
+    setPiece(state, [3, 6], {color: 'black', name: 5});
     const previousMove = {
         startPos: [1, 6],
         endPos: [3, 6]
     }
-    setPiece(state, [3, 7], {color: 'white', name: 'pawn'});
+    setPiece(state, [3, 7], {color: 'white', name: 5});
     const attemptedMove = {
         startPos: [3, 7],
         endPos: [2, 6]
@@ -137,12 +137,12 @@ tg.add('white pawn en passant 1', () => {
 });
 
 tg.add('white pawn en passant 2', () => {
-    setPiece(state, [3, 2], {color: 'black', name: 'pawn'});
+    setPiece(state, [3, 2], {color: 'black', name: 5});
     const previousMove = {
         startPos: [1, 2],
         endPos: [3, 2]
     }
-    setPiece(state, [3, 1], {color: 'white', name: 'pawn'});
+    setPiece(state, [3, 1], {color: 'white', name: 5});
     const attemptedMove = {
         startPos: [3, 1],
         endPos: [2, 2]
@@ -152,12 +152,12 @@ tg.add('white pawn en passant 2', () => {
 });
 
 tg.add('black pawn en passant 1', () => {
-    setPiece(state, [4, 4], {color: 'white', name: 'pawn'});
+    setPiece(state, [4, 4], {color: 'white', name: 5});
     const previousMove = {
         startPos: [6, 4],
         endPos: [4, 4]
     }
-    setPiece(state, [4, 5], {color: 'black', name: 'pawn'});
+    setPiece(state, [4, 5], {color: 'black', name: 5});
     const attemptedMove = {
         startPos: [4, 5],
         endPos: [5, 4]
@@ -167,12 +167,12 @@ tg.add('black pawn en passant 1', () => {
 });
 
 tg.add('black pawn en passant 2', () => {
-    setPiece(state, [4, 2], {color: 'white', name: 'pawn'});
+    setPiece(state, [4, 2], {color: 'white', name: 5});
     const previousMove = {
         startPos: [6, 2],
         endPos: [4, 2]
     }
-    setPiece(state, [4, 1], {color: 'black', name: 'pawn'});
+    setPiece(state, [4, 1], {color: 'black', name: 5});
     const attemptedMove = {
         startPos: [4, 1],
         endPos: [5, 2]
@@ -182,12 +182,12 @@ tg.add('black pawn en passant 2', () => {
 });
 
 tg.add('black pawn en passant 2', () => {
-    setPiece(state, [4, 2], {color: 'white', name: 'pawn'});
+    setPiece(state, [4, 2], {color: 'white', name: 5});
     const previousMove = {
         startPos: [6, 2],
         endPos: [4, 2]
     }
-    setPiece(state, [4, 1], {color: 'black', name: 'pawn'});
+    setPiece(state, [4, 1], {color: 'black', name: 5});
     const attemptedMove = {
         startPos: [4, 1],
         endPos: [5, 2]
@@ -197,12 +197,12 @@ tg.add('black pawn en passant 2', () => {
 });
 
 tg.add('not classified as en passant unless previous move was pawn double forward', () => {
-    setPiece(state, [3, 6], {color: 'black', name: 'pawn'});
+    setPiece(state, [3, 6], {color: 'black', name: 5});
     const previousMove = {
         startPos: [0, 7],
         endPos: [1, 7]
     }
-    setPiece(state, [3, 7], {color: 'white', name: 'pawn'});
+    setPiece(state, [3, 7], {color: 'white', name: 5});
     const attemptedMove = {
         startPos: [3, 7],
         endPos: [2, 6]
@@ -216,8 +216,8 @@ tg.add('not classified as en passant if prev pawn move was capture', () => {
         startPos: [1, 3],
         endPos: [2, 2]
     }
-    setPiece(state, [2, 2], {color: 'black', name: 'pawn'});
-    setPiece(state, [2, 3], {color: 'white', name: 'pawn'});
+    setPiece(state, [2, 2], {color: 'black', name: 5});
+    setPiece(state, [2, 3], {color: 'white', name: 5});
     const attemptedMove = {
         startPos: [2, 3],
         endPos: [1, 2]
@@ -231,8 +231,8 @@ tg.add('not classified as en passant if prev pawn move was not from starting pos
         startPos: [2, 1],
         endPos: [4, 1]
     }
-    setPiece(state, [4, 1], {color: 'black', name: 'pawn'});
-    setPiece(state, [4, 2], {color: 'white', name: 'pawn'});
+    setPiece(state, [4, 1], {color: 'black', name: 5});
+    setPiece(state, [4, 2], {color: 'white', name: 5});
     const attemptedMove = {
         startPos: [4, 2],
         endPos: [3, 1]
@@ -246,9 +246,9 @@ tg.add('not classified as en passant if prev pawn move was not from starting pos
         startPos: [4, 5],
         endPos: [2, 5]
     }
-    setPiece(state, [2, 5], {color: 'white', name: 'pawn'});
+    setPiece(state, [2, 5], {color: 'white', name: 5});
 
-    setPiece(state, [2, 6], {color: 'black', name: 'pawn'});
+    setPiece(state, [2, 6], {color: 'black', name: 5});
     const attemptedMove = {
         startPos: [2, 6],
         endPos: [3, 5]
@@ -258,7 +258,7 @@ tg.add('not classified as en passant if prev pawn move was not from starting pos
 });
 
 tg.add('white pawn promotion', () => {
-    setPiece(state, [1,6], {color: 'white', name: 'pawn'});
+    setPiece(state, [1,6], {color: 'white', name: 5});
     const attemptedMove = {
         startPos: [1, 6],
         endPos: [0, 6]
@@ -268,7 +268,7 @@ tg.add('white pawn promotion', () => {
 });
 
 tg.add('black pawn promotion', () => {
-    setPiece(state, [6, 0], {color: 'black', name: 'pawn'});
+    setPiece(state, [6, 0], {color: 'black', name: 5});
     const attemptedMove = {
         startPos: [6, 0],
         endPos: [7, 0]

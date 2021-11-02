@@ -24,15 +24,15 @@ export function allLegalMoves(precedingMove: MoveEvent | undefined, state: Chess
         const piece = sq.value.piece;
         if(piece && piece.color === color) {
             const piecePos = sq.index;
-            if(piece.name === 'pawn') {
+            if(piece.name === 5) {
                 pawnMoves(piece, piecePos, state, precedingMove, plyTypes);
-            } else if(piece.name === 'bishop') {
+            } else if(piece.name === 3) {
                 bishopMoves(piecePos, state, precedingMove, plyTypes)
-            } else if(piece.name === 'rook') {
+            } else if(piece.name === 6) {
                 rookMoves(piecePos, state, precedingMove, plyTypes);
             } else if(piece.name === 2) {
                 queenMoves(piecePos, state, precedingMove, plyTypes);
-            } else if(piece.name === 'knight') {
+            } else if(piece.name === 4) {
                 knightMoves(piecePos, state, precedingMove, plyTypes);
             } else if(piece.name === 1) {
                 kingMoves(piecePos, state, precedingMove, plyTypes);
