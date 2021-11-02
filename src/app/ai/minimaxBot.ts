@@ -1,7 +1,7 @@
 import { Player } from "../game/gameLoop.js";
 import { ChessState, Color, Piece } from "../game/models.js";
 import { makeMove } from "../game/movements.js";
-import { inCheckMate, inStaleMate } from "../game/stateQueries.js";
+import { inCheck, inCheckMate, inStaleMate } from "../game/stateQueries.js";
 import { flatten, oppositeColor } from "../utils/helpers.js";
 import { MoveEvent } from "../view/boardView.js";
 import { EvalCache, getEmptyCache } from "./cache.js";
@@ -53,10 +53,10 @@ function minimax(prevPly: MoveEvent | undefined, state: ChessState, botColor: Co
  */
 
 function maxEval(prevPly: MoveEvent | undefined, state: ChessState, minColor: Color, maxColor: Color, depth: number, alpha: number, beta: number, cache: EvalCache): EvalResult {
-    if(prevPly && (depth === SEARCH_DEPTH || terminal(prevPly!, state))) {
-        return {
-            eval: evaluate(prevPly, state, maxColor),
-            ply: prevPly
+    if(prevPly) {
+        const evaluation = terminalEvaluation(prevPly, state, maxColor, maxColor, depth);
+        if(evaluation) {
+            return evaluation;
         }
     }
 
@@ -104,11 +104,9 @@ function maxEval(prevPly: MoveEvent | undefined, state: ChessState, minColor: Co
  *          assuming best play from MAX.
  */
 function minEval(prevPly: MoveEvent, state: ChessState, minColor: Color, maxColor: Color, depth: number, alpha: number, beta: number, cache: EvalCache): EvalResult {
-    if(prevPly && (depth === SEARCH_DEPTH || terminal(prevPly, state))) {
-        return {
-            eval: evaluate(prevPly, state, maxColor),
-            ply: prevPly
-        }
+    const evaluation = terminalEvaluation(prevPly, state, minColor, maxColor, depth);
+    if(evaluation) {
+        return evaluation;
     }
 
     const cached = cache.get(minColor, state);
@@ -144,30 +142,48 @@ function minEval(prevPly: MoveEvent, state: ChessState, minColor: Color, maxColo
     return res;
 }
 
-function terminal(prevPly: MoveEvent, state: ChessState): boolean {
-    return inCheckMate(prevPly, state, 'black') ||
-           inCheckMate(prevPly, state, 'white') ||
-           inStaleMate(prevPly, state, 'black') ||
-           inStaleMate(prevPly, state, 'white');
+/**
+ * @todo may be able to only call allLegalMoves on minColor/maxColor depending on the previous move.
+ * turnColor is the color to move in the given state
+ */
+function terminalEvaluation(prevPly: MoveEvent, state: ChessState, turnColor: Color, maxColor: Color, depth: number): EvalResult | undefined {
+    let terminalVal: number | undefined = undefined;
+
+    if(turnColor === 'white' && allLegalMoves(prevPly, state, 'white').length === 0) {
+        if(inCheck(state, 'white')) {
+            terminalVal = MAX_EVAL_SENTINEL;
+        } else {
+            terminalVal = 0;
+        }
+    } else if(turnColor === 'black' && allLegalMoves(prevPly, state, 'black').length === 0) {
+        if(inCheck(state, 'black')) {
+            terminalVal = MIN_EVAL_SENTINEL;
+        } else {
+            terminalVal = 0;
+        }
+    }
+
+    if(terminalVal !== undefined) {
+        return {
+            eval: terminalVal,
+            ply: prevPly
+        }
+    }
+
+    if(depth === SEARCH_DEPTH) {
+        return {
+            eval: evaluate(state, maxColor),
+            ply: prevPly
+        }
+    }
 }
 
 /**
- * Materialistic evaluation function
+ * Evaluation function
+ * Assumes state is not terminal (checkmate or stalemate)
  * Bot material - opponent material
  */
-function evaluate(prevPly: MoveEvent, state: ChessState, botColor: Color): number {
-    if(inCheckMate(prevPly, state, oppositeColor(botColor))) {
-        return MAX_EVAL_SENTINEL;
-    }
-
-    if(inCheckMate(prevPly, state, botColor)) {
-        return MIN_EVAL_SENTINEL;
-    } 
-
-    if(inStaleMate(prevPly, state, 'black') || inStaleMate(prevPly, state, 'white')) {
-        return 0;
-    }
-
+function evaluate(state: ChessState, botColor: Color): number {
     let value = 0;
     [...flatten(state.board)].filter(sq => sq.value.piece).map(sq => sq.value.piece!).forEach(piece => {
         if(piece.color === botColor) {
