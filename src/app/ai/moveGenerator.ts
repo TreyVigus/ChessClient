@@ -1,4 +1,3 @@
-import { ok } from "assert";
 import { ChessState, Color, Piece, Position } from "../game/models.js";
 import { isLegal } from "../game/movements.js";
 import { bishopAttackedSquares, kingAttackedSquares, knightAttackedSquares, pawnAttackedSquares, rookAttackedSquares } from "../game/stateQueries.js";

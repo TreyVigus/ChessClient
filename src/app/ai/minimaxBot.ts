@@ -140,7 +140,6 @@ function minEval(prevPly: MoveEvent, state: ChessState, minColor: Color, maxColo
 }
 
 /**
- * @todo may be able to only call allLegalMoves on minColor/maxColor depending on the previous move.
  * turnColor is the color to move in the given state
  */
 function terminalEvaluation(prevPly: MoveEvent, state: ChessState, turnColor: Color, maxColor: Color, depth: number): EvalResult | undefined {
