@@ -150,9 +150,7 @@ export function cloneState(state: ChessState): ChessState {
             }
         }
 
-        if(square.touched) {
-            squareClone.touched = true;
-        }
+        squareClone.touched = square.touched;
 
         return squareClone;
     });

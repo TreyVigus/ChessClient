@@ -20,10 +20,9 @@ export function attackedPositions(piece: Piece, piecePos: Position, state: Chess
         return pawnAttackedSquares(piecePos, state, piece);
     } else if(piece.name === 1) {
         return kingAttackedSquares(piecePos);
-    } else if(piece.name === 4) {
+    } else {
         return knightAttackedSquares(piecePos);
     }
-    return [];
 }
 
 export function pieceAttacks(piece: Piece, piecePos: Position, targetPos: Position, state: ChessState): boolean {
