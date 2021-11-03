@@ -19,9 +19,9 @@ export function attackedPositions(piece: Piece, piecePos: Position, state: Chess
     } else if(piece.name === 5) {
         return pawnAttackedSquares(piecePos, state, piece);
     } else if(piece.name === 1) {
-        return kingAttackedSquares(piecePos, state);
+        return kingAttackedSquares(piecePos);
     } else if(piece.name === 4) {
-        return knightAttackedSquares(piecePos, state);
+        return knightAttackedSquares(piecePos);
     }
     return [];
 }
@@ -156,17 +156,17 @@ export function pawnAttackedSquares(pawnPos: Position, state: ChessState, pawn: 
     return sameUnitDiagonals(pawnPos, state, pawn.color).map(s => s.position);
 }
 
-export function kingAttackedSquares(kingPos: Position, state: ChessState): Position[] {
-    const vectors: Position[] =  [[-1, -1],[-1, 0],[-1, 1],[0, 1],[1, 1],[1, 0],[1, -1],[0, -1]];
-    return relativeAttackedSquares(kingPos, vectors, state);
+const kingVectors: readonly Position[] =  [[-1, -1],[-1, 0],[-1, 1],[0, 1],[1, 1],[1, 0],[1, -1],[0, -1]];
+export function kingAttackedSquares(kingPos: Position): Position[] {
+    return relativeAttackedSquares(kingPos, kingVectors);
 }
 
-export function knightAttackedSquares(knightPos: Position, state: ChessState): Position[] {  
-    const vectors: Position[] =  [[-2, -1],[-2, 1],[2, -1],[2, 1],[1, 2],[1, -2],[-1, 2],[-1, -2]];
-    return relativeAttackedSquares(knightPos, vectors, state);
+const knightVectors: readonly Position[] =  [[-2, -1],[-2, 1],[2, -1],[2, 1],[1, 2],[1, -2],[-1, 2],[-1, -2]];
+export function knightAttackedSquares(knightPos: Position): Position[] {  
+    return relativeAttackedSquares(knightPos, knightVectors);
 }
 
-function relativeAttackedSquares(piecePos: Position, vectors: Position[], state: ChessState): Position[] {
+function relativeAttackedSquares(piecePos: Position, vectors: readonly Position[]): Position[] {
     return vectors.map(pos => addPositions(pos, piecePos))
                   .filter(pos => validPosition(pos))
 }

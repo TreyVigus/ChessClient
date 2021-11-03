@@ -68,7 +68,7 @@ function rookMoves(rookPos: Position, state: ChessState, precedingMove: MoveEven
 }
 
 function knightMoves(knightPos: Position, state: ChessState, precedingMove: MoveEvent | undefined, plyTypes: Map<PlyCategory, MoveEvent[]>) {
-    const attacked = knightAttackedSquares(knightPos, state);
+    const attacked = knightAttackedSquares(knightPos);
     attacked.forEach(pos => {
         let ply: MoveEvent = {startPos: knightPos, endPos: pos};
         if(!posEquals(pos, knightPos) && isLegal(precedingMove, state, ply)) {
