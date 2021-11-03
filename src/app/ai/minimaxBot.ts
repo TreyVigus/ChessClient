@@ -7,23 +7,18 @@ import { MoveEvent } from "../view/boardView.js";
 import { EvalCache, getEmptyCache } from "./cache.js";
 import { allLegalMoves } from "./moveGenerator.js";
 
-/**
- * @todo slowness because terminal test and eval are both calling inCheck (indirectly)
- *       can we reduce the number of calls?
- */
-
 export type EvalResult = {
     eval: number,
     /** The ply that leads to eval. */
-    ply: MoveEvent
+    ply: MoveEvent,
+    depth: number
 }
 
 export function minimaxbot(color: Color): Player {
-    const cache = getEmptyCache();
     return {
         move: (prevPly: MoveEvent | undefined, state: ChessState) => {
             return new Promise<MoveEvent>((resolve) => {
-                resolve(minimax(prevPly, state, color, cache));
+                resolve(minimax(prevPly, state, color, getEmptyCache()));
             });
         }
     }
@@ -61,7 +56,7 @@ function maxEval(prevPly: MoveEvent | undefined, state: ChessState, minColor: Co
     }
 
     const cached = cache.get(maxColor, state);
-    if(cached) {
+    if(cached && cached.depth <= depth) {
         return cached;
     }
 
@@ -87,7 +82,8 @@ function maxEval(prevPly: MoveEvent | undefined, state: ChessState, minColor: Co
 
     const res = {
         eval: maxChildEval,
-        ply: best!
+        ply: best!,
+        depth
     }
     cache.add(maxColor, state, res);
     return res;
@@ -110,7 +106,7 @@ function minEval(prevPly: MoveEvent, state: ChessState, minColor: Color, maxColo
     }
 
     const cached = cache.get(minColor, state);
-    if(cached) {
+    if(cached && cached.depth <= depth) {
         return cached;
     }
 
@@ -136,7 +132,8 @@ function minEval(prevPly: MoveEvent, state: ChessState, minColor: Color, maxColo
 
     const res = {
         eval: minChildEval,
-        ply: best!
+        ply: best!,
+        depth
     }
     cache.add(minColor, state, res);
     return res;
@@ -166,14 +163,16 @@ function terminalEvaluation(prevPly: MoveEvent, state: ChessState, turnColor: Co
     if(terminalVal !== undefined) {
         return {
             eval: terminalVal,
-            ply: prevPly
+            ply: prevPly,
+            depth
         }
     }
 
     if(depth === SEARCH_DEPTH) {
         return {
             eval: evaluate(state, maxColor),
-            ply: prevPly
+            ply: prevPly,
+            depth
         }
     }
 }

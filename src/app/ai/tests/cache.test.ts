@@ -23,7 +23,8 @@ tg.add('get returns eval if state is present', () => {
         ply: {
             startPos: [0, 3],
             endPos: [6, 4]
-        }
+        },
+        depth: 6
     };
     cache.add(2, state1, evaluation);
     
@@ -38,7 +39,8 @@ tg.add('only stores in correct color map', () => {
         ply: {
             startPos: [0, 3],
             endPos: [6, 4]
-        }
+        },
+        depth: 2
     };
     cache.add(2, state1, evaluation);
     
@@ -55,7 +57,8 @@ tg.add('add same state many times', () => {
         ply: {
             startPos: [0, 3],
             endPos: [6, 4]
-        }
+        },
+        depth: 1
     };
     cache.add(2, state1, evaluation);
     cache.add(2, state1, evaluation);
@@ -72,7 +75,8 @@ tg.add('update state', () => {
         ply: {
             startPos: [0, 3],
             endPos: [6, 4]
-        }
+        },
+        depth: 1
     };
     cache.add(2, state1, evaluation);
 
@@ -81,7 +85,8 @@ tg.add('update state', () => {
         ply: {
             startPos: [0, 3],
             endPos: [6, 4]
-        }
+        },
+        depth: 2
     };
     cache.add(2, state1, evaluation2);
 
@@ -96,14 +101,16 @@ tg.add('update state', () => {
         ply: {
             startPos: [0, 3],
             endPos: [6, 4]
-        }
+        },
+        depth: 2
     };
     const evaluation2: EvalResult = {
         eval: 6,
         ply: {
             startPos: [0, 3],
             endPos: [6, 4]
-        }
+        },
+        depth: 2
     };
     cache.add(2, state1, evaluation);
     cache.add(1, state1, evaluation2);
@@ -118,7 +125,8 @@ tg.add('cloned state serializes the same as original', () => {
         ply: {
             startPos: [0, 3],
             endPos: [6, 4]
-        }
+        },
+        depth: 0
     };
     cache.add(2, state1, evaluation);
     cache.add(2, cloneState(state1), evaluation);
@@ -136,7 +144,8 @@ tg.add('same state, but different property order serializes the same', () => {
         ply: {
             startPos: [0, 3],
             endPos: [6, 4]
-        }
+        },
+        depth: 3
     };
     cache.add(2, state1, evaluation);
     cache.add(2, state2, evaluation);
