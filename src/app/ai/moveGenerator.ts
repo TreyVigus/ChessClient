@@ -100,7 +100,7 @@ function kingMoves(kingPos: Position, state: ChessState, precedingMove: MoveEven
 }
 
 function pawnMoves(pawn: Piece, pawnPos: Position, state: ChessState, precedingMove: MoveEvent | undefined, plyTypes: Map<PlyCategory, MoveEvent[]>) {
-    const attacked = pawnAttackedSquares(pawnPos, state, pawn);
+    const attacked = pawnAttackedSquares(pawnPos, state, pawn.color);
     if(pawn.color === 2) {
         const one = addPositions(pawnPos, [-1, 0]);
         const two = addPositions(pawnPos, [-2, 0]);

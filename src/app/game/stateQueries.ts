@@ -17,7 +17,7 @@ export function attackedPositions(piece: Piece, piecePos: Position, state: Chess
     } else if(piece.name === 2) {
         return rookAttackedSquares(piecePos, state).concat(bishopAttackedSquares(piecePos, state));
     } else if(piece.name === 5) {
-        return pawnAttackedSquares(piecePos, state, piece);
+        return pawnAttackedSquares(piecePos, state, piece.color);
     } else if(piece.name === 1) {
         return kingAttackedSquares(piecePos);
     } else {
@@ -38,17 +38,122 @@ export function pieceAttacks(piece: Piece, piecePos: Position, targetPos: Positi
 
 /** Return true if the given square has pieces of the given color attacking it. */
 export function hasAttackers(targetSquare: Square, attackingColor: Color, state: ChessState): boolean {
-    for(let i = 0; i < BOARD_SIZE; i++) {
-        for(let j = 0; j < BOARD_SIZE; j++) {
-            const pos: Position = [i, j];
-            const s = itemAt(state.board, pos);
-            if(s.piece && s.piece.color === attackingColor) {
-                const attacks = pieceAttacks(s.piece, pos, targetSquare.position, state);
-                if(attacks) {
-                    return true;
-                }
+    const row = targetSquare.position[0];
+    const col = targetSquare.position[1];
+
+
+    //TODO: DRY these up
+    
+    //north east
+    for(let iterator = [row - 1, col + 1] as Position; validPosition(iterator); iterator = addPositions(iterator, [-1, 1])) {
+        const s = itemAt(state.board, iterator);
+        if(s.piece) {
+            if(s.piece.color === attackingColor && (s.piece.name === 3 || s.piece.name === 2)) {
+                return true;
+            } else {
+                break;
             }
         }
+    }
+
+    //south east
+    for(let iterator = [row + 1, col + 1] as Position; validPosition(iterator); iterator = addPositions(iterator, [1, 1])) {
+        const s = itemAt(state.board, iterator);
+        if(s.piece) {
+            if(s.piece.color === attackingColor && (s.piece.name === 3 || s.piece.name === 2)) {
+                return true;
+            } else {
+                break;
+            }
+        }
+    }
+
+    //south west
+    for(let iterator = [row + 1, col - 1] as Position; validPosition(iterator); iterator = addPositions(iterator, [1, -1])) {
+        const s = itemAt(state.board, iterator);
+        if(s.piece) {
+            if(s.piece.color === attackingColor && (s.piece.name === 3 || s.piece.name === 2)) {
+                return true;
+            } else {
+                break;
+            }
+        }
+    }
+
+    //north west
+    for(let iterator = [row - 1, col - 1] as Position; validPosition(iterator); iterator = addPositions(iterator, [-1, -1])) {
+        const s = itemAt(state.board, iterator);
+        if(s.piece) {
+            if(s.piece.color === attackingColor && (s.piece.name === 3 || s.piece.name === 2)) {
+                return true;
+            } else {
+                break;
+            }
+        }
+    }
+    
+    //ROOK/QUEEN
+    for(let j = col - 1; j >= 0; j--) {
+        const pos: Position = [row, j];
+        const s = itemAt(state.board, pos);
+        if(s.piece) {
+            if(s.piece.color === attackingColor && (s.piece.name === 6 || s.piece.name === 2)) {
+                return true;
+            } else {
+                break;
+            }
+        }
+    }
+
+    for(let j = col + 1; j < BOARD_SIZE; j++) {
+        const pos: Position = [row, j];
+        const s = itemAt(state.board, pos);
+        if(s.piece) {
+            if(s.piece.color === attackingColor && (s.piece.name === 6 || s.piece.name === 2)) {
+                return true;
+            } else {
+                break;
+            }
+        }
+    }
+
+    for(let i = row - 1; i >= 0; i--) {
+        const pos: Position = [i, col];
+        const s = itemAt(state.board, pos);
+        if(s.piece) {
+            if(s.piece.color === attackingColor && (s.piece.name === 6 || s.piece.name === 2)) {
+                return true;
+            } else {
+                break;
+            }
+        }
+    }
+
+    for(let i = row + 1; i < BOARD_SIZE; i++) {
+        const pos: Position = [i, col];
+        const s = itemAt(state.board, pos);
+        if(s.piece) {
+            if(s.piece.color === attackingColor && (s.piece.name === 6 || s.piece.name === 2)) {
+                return true;
+            } else {
+                break;
+            }
+        }
+    }
+
+    const knight = knightAttackedSquares(targetSquare.position);
+    if(hasPiece(knight, [4], attackingColor, state)) {
+        return true;
+    }
+
+    const pawn = pawnAttackedSquares(targetSquare.position, state, oppositeColor(attackingColor));
+    if(hasPiece(pawn, [5], attackingColor, state)) {
+        return true;
+    }
+
+    const king = kingAttackedSquares(targetSquare.position);
+    if(hasPiece(king, [1], attackingColor, state)) {
+        return true;
     }
 
     return false;
@@ -151,8 +256,8 @@ export function bishopAttackedSquares(bishopPos: Position, state: ChessState): P
     return filterBlockedSquares(bishopPos, posDiag).concat(filterBlockedSquares(bishopPos, negDiag)).map(s => s.position);
 }
 
-export function pawnAttackedSquares(pawnPos: Position, state: ChessState, pawn: Piece): Position[] {
-    return sameUnitDiagonals(pawnPos, state, pawn.color).map(s => s.position);
+export function pawnAttackedSquares(pawnPos: Position, state: ChessState, pawnColor: Color): Position[] {
+    return sameUnitDiagonals(pawnPos, state, pawnColor).map(s => s.position);
 }
 
 const kingVectors: readonly Position[] =  [[-1, -1],[-1, 0],[-1, 1],[0, 1],[1, 1],[1, 0],[1, -1],[0, -1]];
@@ -168,4 +273,16 @@ export function knightAttackedSquares(knightPos: Position): Position[] {
 function relativeAttackedSquares(piecePos: Position, vectors: readonly Position[]): Position[] {
     return vectors.map(pos => addPositions(pos, piecePos))
                   .filter(pos => validPosition(pos))
+}
+
+function hasPiece(positions: Position[], pieceNames: Piece['name'][], attackingColor: Color, state: ChessState): boolean {
+    for(let i = 0; i < positions.length; i++) {
+        const pos = positions[i];
+        const s = itemAt(state.board, pos);
+        if(s.piece && s.piece.color === attackingColor && pieceNames.includes(s.piece.name)) {
+            return true;
+        }
+    }
+
+    return false;
 }
