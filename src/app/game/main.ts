@@ -1,5 +1,5 @@
 import { simpleMindedBot } from "../ai/bot.js";
-import { minimaxbot } from "../ai/minimaxBot.js";
+import { smartMinimax } from "../ai/smarterMinimax.js";
 import { flat, posSequence } from "../utils/helpers.js";
 import { BoardView, initBoardView, MoveEvent } from "../view/boardView.js";
 import { displayVictor } from "../view/infoView.js";
@@ -18,7 +18,7 @@ if(showSquarePositions) {
     view.showSquarePositions();
 } else {
     const white: Player = useBots ? simpleMindedBot(2) : { move: getPlayerMove };
-    const black = minimaxbot(1);
+    const black = smartMinimax(1);
     const subs: GameSubscriptions = {
         onInitialState: (initial: ChessState) => {
             drawState(initial, view);

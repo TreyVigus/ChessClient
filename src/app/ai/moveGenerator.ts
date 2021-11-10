@@ -1,7 +1,7 @@
 import { ChessState, Color, Piece, Position } from "../game/models.js";
 import { isLegal } from "../game/movements.js";
 import { bishopAttackedSquares, kingAttackedSquares, knightAttackedSquares, pawnAttackedSquares, rookAttackedSquares } from "../game/stateQueries.js";
-import { addPositions, flatten, itemAt, posEquals, posSequence, validPosition } from "../utils/helpers.js";
+import { addPositions, flatten, itemAt, posEquals, posSequence, shuffle, validPosition } from "../utils/helpers.js";
 import { MoveEvent } from "../view/boardView.js";
 
 type PlyCategory = 'capture' | 'other'; 
@@ -40,8 +40,9 @@ export function allLegalMoves(precedingMove: MoveEvent | undefined, state: Chess
     });
 
     let moves: MoveEvent[] = [];
-    moves.push(...plyTypes.get('capture')!);
-    moves.push(...plyTypes.get('other')!);
+    //introduce some randomness to prevent move loops
+    moves.push(...shuffle(plyTypes.get('capture')!));
+    moves.push(...shuffle(plyTypes.get('other')!));
     return moves;
 }
 
