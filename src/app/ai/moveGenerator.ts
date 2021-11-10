@@ -1,6 +1,6 @@
 import { ChessState, Color, Piece, Position } from "../game/models.js";
 import { isLegal } from "../game/movements.js";
-import { bishopAttackedSquares, kingAttackedSquares, knightAttackedSquares, pawnAttackedSquares, rookAttackedSquares } from "../game/stateQueries.js";
+import { bishopAttackedSquares, knightAttackedSquares, pawnAttackedSquares, rookAttackedSquares } from "../game/stateQueries.js";
 import { addPositions, flatten, itemAt, posEquals, posSequence, shuffle, validPosition } from "../utils/helpers.js";
 import { MoveEvent } from "../view/boardView.js";
 
@@ -50,7 +50,7 @@ function bishopMoves(bishopPos: Position, state: ChessState, precedingMove: Move
     const attacked = bishopAttackedSquares(bishopPos, state);
     attacked.forEach(pos => {
         let ply: MoveEvent = {startPos: bishopPos, endPos: pos};
-        if(!posEquals(pos, bishopPos) && isLegal(precedingMove, state, ply)) {
+        if(isLegal(precedingMove, state, ply)) {
             const category = categorize(ply, state);
             plyTypes.get(category)!.push(ply);
         }
@@ -61,7 +61,7 @@ function rookMoves(rookPos: Position, state: ChessState, precedingMove: MoveEven
     const attacked = rookAttackedSquares(rookPos, state);
     attacked.forEach(pos => {
         let ply: MoveEvent = {startPos: rookPos, endPos: pos};
-        if(!posEquals(pos, rookPos) && isLegal(precedingMove, state, ply)) {
+        if(isLegal(precedingMove, state, ply)) {
             const category = categorize(ply, state);
             plyTypes.get(category)!.push(ply);
         }
@@ -72,7 +72,7 @@ function knightMoves(knightPos: Position, state: ChessState, precedingMove: Move
     const attacked = knightAttackedSquares(knightPos);
     attacked.forEach(pos => {
         let ply: MoveEvent = {startPos: knightPos, endPos: pos};
-        if(!posEquals(pos, knightPos) && isLegal(precedingMove, state, ply)) {
+        if(isLegal(precedingMove, state, ply)) {
             const category = categorize(ply, state);
             plyTypes.get(category)!.push(ply);
         }
@@ -83,7 +83,7 @@ function queenMoves(queenPos: Position, state: ChessState, precedingMove: MoveEv
     const attacked = rookAttackedSquares(queenPos, state).concat(bishopAttackedSquares(queenPos, state));
     attacked.forEach(pos => {
         let ply: MoveEvent = {startPos: queenPos, endPos: pos};
-        if(!posEquals(pos, queenPos) && isLegal(precedingMove, state, ply)) {
+        if(isLegal(precedingMove, state, ply)) {
             const category = categorize(ply, state);
             plyTypes.get(category)!.push(ply);
         }

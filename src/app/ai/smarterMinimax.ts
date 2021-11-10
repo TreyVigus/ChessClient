@@ -43,7 +43,7 @@ function minimax(prevPly: MoveEvent | undefined, state: ChessState, botColor: Co
 
 function maxEval(prevPly: MoveEvent | undefined, state: ChessState, minColor: Color, maxColor: Color, depth: number, alpha: number, beta: number, cache: EvalCache): EvalResult {
     if(prevPly) {
-        const evaluation = terminalEvaluation(prevPly, state, maxColor, maxColor, depth);
+        const evaluation = terminalEvaluation(prevPly, state, maxColor, maxColor, minColor, depth);
         if(evaluation) {
             return evaluation;
         }
@@ -94,7 +94,7 @@ function maxEval(prevPly: MoveEvent | undefined, state: ChessState, minColor: Co
  *          assuming best play from MAX.
  */
 function minEval(prevPly: MoveEvent, state: ChessState, minColor: Color, maxColor: Color, depth: number, alpha: number, beta: number, cache: EvalCache): EvalResult {
-    const evaluation = terminalEvaluation(prevPly, state, minColor, maxColor, depth);
+    const evaluation = terminalEvaluation(prevPly, state, minColor, maxColor, minColor, depth);
     if(evaluation) {
         return evaluation;
     }
@@ -134,19 +134,19 @@ function minEval(prevPly: MoveEvent, state: ChessState, minColor: Color, maxColo
 }
 
 /**
- * turnColor is the color to move in the given state
+ * Evaluate the position from the bot's perspective.
  */
-function terminalEvaluation(prevPly: MoveEvent, state: ChessState, turnColor: Color, maxColor: Color, depth: number): EvalResult | undefined {
+function terminalEvaluation(prevPly: MoveEvent, state: ChessState, turnColor: Color, maxColor: Color, minColor: Color, depth: number): EvalResult | undefined {
     let terminalVal: number | undefined = undefined;
 
-    if(turnColor === 2 && allLegalMoves(prevPly, state, 2).length === 0) {
-        if(inCheck(state, 2)) {
+    if(turnColor === minColor && allLegalMoves(prevPly, state, minColor).length === 0) {
+        if(inCheck(state, minColor)) {
             terminalVal = MAX_EVAL_SENTINEL;
         } else {
             terminalVal = 0;
         }
-    } else if(turnColor === 1 && allLegalMoves(prevPly, state, 1).length === 0) {
-        if(inCheck(state, 1)) {
+    } else if(turnColor === maxColor && allLegalMoves(prevPly, state, maxColor).length === 0) {
+        if(inCheck(state, maxColor)) {
             terminalVal = MIN_EVAL_SENTINEL;
         } else {
             terminalVal = 0;
@@ -170,8 +170,6 @@ function terminalEvaluation(prevPly: MoveEvent, state: ChessState, turnColor: Co
     }
 }
 
-//TODO: speed up similar to in state queries
-//      minimizing king squares may encourage checkmating
 function evaluate(state: ChessState, botColor: Color): number {
     let score = 0;
 

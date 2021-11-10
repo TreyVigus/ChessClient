@@ -217,9 +217,93 @@ export function isBackRank(pawnColor: Color, pos: Position): boolean {
 }
 
 export function rookAttackedSquares(rookPos: Position, state: ChessState): Position[] {  
-    const row = sameRow(rookPos, state);
-    const col = sameColumn(rookPos, state);
-    return filterBlockedSquares(rookPos, row).concat(filterBlockedSquares(rookPos, col)).map(s => s.position);
+    const row = rookPos[0];
+    const col = rookPos[1];
+
+    let attacked: Position[] = [];
+
+    for(let j = col - 1; j >= 0; j--) {
+        const pos: Position = [row, j];
+        const s = itemAt(state.board, pos);
+        attacked.push(pos);
+        if(s.piece) {
+            break;
+        }
+    }
+
+    for(let j = col + 1; j < BOARD_SIZE; j++) {
+        const pos: Position = [row, j];
+        const s = itemAt(state.board, pos);
+        attacked.push(pos);
+        if(s.piece) {
+            break;
+        }
+    }
+
+    for(let i = row - 1; i >= 0; i--) {
+        const pos: Position = [i, col];
+        const s = itemAt(state.board, pos);
+        attacked.push(pos);
+        if(s.piece) {
+            break;
+        }
+    }
+
+    for(let i = row + 1; i < BOARD_SIZE; i++) {
+        const pos: Position = [i, col];
+        const s = itemAt(state.board, pos);
+        attacked.push(pos);
+        if(s.piece) {
+            break;
+        }
+    }
+
+    return attacked;
+}
+
+export function bishopAttackedSquares(bishopPos: Position, state: ChessState): Position[] {
+    const row = bishopPos[0];
+    const col = bishopPos[1];
+
+
+    let attacked: Position[] = [];
+
+    for(let iterator = [row - 1, col + 1] as Position; validPosition(iterator); iterator = addPositions(iterator, [-1, 1])) {
+        const s = itemAt(state.board, iterator);
+        attacked.push(iterator);
+        if(s.piece) {
+            break;
+        }
+    }
+
+    //south east
+    for(let iterator = [row + 1, col + 1] as Position; validPosition(iterator); iterator = addPositions(iterator, [1, 1])) {
+        const s = itemAt(state.board, iterator);
+        attacked.push(iterator);
+        if(s.piece) {
+            break;
+        }
+    }
+
+    //south west
+    for(let iterator = [row + 1, col - 1] as Position; validPosition(iterator); iterator = addPositions(iterator, [1, -1])) {
+        const s = itemAt(state.board, iterator);
+        attacked.push(iterator);
+        if(s.piece) {
+            break;
+        }
+    }
+
+    //north west
+    for(let iterator = [row - 1, col - 1] as Position; validPosition(iterator); iterator = addPositions(iterator, [-1, -1])) {
+        const s = itemAt(state.board, iterator);
+        attacked.push(iterator);
+        if(s.piece) {
+            break;
+        }
+    }
+
+    return attacked;
 }
 
 function rookAttacks(rookPos: Position, targetPos: Position, state: ChessState): boolean {
@@ -248,12 +332,6 @@ function bishopAttacks(bishopPos: Position, targetPos: Position, state: ChessSta
     }
 
     return false;
-}
-
-export function bishopAttackedSquares(bishopPos: Position, state: ChessState): Position[] {
-    const posDiag = samePositiveDiagonal(bishopPos, state);
-    const negDiag = sameNegativeDiagonal(bishopPos, state);
-    return filterBlockedSquares(bishopPos, posDiag).concat(filterBlockedSquares(bishopPos, negDiag)).map(s => s.position);
 }
 
 export function pawnAttackedSquares(pawnPos: Position, state: ChessState, pawnColor: Color): Position[] {
