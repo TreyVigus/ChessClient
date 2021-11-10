@@ -46,7 +46,6 @@ function minimax(prevPly: MoveEvent | undefined, state: ChessState, botColor: Co
  * @returns The highest evaluation (for MAX) that MAX can guarentee in the given state,
  *          assuming best play from MIN.
  */
-
 function maxEval(prevPly: MoveEvent | undefined, state: ChessState, minColor: Color, maxColor: Color, depth: number, alpha: number, beta: number, cache: EvalCache): EvalResult {
     if(prevPly) {
         const evaluation = terminalEvaluation(prevPly, state, maxColor, maxColor, depth);
@@ -193,7 +192,7 @@ function evaluate(state: ChessState, botColor: Color): number {
     return value;
 }
 
-function material(p: Piece): number {
+export function material(p: Piece): number {
     if(p.name === 5) {
         return 1;
     } else if(p.name === 4) {

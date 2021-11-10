@@ -3,9 +3,7 @@ import { isLegal } from "../game/movements.js";
 import { bishopAttackedSquares, knightAttackedSquares, pawnAttackedSquares, rookAttackedSquares } from "../game/stateQueries.js";
 import { addPositions, flatten, itemAt, posEquals, posSequence, shuffle, validPosition } from "../utils/helpers.js";
 import { MoveEvent } from "../view/boardView.js";
-
-type PlyCategory = 'capture' | 'other'; 
-
+import { material } from "./minimaxBot.js";
 
 /**
  * Find all moves that can be made by the given color in the given state.
@@ -14,93 +12,71 @@ type PlyCategory = 'capture' | 'other';
  * @param color The color to generate moves for.
  */
 export function allLegalMoves(precedingMove: MoveEvent | undefined, state: ChessState, color: Color): MoveEvent[] {
-    //NOTE: this will eventually become a priority queue...
-    let plyTypes = new Map<PlyCategory, MoveEvent[]>();
-    plyTypes.set('capture', []);
-    plyTypes.set('other', []);
+    let moves: MoveEvent[] = [];
 
     flatten(state.board).forEach(sq => {
         const piece = sq.value.piece;
-        if(piece && piece.color === color) {
+        if(!piece) {
+            return;
+        }
+
+        if(piece.color === color) {
             const piecePos = sq.index;
+            let attacked: Position[] = [];
             if(piece.name === 5) {
-                pawnMoves(piece, piecePos, state, precedingMove, plyTypes);
+                attacked = pawnMoves(piece, piecePos, state, precedingMove);
             } else if(piece.name === 3) {
-                bishopMoves(piecePos, state, precedingMove, plyTypes)
+                attacked = bishopAttackedSquares(piecePos, state);
             } else if(piece.name === 6) {
-                rookMoves(piecePos, state, precedingMove, plyTypes);
+                attacked = rookAttackedSquares(piecePos, state);
             } else if(piece.name === 2) {
-                queenMoves(piecePos, state, precedingMove, plyTypes);
+                attacked = rookAttackedSquares(piecePos, state).concat(bishopAttackedSquares(piecePos, state));
             } else if(piece.name === 4) {
-                knightMoves(piecePos, state, precedingMove, plyTypes);
+                attacked = knightAttackedSquares(piecePos);
             } else if(piece.name === 1) {
-                kingMoves(piecePos, state, precedingMove, plyTypes);
+                attacked = posSequence();
             }
+            moves.push(...getMoves(piecePos, state, precedingMove, attacked));
         }
     });
 
-    let moves: MoveEvent[] = [];
-    //introduce some randomness to prevent move loops
-    moves.push(...shuffle(plyTypes.get('capture')!));
-    moves.push(...shuffle(plyTypes.get('other')!));
-    return moves;
-}
+    let captures: MoveEvent[] = [];
+    let forward: MoveEvent[] = [];
+    let backward: MoveEvent[] = [];
 
-function bishopMoves(bishopPos: Position, state: ChessState, precedingMove: MoveEvent | undefined, plyTypes: Map<PlyCategory, MoveEvent[]>) {
-    const attacked = bishopAttackedSquares(bishopPos, state);
-    attacked.forEach(pos => {
-        let ply: MoveEvent = {startPos: bishopPos, endPos: pos};
-        if(isLegal(precedingMove, state, ply)) {
-            const category = categorize(ply, state);
-            plyTypes.get(category)!.push(ply);
+    moves.forEach(move => {
+        const capture = itemAt(state.board, move.endPos).piece!;
+        //captures have highest priority
+        if(capture) {
+            captures.push(move);
+        } else if(isForwardMove(move, color)) {
+            forward.push(move);
+        } else {
+            backward.push(move);
         }
     });
-}
 
-function rookMoves(rookPos: Position, state: ChessState, precedingMove: MoveEvent | undefined, plyTypes: Map<PlyCategory, MoveEvent[]>) {
-    const attacked = rookAttackedSquares(rookPos, state);
-    attacked.forEach(pos => {
-        let ply: MoveEvent = {startPos: rookPos, endPos: pos};
-        if(isLegal(precedingMove, state, ply)) {
-            const category = categorize(ply, state);
-            plyTypes.get(category)!.push(ply);
-        }
+    //sort captures by material difference descending
+    captures.sort((a, b) => {
+        const aStartPiece = itemAt(state.board, a.startPos).piece!;
+        const bStartPiece = itemAt(state.board, b.startPos).piece!;
+        const aEndPiece = itemAt(state.board, a.endPos).piece!;
+        const bEndPiece = itemAt(state.board, b.endPos).piece!;
+
+        const aMaterialDiff = material(aEndPiece) - material(aStartPiece);
+        const bMaterialDiff = material(bEndPiece) - material(bStartPiece);
+
+        return bMaterialDiff - aMaterialDiff;
     });
+
+    //introduce some indeterminism to prevent move loops
+    shuffle(forward);
+    shuffle(backward);
+
+    return [...captures, ...forward, ...backward];
 }
 
-function knightMoves(knightPos: Position, state: ChessState, precedingMove: MoveEvent | undefined, plyTypes: Map<PlyCategory, MoveEvent[]>) {
-    const attacked = knightAttackedSquares(knightPos);
-    attacked.forEach(pos => {
-        let ply: MoveEvent = {startPos: knightPos, endPos: pos};
-        if(isLegal(precedingMove, state, ply)) {
-            const category = categorize(ply, state);
-            plyTypes.get(category)!.push(ply);
-        }
-    });
-}
-
-function queenMoves(queenPos: Position, state: ChessState, precedingMove: MoveEvent | undefined, plyTypes: Map<PlyCategory, MoveEvent[]>) {
-    const attacked = rookAttackedSquares(queenPos, state).concat(bishopAttackedSquares(queenPos, state));
-    attacked.forEach(pos => {
-        let ply: MoveEvent = {startPos: queenPos, endPos: pos};
-        if(isLegal(precedingMove, state, ply)) {
-            const category = categorize(ply, state);
-            plyTypes.get(category)!.push(ply);
-        }
-    });
-}
-
-function kingMoves(kingPos: Position, state: ChessState, precedingMove: MoveEvent | undefined, plyTypes: Map<PlyCategory, MoveEvent[]>) {
-    posSequence().forEach(endPos => {
-        const ply = {startPos: kingPos, endPos: endPos};
-        if(!posEquals(endPos, kingPos) && isLegal(precedingMove, state, ply)) {
-            const category = categorize(ply, state);
-            plyTypes.get(category)!.push(ply);
-        }
-    });
-}
-
-function pawnMoves(pawn: Piece, pawnPos: Position, state: ChessState, precedingMove: MoveEvent | undefined, plyTypes: Map<PlyCategory, MoveEvent[]>) {
+function pawnMoves(pawn: Piece, pawnPos: Position, state: ChessState, precedingMove: MoveEvent | undefined): Position[] {
     const attacked = pawnAttackedSquares(pawnPos, state, pawn.color);
     if(pawn.color === 2) {
         const one = addPositions(pawnPos, [-1, 0]);
@@ -124,20 +100,23 @@ function pawnMoves(pawn: Piece, pawnPos: Position, state: ChessState, precedingM
         }
     }
 
-    attacked.forEach(pos => {
-        let ply: MoveEvent = {startPos: pawnPos, endPos: pos};
-        if(!posEquals(pos, pawnPos) && isLegal(precedingMove, state, ply)) {
-            const category = categorize(ply, state);
-            plyTypes.get(category)!.push(ply);
-        }
+    return attacked;
+}
+
+function getMoves(piecePos: Position, state: ChessState, precedingMove: MoveEvent | undefined, attacked: Position[]): MoveEvent[] {
+    return attacked.map(pos => {
+        return {startPos: piecePos, endPos: pos} as MoveEvent
+    }).filter(ply => {
+        return !posEquals(ply.endPos, piecePos) && isLegal(precedingMove, state, ply);
     });
 }
 
-function categorize(ply: MoveEvent, state: ChessState): PlyCategory {
-    if(itemAt(state.board, ply.endPos).piece!) {
-        return 'capture';
+function isForwardMove(move: MoveEvent, color: Color): boolean {
+    if(color === 2) {
+        return move.startPos[0] >= move.endPos[0];
+    } else {
+        return move.startPos[0] <= move.endPos[0];
     }
-    return 'other';
 }
 
 /********** USED FOR TESTING ONLY **********/
