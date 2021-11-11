@@ -140,22 +140,25 @@ export function addPositions(...positions: Position[]): Position {
 export function cloneState(state: ChessState): ChessState {
     const boardClone = constructBoard<Square>((pos: Position) => {
         const square = itemAt(state.board, pos);
-
-        let squareClone: Square = { position: pos };
-
-        if(square.piece) {
-            squareClone.piece = {
-                color: square.piece.color,
-                name: square.piece.name
-            }
-        }
-
-        squareClone.touched = square.touched;
-
-        return squareClone;
+        return cloneSquare(square);
     });
 
     return { board: boardClone }
+}
+
+export function cloneSquare(square: Square): Square {
+    let squareClone: Square = { position: square.position };
+
+    if(square.piece) {
+        squareClone.piece = {
+            color: square.piece.color,
+            name: square.piece.name
+        }
+    }
+
+    squareClone.touched = square.touched;
+
+    return squareClone;
 }
 
 /** Shuffle array in place. */

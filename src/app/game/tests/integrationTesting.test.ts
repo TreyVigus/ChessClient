@@ -26,7 +26,7 @@ function testMoveSequence(sequence: MoveEvent[], endState: ChessState): boolean 
     let lastMove: MoveEvent | undefined = undefined;
     for(let move of sequence) {
         if(isLegal(lastMove, currentState, move)) {
-            currentState = makeMove(lastMove, currentState, move);
+            makeMove(lastMove, currentState, move);
             lastMove = move;
 
             const color: Color = oppositeColor(itemAt(currentState.board, move.endPos).piece!.color);

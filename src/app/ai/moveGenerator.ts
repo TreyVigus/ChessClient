@@ -1,7 +1,7 @@
 import { ChessState, Color, Piece, Position } from "../game/models.js";
 import { isLegal } from "../game/movements.js";
 import { bishopAttackedSquares, knightAttackedSquares, pawnAttackedSquares, rookAttackedSquares } from "../game/stateQueries.js";
-import { addPositions, flatten, itemAt, posEquals, posSequence, shuffle, validPosition } from "../utils/helpers.js";
+import { addPositions, cloneState, flatten, itemAt, posEquals, posSequence, shuffle, validPosition } from "../utils/helpers.js";
 import { MoveEvent } from "../view/boardView.js";
 import { material } from "./minimaxBot.js";
 
@@ -14,7 +14,7 @@ import { material } from "./minimaxBot.js";
 export function allLegalMoves(precedingMove: MoveEvent | undefined, state: ChessState, color: Color): MoveEvent[] {
     let moves: MoveEvent[] = [];
 
-    flatten(state.board).forEach(sq => {
+    flatten(cloneState(state).board).forEach(sq => {
         const piece = sq.value.piece;
         if(!piece) {
             return;

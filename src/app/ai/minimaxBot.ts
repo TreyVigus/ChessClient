@@ -1,6 +1,6 @@
 import { Player } from "../game/gameLoop.js";
 import { ChessState, Color, Piece } from "../game/models.js";
-import { makeMove } from "../game/movements.js";
+import { makeMove, revertMove } from "../game/movements.js";
 import { inCheck } from "../game/stateQueries.js";
 import { flatten, oppositeColor } from "../utils/helpers.js";
 import { MoveEvent } from "../view/boardView.js";
@@ -62,8 +62,9 @@ function maxEval(prevPly: MoveEvent | undefined, state: ChessState, minColor: Co
     let maxChildEval = MIN_EVAL_SENTINEL - 1;
     let best: MoveEvent;
     for(let ply of allLegalMoves(prevPly, state, maxColor)) {
-        const childState = makeMove(prevPly, state, ply);
-        const childEval = minEval(ply, childState, minColor, maxColor, depth + 1, alpha, beta, cache).eval;
+        const editedSquares = makeMove(prevPly, state, ply);
+        const childEval = minEval(ply, state, minColor, maxColor, depth + 1, alpha, beta, cache).eval;
+        revertMove(state, editedSquares);
 
         if(childEval > maxChildEval) {
             maxChildEval = childEval;
@@ -112,8 +113,9 @@ function minEval(prevPly: MoveEvent, state: ChessState, minColor: Color, maxColo
     let minChildEval = MAX_EVAL_SENTINEL + 1;
     let best: MoveEvent;
     for(let ply of allLegalMoves(prevPly, state, minColor)) {
-        const childState = makeMove(prevPly, state, ply);
-        const childEval = maxEval(ply, childState, minColor, maxColor, depth + 1, alpha, beta, cache).eval;
+        const editedSquares = makeMove(prevPly, state, ply);
+        const childEval = maxEval(ply, state, minColor, maxColor, depth + 1, alpha, beta, cache).eval;
+        revertMove(state, editedSquares);
 
         if(childEval < minChildEval) {
             minChildEval = childEval;

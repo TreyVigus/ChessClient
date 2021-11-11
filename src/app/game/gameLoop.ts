@@ -1,4 +1,4 @@
-import { constructBoard, itemAt, oppositeColor } from "../utils/helpers.js";
+import { cloneState, constructBoard, itemAt, oppositeColor } from "../utils/helpers.js";
 import { MoveEvent } from "../view/boardView.js";
 import { countPieces } from "../ai/countPieces.js";
 import { ChessState, Color, Position, Square } from "./models.js";
@@ -48,19 +48,17 @@ export async function gameLoop(
         const moveEvent = await player.move(prevPly.move, prevPly.state);
         const validMove = correctColor(prevPly.state, moveEvent.startPos, turn) && isLegal(prevPly.move, prevPly.state, moveEvent);
         if(validMove) {
-            const newState = makeMove(prevPly.move, prevPly.state, moveEvent);
+            const oldState = cloneState(prevPly.state);
+            makeMove(prevPly.move, prevPly.state, moveEvent);
 
-            if(resetCounter(prevPly.state, moveEvent, newState)) {
+            if(resetCounter(oldState, moveEvent, prevPly.state)) {
                 counter = 0;
             } else {
                 counter++;
             }
 
-            prevPly = {
-                state: newState,
-                color: turn,
-                move: moveEvent
-            };
+            prevPly.color = turn;
+            prevPly.move = moveEvent;
 
             await runAnimation(() => {
                 subscriptions?.onLegalPly?.call(undefined, prevPly);
