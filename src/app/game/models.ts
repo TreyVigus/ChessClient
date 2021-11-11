@@ -1,13 +1,14 @@
-//TODO: can significantly reduce memory / moderately increase perf by changing the strings to single characters
-//		may be faster to use integer instead of string
-
 export type Position = [number, number];
 
-export type Color = 'black' | 'white';
+/** black, white */
+export type Color = 1 | 2;
 
 export type Piece = {
 	color: Color,
-	name: 'king' | 'queen' | 'bishop' | 'knight' | 'pawn' | 'rook'
+	/**
+	 * king, queen, bishop, knight, pawn, rook
+	 */
+	name: 1 | 2 | 3 | 4 | 5 | 6
 };
 
 export type Square = {

@@ -24,7 +24,7 @@ export function isPawnMoveType(moveType: MoveType): moveType is PawnMoveType {
 export function classifyMove(precedingMove: MoveEvent | undefined, currentState: ChessState, attemptedMove: MoveEvent): MoveType {
     //e.g. a move can be classified as 'castle' if the king attempts to move right two squares from start pos.
     const piece = itemAt(currentState.board, attemptedMove.startPos).piece!;
-    if(piece.name === 'pawn') {
+    if(piece.name === 5) {
         if(isPawnSingleForward(piece, attemptedMove)) {
             return 'pawnSingleForward';
         } else if(isPawnDoubleForward(piece, attemptedMove)) {
@@ -48,7 +48,7 @@ function isPawnSingleForward(pawn: Piece, {startPos, endPos}: MoveEvent): boolea
     }
 
     //must advance one square
-    if(pawn.color === 'white') {
+    if(pawn.color === 2) {
         return startPos[0] - 1 === endPos[0];
     } else {
         return startPos[0] + 1 === endPos[0];
@@ -62,7 +62,7 @@ function isPawnDoubleForward(pawn: Piece, {startPos, endPos}: MoveEvent): boolea
     }
 
     //must advance two squares
-    if(pawn.color === 'white') {
+    if(pawn.color === 2) {
         return startPos[0] - 2 === endPos[0];
     } else {
         return startPos[0] + 2 === endPos[0];
@@ -76,7 +76,7 @@ function isPawnCapture(pawn: Piece, {startPos, endPos}: MoveEvent, state: ChessS
 
 function classifyPawnCapture(pawn: Piece, precedingMove: MoveEvent | undefined, attemptedMove: MoveEvent, state: ChessState): 'pawnNormalCapture' | 'pawnPassantCapture' {
     //if the preceding move wasn't a pawn move, attemptedMove must be a normal capture.
-    if(!precedingMove || itemAt(state.board, precedingMove.endPos).piece?.name !== 'pawn') {
+    if(!precedingMove || itemAt(state.board, precedingMove.endPos).piece?.name !== 5) {
         return 'pawnNormalCapture';
     }
 
@@ -85,7 +85,7 @@ function classifyPawnCapture(pawn: Piece, precedingMove: MoveEvent | undefined, 
 
     //if the preceding pawn move wasn't made from the pawn's starting position, we have a normal capture
     const precedingColor = itemAt(state.board, precedingMove.endPos).piece!.color;
-    if((precedingColor === 'black' && precedingMove.startPos[0] !== 1) || (precedingColor === 'white' && precedingMove.startPos[0] !== 6)) {
+    if((precedingColor === 1 && precedingMove.startPos[0] !== 1) || (precedingColor === 2 && precedingMove.startPos[0] !== 6)) {
         return 'pawnNormalCapture';
     }
     
@@ -96,7 +96,7 @@ function classifyPawnCapture(pawn: Piece, precedingMove: MoveEvent | undefined, 
     }
 
     //If current pawn attacks one square behind preceding pawn, return 'pawnPassantCapture'.
-    const currPawnDirection = pawn.color === 'white' ? 'north' : 'south';
+    const currPawnDirection = pawn.color === 2 ? 'north' : 'south';
     //find the position that is one behind the preceding move's end position
     const behind = adjacent(precedingMove.endPos, currPawnDirection)!; //assumes previous pawn is opposite color as current pawn
 
@@ -109,5 +109,5 @@ function classifyPawnCapture(pawn: Piece, precedingMove: MoveEvent | undefined, 
 
 /** If the king stayed in the same row and tried to move two squares left or right, the move is an attemped castle. */
 function isCastle(piece: Piece, {startPos, endPos}: MoveEvent): boolean {
-    return piece.name === 'king' && endPos[0] === startPos[0] && Math.abs(startPos[1] - endPos[1]) === 2;
+    return piece.name === 1 && endPos[0] === startPos[0] && Math.abs(startPos[1] - endPos[1]) === 2;
 }

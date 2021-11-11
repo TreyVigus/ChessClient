@@ -2,7 +2,7 @@
 import express from "express";
 
 const app = express();
-const port = 3000;
+const port = 3001;
 
 //https://expressjs.com/en/starter/static-files.html
 app.use(express.static('build/app'));

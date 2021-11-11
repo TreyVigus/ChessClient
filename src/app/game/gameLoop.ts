@@ -1,4 +1,4 @@
-import { constructBoard, itemAt, oppositeColor } from "../utils/helpers.js";
+import { cloneState, constructBoard, itemAt, oppositeColor } from "../utils/helpers.js";
 import { MoveEvent } from "../view/boardView.js";
 import { countPieces } from "../ai/countPieces.js";
 import { ChessState, Color, Position, Square } from "./models.js";
@@ -35,7 +35,7 @@ export async function gameLoop(
     let prevPly: Ply = {
         state: initialState(),
     }
-    let turn: Color = 'white';
+    let turn: Color = 2;
 
     await runAnimation(() => {
         subscriptions?.onInitialState?.call(undefined, prevPly.state);
@@ -44,23 +44,21 @@ export async function gameLoop(
     //50 move rule counter
     let counter = 0;
     while(true) {
-        const player = turn === 'white' ? white : black;
+        const player = turn === 2 ? white : black;
         const moveEvent = await player.move(prevPly.move, prevPly.state);
         const validMove = correctColor(prevPly.state, moveEvent.startPos, turn) && isLegal(prevPly.move, prevPly.state, moveEvent);
         if(validMove) {
-            const newState = makeMove(prevPly.move, prevPly.state, moveEvent);
+            const oldState = cloneState(prevPly.state);
+            makeMove(prevPly.move, prevPly.state, moveEvent);
 
-            if(resetCounter(prevPly.state, moveEvent, newState)) {
+            if(resetCounter(oldState, moveEvent, prevPly.state)) {
                 counter = 0;
             } else {
                 counter++;
             }
 
-            prevPly = {
-                state: newState,
-                color: turn,
-                move: moveEvent
-            };
+            prevPly.color = turn;
+            prevPly.move = moveEvent;
 
             await runAnimation(() => {
                 subscriptions?.onLegalPly?.call(undefined, prevPly);
@@ -99,7 +97,7 @@ function correctColor(state: ChessState, pos: Position, expectedColor: Color): b
  * If there are 50 moves (100 ply) without a capture or pawn move, we have a draw.
  */
 function resetCounter(prevState: ChessState, legalMove: MoveEvent, newState: ChessState): boolean {
-    const pawnMove = itemAt(prevState.board, legalMove.startPos).piece!.name === 'pawn';
+    const pawnMove = itemAt(prevState.board, legalMove.startPos).piece!.name === 5;
     if(pawnMove) {
         return true;
     }
@@ -131,41 +129,41 @@ function initialState(): ChessState {
          };
     });
 
-    board[0][0].piece = {color: 'black', name: 'rook'};
-    board[0][1].piece = {color: 'black', name: 'knight'};
-    board[0][2].piece = {color: 'black', name: 'bishop'};
-    board[0][3].piece = {color: 'black', name: 'queen'};
-    board[0][4].piece = {color: 'black', name: 'king'};
-    board[0][5].piece = {color: 'black', name: 'bishop'};
-    board[0][6].piece = {color: 'black', name: 'knight'};
-    board[0][7].piece = {color: 'black', name: 'rook'};
+    board[0][0].piece = {color: 1, name: 6};
+    board[0][1].piece = {color: 1, name: 4};
+    board[0][2].piece = {color: 1, name: 3};
+    board[0][3].piece = {color: 1, name: 2};
+    board[0][4].piece = {color: 1, name: 1};
+    board[0][5].piece = {color: 1, name: 3};
+    board[0][6].piece = {color: 1, name: 4};
+    board[0][7].piece = {color: 1, name: 6};
 
-    board[1][0].piece = {color: 'black', name: 'pawn'};
-    board[1][1].piece = {color: 'black', name: 'pawn'};
-    board[1][2].piece = {color: 'black', name: 'pawn'};
-    board[1][3].piece = {color: 'black', name: 'pawn'};
-    board[1][4].piece = {color: 'black', name: 'pawn'};
-    board[1][5].piece = {color: 'black', name: 'pawn'};
-    board[1][6].piece = {color: 'black', name: 'pawn'};
-    board[1][7].piece = {color: 'black', name: 'pawn'};
+    board[1][0].piece = {color: 1, name: 5};
+    board[1][1].piece = {color: 1, name: 5};
+    board[1][2].piece = {color: 1, name: 5};
+    board[1][3].piece = {color: 1, name: 5};
+    board[1][4].piece = {color: 1, name: 5};
+    board[1][5].piece = {color: 1, name: 5};
+    board[1][6].piece = {color: 1, name: 5};
+    board[1][7].piece = {color: 1, name: 5};
 
-    board[6][0].piece = {color: 'white', name: 'pawn'};
-    board[6][1].piece = {color: 'white', name: 'pawn'};
-    board[6][2].piece = {color: 'white', name: 'pawn'};
-    board[6][3].piece = {color: 'white', name: 'pawn'};
-    board[6][4].piece = {color: 'white', name: 'pawn'};
-    board[6][5].piece = {color: 'white', name: 'pawn'};
-    board[6][6].piece = {color: 'white', name: 'pawn'};
-    board[6][7].piece = {color: 'white', name: 'pawn'};
+    board[6][0].piece = {color: 2, name: 5};
+    board[6][1].piece = {color: 2, name: 5};
+    board[6][2].piece = {color: 2, name: 5};
+    board[6][3].piece = {color: 2, name: 5};
+    board[6][4].piece = {color: 2, name: 5};
+    board[6][5].piece = {color: 2, name: 5};
+    board[6][6].piece = {color: 2, name: 5};
+    board[6][7].piece = {color: 2, name: 5};
 
-    board[7][0].piece = {color: 'white', name: 'rook'};
-    board[7][1].piece = {color: 'white', name: 'knight'};
-    board[7][2].piece = {color: 'white', name: 'bishop'};
-    board[7][3].piece = {color: 'white', name: 'queen'};
-    board[7][4].piece = {color: 'white', name: 'king'};
-    board[7][5].piece = {color: 'white', name: 'bishop'};
-    board[7][6].piece = {color: 'white', name: 'knight'};
-    board[7][7].piece = {color: 'white', name: 'rook'};
+    board[7][0].piece = {color: 2, name: 6};
+    board[7][1].piece = {color: 2, name: 4};
+    board[7][2].piece = {color: 2, name: 3};
+    board[7][3].piece = {color: 2, name: 2};
+    board[7][4].piece = {color: 2, name: 1};
+    board[7][5].piece = {color: 2, name: 3};
+    board[7][6].piece = {color: 2, name: 4};
+    board[7][7].piece = {color: 2, name: 6};
 
     return { board };
 }

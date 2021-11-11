@@ -49,7 +49,7 @@ export function sameNegativeDiagonal(piecePos: Position, state: ChessState): Squ
  * Useful for pawn movements.
  */
 export function sameUnitDiagonals(piecePos: Position, state: ChessState, color: Color): Square[] {
-    const adj = color === 'white' ? [[-1, -1], [-1, 1]] : [[1, -1], [1, 1]];
+    const adj = color === 2 ? [[-1, -1], [-1, 1]] : [[1, -1], [1, 1]];
     return adj.map(pos => addPositions(piecePos, pos as Position)).filter(pos => validPosition(pos)).map(pos => itemAt(state.board, pos));
 }
 

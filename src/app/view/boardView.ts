@@ -86,7 +86,7 @@ function getBoard(): HTMLDivElement[][] {
 function getTile(color: Color): HTMLDivElement {
 	const tile = document.createElement('div');
 	tile.classList.add('tile');
-	if(color === 'black') {
+	if(color === 1) {
 		tile.classList.add('dark');
 	} else {
 		tile.classList.add('light');

@@ -2,19 +2,19 @@ import { ChessState, Color, Position, Square } from "../game/models.js";
 import { BOARD_SIZE } from "../view/boardView.js";
 
 export function oppositeColor(color: Color): Color {
-    if(color === 'white') {
-        return 'black';
+    if(color === 2) {
+        return 1;
     }
-    return 'white';
+    return 2;
 }
 
 export function posColor(pos: Position): Color {
     const evenRow = pos[0] % 2 === 0;
     const evenCol = pos[1] % 2 === 0;
     if(evenRow) {
-        return evenCol ? 'white' : 'black';
+        return evenCol ? 2 : 1;
     } else {
-        return evenCol ? 'black' : 'white';
+        return evenCol ? 1 : 2;
     }
 }
 
@@ -140,22 +140,32 @@ export function addPositions(...positions: Position[]): Position {
 export function cloneState(state: ChessState): ChessState {
     const boardClone = constructBoard<Square>((pos: Position) => {
         const square = itemAt(state.board, pos);
-
-        let squareClone: Square = { position: pos };
-
-        if(square.piece) {
-            squareClone.piece = {
-                color: square.piece.color,
-                name: square.piece.name
-            }
-        }
-
-        if(square.touched) {
-            squareClone.touched = true;
-        }
-
-        return squareClone;
+        return cloneSquare(square);
     });
 
     return { board: boardClone }
+}
+
+export function cloneSquare(square: Square): Square {
+    let squareClone: Square = { position: square.position };
+
+    if(square.piece) {
+        squareClone.piece = {
+            color: square.piece.color,
+            name: square.piece.name
+        }
+    }
+
+    squareClone.touched = square.touched;
+
+    return squareClone;
+}
+
+/** Shuffle array in place. */
+export function shuffle<T>(arr: T[]): T[] {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
 }

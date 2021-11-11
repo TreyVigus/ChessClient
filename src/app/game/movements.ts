@@ -1,10 +1,12 @@
 //Handles attacking squares, etc by piece
-import { addPositions, cloneState, itemAt, oppositeColor, posEquals, } from "../utils/helpers.js";
+import { addPositions, cloneSquare, cloneState, flat, flatten, itemAt, oppositeColor, posEquals, } from "../utils/helpers.js";
 import { MoveEvent } from "../view/boardView.js";
 import { sameRow } from "./attackVectors.js";
 import { ChessState, Color, Piece, Position, Square } from "./models.js";
 import { classifyMove, isPawnMoveType, PawnMoveType } from "./moveClassifier.js";
 import { containsPiece, hasAttackers, inCheck, isBackRank, pieceAttacks } from "./stateQueries.js";
+
+export type EditedSquares = Square[];
 
 export type KingSide = 'left' | 'right';
 
@@ -24,46 +26,63 @@ export function isLegal(precedingMove: MoveEvent | undefined, currentState: Ches
         return false;
     }
 
-    const futureState = makeMove(undefined, currentState, attemptedMove);
-    if(inCheck(futureState, piece.color)) {
-        return false;
-    }
-
-    return true;
+    const edited = makeMove(undefined, currentState, attemptedMove);
+    const checked = inCheck(currentState, piece.color);
+    revertMove(currentState, edited);
+    return !checked;
 }
 
 /** 
  * Expects legalMove to have passed the isLegal() checks.
- * Return the state that would follow if legalMove occured on prevState.
+ * Apply legalMove to prevState and return the changed squares so the edit can be reversed if necessary.
  * */
-export function makeMove(precedingMove: MoveEvent | undefined, prevState: ChessState, legalMove: MoveEvent): ChessState {
-    const copy = cloneState(prevState);
+export function makeMove(precedingMove: MoveEvent | undefined, prevState: ChessState, legalMove: MoveEvent): EditedSquares {
+    let modifiedSquares: Square[] = [];
+
+    const kingColor = itemAt(prevState.board, legalMove.startPos).piece!.color;
     const moveType = classifyMove(precedingMove, prevState, legalMove);
 
-    const startSquare = itemAt(copy.board, legalMove.startPos);
-    const endSquare = itemAt(copy.board, legalMove.endPos);
+    const startSquare = itemAt(prevState.board, legalMove.startPos);
+    const endSquare = itemAt(prevState.board, legalMove.endPos);
+
+    modifiedSquares.push(cloneSquare(startSquare));
+    modifiedSquares.push(cloneSquare(endSquare));
+
 
     movePiece(startSquare, endSquare);
 
-    if(endSquare.piece!.name === 'pawn' && isBackRank(endSquare.piece!.color, endSquare.position)) {
-        endSquare.piece!.name = 'queen';
-        return copy;
+    if(endSquare.piece!.name === 5 && isBackRank(endSquare.piece!.color, endSquare.position)) {
+        endSquare.piece!.name = 2;
+        return modifiedSquares;
     }
 
     if(moveType === 'pawnPassantCapture') {
-        itemAt(copy.board, precedingMove!.endPos).piece = undefined;
+        const precedingEndSquare = itemAt(prevState.board, precedingMove!.endPos);
+        modifiedSquares.push(cloneSquare(precedingEndSquare));
+        precedingEndSquare.piece = undefined;
     } else if(moveType === 'castle') {
-        const kingColor = itemAt(prevState.board, legalMove.startPos).piece!.color;
         const side = sideOfKing(kingStartPos(kingColor), legalMove.endPos);
 
-        const rookSquare = itemAt(copy.board, rookStartPos(kingColor, side));
+        const rookSquare = itemAt(prevState.board, rookStartPos(kingColor, side));
         const newRookPos = side === 'right' ? addPositions(legalMove.endPos, [0, -1]) : addPositions(legalMove.endPos, [0, 1]);
-        const besideKingSquare = itemAt(copy.board, newRookPos);
+        const besideKingSquare = itemAt(prevState.board, newRookPos);
 
+        modifiedSquares.push(cloneSquare(rookSquare));
+        modifiedSquares.push(cloneSquare(besideKingSquare));
         movePiece(rookSquare, besideKingSquare);
     }
 
-    return copy;
+    return modifiedSquares;
+}
+
+/**
+ * Reverse makeMove().
+ */
+export function revertMove(currentState: ChessState, prevSquares: EditedSquares) {
+    for(const prev of prevSquares) {
+        const [i, j] = prev.position;
+        currentState.board[i][j] = prev;
+    }
 }
 
 /** 
@@ -105,15 +124,27 @@ function legalCastle(currentState: ChessState, attemptedMove: MoveEvent, piece: 
     }
 
     //cannot castle if there are pieces between king and rook or pieces attacking squares between king and rook
-    return sameRow(kingStart, currentState).filter(s => {
+    const kingSideSquares = sameRow(kingStart, currentState).filter(s => {
         if(side === 'left') {
             return rookStart[1] < s.position[1] && s.position[1] < kingStart[1];
         } else {
             return kingStart[1] < s.position[1] && s.position[1] < rookStart[1];
         }
-    }).every(s => {
-        return !s.piece && !hasAttackers(s, oppositeColor(piece.color), currentState);
     });
+
+    for(let s of kingSideSquares) {
+        if(s.piece) {
+            return false;
+        }
+    }
+
+    for(let s of kingSideSquares) {
+        if(hasAttackers(s, oppositeColor(piece.color), currentState)) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 function legalPawnMove(currentState: ChessState, attemptedMove: MoveEvent, piece: Piece, moveType: PawnMoveType): boolean {
@@ -136,21 +167,21 @@ function legalPawnMove(currentState: ChessState, attemptedMove: MoveEvent, piece
 function legalDoubleForward(currentState: ChessState, attemptedMove: MoveEvent, piece: Piece): boolean {
     const [row, col] = attemptedMove.startPos
 
-    const firstPawnMove = (piece.color === 'black' && row === 1) || (piece.color === 'white' && row === 6);
+    const firstPawnMove = (piece.color === 1 && row === 1) || (piece.color === 2 && row === 6);
     if(!firstPawnMove) {
         return false;
     }
 
-    const oneForward: Position = piece.color === 'black' ? [row + 1, col] : [row - 1, col];
+    const oneForward: Position = piece.color === 1 ? [row + 1, col] : [row - 1, col];
     return !containsPiece(currentState, oneForward, attemptedMove.endPos);
 }
 
 function kingStartPos(kingColor: Color): Position  {
-    return kingColor === 'white' ? [7, 4] : [0, 4];
+    return kingColor === 2 ? [7, 4] : [0, 4];
 }
 
 function rookStartPos(rookColor: Color, side: KingSide): Position {
-    if(rookColor == 'white') {
+    if(rookColor == 2) {
         return side === 'right' ? [7, 7] : [7, 0];
     } else {
         return side === 'right' ? [0, 7] : [0, 0];

@@ -1,20 +1,14 @@
 import { Player } from "../game/gameLoop.js";
 import { ChessState, Color, Piece } from "../game/models.js";
 import { makeMove, revertMove } from "../game/movements.js";
-import { inCheck } from "../game/stateQueries.js";
-import { flatten, oppositeColor } from "../utils/helpers.js";
+import { attackedPositions, inCheck, isBackRank } from "../game/stateQueries.js";
+import { itemAt, oppositeColor, posSequence } from "../utils/helpers.js";
 import { MoveEvent } from "../view/boardView.js";
 import { EvalCache, getEmptyCache } from "./cache.js";
+import { EvalResult } from "./minimaxBot.js";
 import { allLegalMoves } from "./moveGenerator.js";
 
-export type EvalResult = {
-    eval: number,
-    /** The ply that leads to eval. */
-    ply: MoveEvent,
-    depth: number
-}
-
-export function minimaxbot(color: Color): Player {
+export function smartMinimax(color: Color): Player {
     return {
         move: (prevPly: MoveEvent | undefined, state: ChessState) => {
             return new Promise<MoveEvent>((resolve) => {
@@ -24,7 +18,7 @@ export function minimaxbot(color: Color): Player {
     }
 }
 
-const SEARCH_DEPTH = 6;
+const SEARCH_DEPTH = 5;
 const MAX_EVAL_SENTINEL = 1000;
 const MIN_EVAL_SENTINEL = -1000;
 
@@ -46,9 +40,10 @@ function minimax(prevPly: MoveEvent | undefined, state: ChessState, botColor: Co
  * @returns The highest evaluation (for MAX) that MAX can guarentee in the given state,
  *          assuming best play from MIN.
  */
+
 function maxEval(prevPly: MoveEvent | undefined, state: ChessState, minColor: Color, maxColor: Color, depth: number, alpha: number, beta: number, cache: EvalCache): EvalResult {
     if(prevPly) {
-        const evaluation = terminalEvaluation(prevPly, state, maxColor, maxColor, depth);
+        const evaluation = terminalEvaluation(prevPly, state, maxColor, maxColor, minColor, depth);
         if(evaluation) {
             return evaluation;
         }
@@ -100,7 +95,7 @@ function maxEval(prevPly: MoveEvent | undefined, state: ChessState, minColor: Co
  *          assuming best play from MAX.
  */
 function minEval(prevPly: MoveEvent, state: ChessState, minColor: Color, maxColor: Color, depth: number, alpha: number, beta: number, cache: EvalCache): EvalResult {
-    const evaluation = terminalEvaluation(prevPly, state, minColor, maxColor, depth);
+    const evaluation = terminalEvaluation(prevPly, state, minColor, maxColor, minColor, depth);
     if(evaluation) {
         return evaluation;
     }
@@ -141,19 +136,19 @@ function minEval(prevPly: MoveEvent, state: ChessState, minColor: Color, maxColo
 }
 
 /**
- * turnColor is the color to move in the given state
+ * Evaluate the position from the bot's perspective.
  */
-function terminalEvaluation(prevPly: MoveEvent, state: ChessState, turnColor: Color, maxColor: Color, depth: number): EvalResult | undefined {
+function terminalEvaluation(prevPly: MoveEvent, state: ChessState, turnColor: Color, maxColor: Color, minColor: Color, depth: number): EvalResult | undefined {
     let terminalVal: number | undefined = undefined;
 
-    if(turnColor === 2 && allLegalMoves(prevPly, state, 2).length === 0) {
-        if(inCheck(state, 2)) {
+    if(turnColor === minColor && allLegalMoves(prevPly, state, minColor).length === 0) {
+        if(inCheck(state, minColor)) {
             terminalVal = MAX_EVAL_SENTINEL;
         } else {
             terminalVal = 0;
         }
-    } else if(turnColor === 1 && allLegalMoves(prevPly, state, 1).length === 0) {
-        if(inCheck(state, 1)) {
+    } else if(turnColor === maxColor && allLegalMoves(prevPly, state, maxColor).length === 0) {
+        if(inCheck(state, maxColor)) {
             terminalVal = MIN_EVAL_SENTINEL;
         } else {
             terminalVal = 0;
@@ -177,24 +172,31 @@ function terminalEvaluation(prevPly: MoveEvent, state: ChessState, turnColor: Co
     }
 }
 
-/**
- * Evaluation function
- * Assumes state is not terminal (checkmate or stalemate)
- * Bot material - opponent material
- */
 function evaluate(state: ChessState, botColor: Color): number {
-    let value = 0;
-    [...flatten(state.board)].filter(sq => sq.value.piece).map(sq => sq.value.piece!).forEach(piece => {
-        if(piece.color === botColor) {
-            value = value + material(piece);
-        } else {
-            value = value - material(piece);
+    let score = 0;
+
+    posSequence().forEach(pos => {
+        const s = itemAt(state.board, pos);
+        const piece = s.piece;
+        if(piece) {
+            let attacked = 0;
+            if([2, 3, 4].includes(piece.name)) {
+                attacked = attackedPositions(piece, pos, state).length;
+            }
+            if(piece.color === botColor) {
+                score = score + material(piece);
+                score = score + attacked * .05;
+            } else {
+                score = score - material(piece);
+                score = score - attacked * .05;
+            }
         }
     });
-    return value;
+
+    return score;
 }
 
-export function material(p: Piece): number {
+function material(p: Piece): number {
     if(p.name === 5) {
         return 1;
     } else if(p.name === 4) {

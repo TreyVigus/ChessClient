@@ -17,7 +17,7 @@ export function getEmptyCache(): EvalCache {
 
     const add = (moveColor: Color, state: ChessState, evaluation: EvalResult) => {
         const ser = serialize(state);
-        if(moveColor === 'white') {
+        if(moveColor === 2) {
             whiteMap.set(ser, evaluation);
         } else {
             blackMap.set(ser, evaluation);
@@ -26,7 +26,7 @@ export function getEmptyCache(): EvalCache {
 
     const get = (moveColor: Color, state: ChessState) => {
         const ser = serialize(state);
-        if(moveColor === 'white') {
+        if(moveColor === 2) {
             return whiteMap.get(ser);
         } else {
             return blackMap.get(ser);
@@ -42,23 +42,27 @@ export function getEmptyCache(): EvalCache {
 
 /** 
  * OPT: could make this return a unique integer for a state. 
+ * currently this returns ~ 383 character string
+ * can represent any square with a unique number
+ * need to find a way to 'build' a hash, square by square
+ * https://en.wikipedia.org/wiki/Rolling_hash
  * @todo unit test
  * */
 function serialize(state: ChessState): string {
-    let ser = "";
-    posSequence().forEach(pos => {
+    let ser: string[] = new Array(64);
+    posSequence().forEach((pos, index) => {
         const sq = itemAt(state.board, pos);
-        ser = `${ser}~${serializeSquare(sq)}`
+        ser[index] = serializeSquare(sq);
     });
-    return ser;
+    return ser.join('');
 }
 
 function serializeSquare(s: Square): string {
-    return `${serializePiece(s.piece)}.${serializeTouched(s.touched)}`;
+    return `${serializePiece(s.piece)}${serializeTouched(s.touched)}`;
 }
 
 function serializePiece(p: Square['piece']): string {
-    return p ? `${p.color},${p.name}` : 'none';
+    return p ? `${p.name}${p.color}` : '00';
 }
 
 function serializeTouched(touched: Square['touched']): string {

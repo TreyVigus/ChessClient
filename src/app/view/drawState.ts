@@ -19,13 +19,13 @@ function highlightInCheck(state: ChessState, view: BoardView) {
         view.removeHighlight(pos);
     });
 
-    const whiteKing = findKing(state, 'white').position;
-    if(inCheck(state, 'white')) {
+    const whiteKing = findKing(state, 2).position;
+    if(inCheck(state, 2)) {
         view.addHighlight(whiteKing);
     }
 
-    const blackKing = findKing(state, 'black').position;
-    if(inCheck(state, 'black')) {
+    const blackKing = findKing(state, 1).position;
+    if(inCheck(state, 1)) {
         view.addHighlight(blackKing);
     }
 }
