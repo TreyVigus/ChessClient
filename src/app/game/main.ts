@@ -19,7 +19,7 @@ if(showSquarePositions) {
     view.showSquarePositions();
 } else {
     const white: Player = useBots ? simpleMindedBot(2) : { move: getPlayerMove };
-    const black = smartMinimax(1);
+    const black = minimaxbot(1);
     const subs: GameSubscriptions = {
         onInitialState: (initial: ChessState) => {
             drawState(initial, view);

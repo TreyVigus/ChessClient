@@ -348,7 +348,7 @@ export function knightAttackedSquares(knightPos: Position): Position[] {
     return relativeAttackedSquares(knightPos, knightVectors);
 }
 
-function relativeAttackedSquares(piecePos: Position, vectors: readonly Position[]): Position[] {
+export function relativeAttackedSquares(piecePos: Position, vectors: readonly Position[]): Position[] {
     return vectors.map(pos => addPositions(pos, piecePos))
                   .filter(pos => validPosition(pos))
 }

@@ -24,7 +24,7 @@ export function minimaxbot(color: Color): Player {
     }
 }
 
-const SEARCH_DEPTH = 5;
+const SEARCH_DEPTH = 6;
 const MAX_EVAL_SENTINEL = 1000;
 const MIN_EVAL_SENTINEL = -1000;
 

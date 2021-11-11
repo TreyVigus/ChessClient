@@ -1,6 +1,6 @@
 import { ChessState, Color, Piece, Position } from "../game/models.js";
 import { isLegal } from "../game/movements.js";
-import { bishopAttackedSquares, knightAttackedSquares, pawnAttackedSquares, rookAttackedSquares } from "../game/stateQueries.js";
+import { bishopAttackedSquares, kingAttackedSquares, knightAttackedSquares, pawnAttackedSquares, relativeAttackedSquares, rookAttackedSquares } from "../game/stateQueries.js";
 import { addPositions, cloneState, flatten, itemAt, posEquals, posSequence, shuffle, validPosition } from "../utils/helpers.js";
 import { MoveEvent } from "../view/boardView.js";
 import { material } from "./minimaxBot.js";
@@ -34,7 +34,10 @@ export function allLegalMoves(precedingMove: MoveEvent | undefined, state: Chess
             } else if(piece.name === 4) {
                 attacked = knightAttackedSquares(piecePos);
             } else if(piece.name === 1) {
-                attacked = posSequence();
+                attacked = kingAttackedSquares(piecePos);
+                //vectors for squares two squares to left or right of king
+                const vectors: Position[] = [[0, 2], [0, -2]];
+                attacked.push(...relativeAttackedSquares(piecePos, vectors));
             }
             moves.push(...getMoves(piecePos, state, precedingMove, attacked));
         }
