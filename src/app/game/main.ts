@@ -1,5 +1,4 @@
 import { simpleMindedBot } from "../ai/bot.js";
-import { minimaxbot } from "../ai/minimaxBot.js";
 import { smartMinimax } from "../ai/smarterMinimax.js";
 import { flat, posSequence } from "../utils/helpers.js";
 import { BoardView, initBoardView, MoveEvent } from "../view/boardView.js";
