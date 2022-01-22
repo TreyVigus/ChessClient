@@ -1,5 +1,5 @@
 ## Running
-npm run start
+**npm run start**
 - What does this do?
     - It starts nodemon, which will watch for changes to files (see "ext" in nodemon.json for which files).
     - When nodemon detects a file, nodemon will 
@@ -8,7 +8,7 @@ npm run start
         - Serve the app by running server.js from the build directory (compiled from server.ts).
 
 ## Testing
-npm run test
+**npm run test**
 - What does this do?
     - It starts nodemon, just like in npm run start.
     - When nodemon detects a file, nodemon will 
