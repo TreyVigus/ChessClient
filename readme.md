@@ -10,6 +10,6 @@ This provides a user interface to play against a chess bot.  The bot runs the mi
 ## Testing
 **npm run test**
 - This starts nodemon, just like npm run start.
-    - When nodemon detects a file, nodemon will 
-        - run 'tsc', which will do just as described in npm run start, including compiling all spec.ts files to spec.js files.
-        - execute runTests.js, which executes all files of the form .test.js from the build/app directory.
+- When nodemon detects a file, it will 
+    - run 'tsc', which will compile all spec.ts files to spec.js files.
+    - execute runTests.js, which executes all files of the form .test.js from the build/app directory.
