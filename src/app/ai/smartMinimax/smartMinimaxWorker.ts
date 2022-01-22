@@ -1,21 +1,26 @@
-import { Player } from "../game/gameLoop.js";
-import { ChessState, Color, Piece } from "../game/models.js";
-import { makeMove, revertMove } from "../game/movements.js";
-import { attackedPositions, inCheck, isBackRank } from "../game/stateQueries.js";
-import { itemAt, oppositeColor, posSequence } from "../utils/helpers.js";
-import { MoveEvent } from "../view/boardView.js";
-import { EvalCache, getEmptyCache } from "./cache.js";
-import { EvalResult } from "./minimaxBot.js";
-import { allLegalMoves } from "./moveGenerator.js";
+import { ChessState, Color, Piece } from "../../game/models.js";
+import { makeMove, revertMove } from "../../game/movements.js";
+import { attackedPositions, inCheck } from "../../game/stateQueries.js";
+import { itemAt, oppositeColor, posSequence } from "../../utils/helpers.js";
+import { MoveEvent } from "../../view/boardView.js";
+import { EvalCache, getEmptyCache } from "../cache.js";
+import { EvalResult } from "../minimaxBot.js";
+import { allLegalMoves } from "../moveGenerator.js";
 
-export function smartMinimax(color: Color): Player {
-    return {
-        move: (prevPly: MoveEvent | undefined, state: ChessState) => {
-            return new Promise<MoveEvent>((resolve) => {
-                resolve(minimax(prevPly, state, color, getEmptyCache()));
-            });
-        }
-    }
+/**
+ * Run minimax in a web worker to prevent UI blocking,
+ * which will cause annoying chrome popups.
+ */
+
+const ctx: Worker = self as any;
+
+ctx.onmessage = (message: any) => {
+    const prevPly: MoveEvent | undefined = message.data[0];
+    const state: ChessState = message.data[1];
+    const color: Color = message.data[2];
+    const cache = getEmptyCache();
+    const res = minimax(prevPly, state, color, cache);
+    ctx.postMessage(res);
 }
 
 const SEARCH_DEPTH = 5;
@@ -40,7 +45,6 @@ function minimax(prevPly: MoveEvent | undefined, state: ChessState, botColor: Co
  * @returns The highest evaluation (for MAX) that MAX can guarentee in the given state,
  *          assuming best play from MIN.
  */
-
 function maxEval(prevPly: MoveEvent | undefined, state: ChessState, minColor: Color, maxColor: Color, depth: number, alpha: number, beta: number, cache: EvalCache): EvalResult {
     if(prevPly) {
         const evaluation = terminalEvaluation(prevPly, state, maxColor, maxColor, minColor, depth);
