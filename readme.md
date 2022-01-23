@@ -3,7 +3,7 @@ This provides a user interface to play against a chess bot that runs the minimax
 
 The bot implements alpha-beta pruning, a transposition table, and a simple move-ordering heuristic. Captures have the highest priority, followed by forward moves, and then backward moves.  The search depth has been capped at 5 ply since deeper searches become very slow.  The evaluation function simply calculates material, breaking ties by counting the number of attacked squares.  This bot can easily beat novice players, but experienced players will have no difficulty defeating it.  The low search depth and lack of quiescent search causes horizon effects, which become readily apparent in the endgame.
 
-Inspired by chapter 3 of http://aima.cs.berkeley.edu/.
+Inspired by section 3.5 of http://aima.cs.berkeley.edu/.
 
 ## Running
 **npm run start**
